@@ -1,11 +1,11 @@
 module.exports = {
   title: '数学与计算科学学院创新实践基地',
   tagline: '热爱技术、热爱分享',
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://https://seven-innovation-base.github.io/',
   baseUrl: '/',
   favicon: 'img/logo.png',
-  organizationName: 'SevenInnovationBase', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'seven-innovation-base', // Usually your GitHub org/user name.
+  projectName: 'seven-innovation-base.github.io', // Usually your repo name.
   themeConfig: {
     navbar: {
       title: '数学与计算科学学院创新实践基地',
@@ -34,10 +34,10 @@ module.exports = {
     footer: {
       style: 'dark',
       links: [{
-          title: 'Docs',
+          title: '文档',
           items: [{
-              label: 'Style Guide',
-              to: 'docs/',
+              label: 'Git协作练习',
+              to: 'https://seven-innovation-base.github.io/Git2Github-practice/',
             },
             {
               label: '老版本文档',
@@ -46,25 +46,30 @@ module.exports = {
           ],
         },
         {
-          title: 'Community',
+          title: '社区',
           items: [{
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'QQ 群',
+              href: 'https://mypic-1258313760.cos.ap-guangzhou.myqcloud.com/img/20200530125127.jpg',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              label: '站点问题反馈',
+              href: 'https://github.com/seven-innovation-base/official-website/issues',
             },
+            /*
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
-            },
+              html: `
+              <a href="https://www.netlify.com" target="_blank" rel="noreferrer noopener" aria-label="Deploys by Netlify">
+                <img src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" alt="Deploys by Netlify" />
+              </a>
+              `,
+            }
+            */
           ],
         },
         {
-          title: 'More',
+          title: '更多',
           items: [{
-              label: 'Blog',
+              label: '博客',
               to: 'blog',
             },
             {
@@ -73,7 +78,26 @@ module.exports = {
             },
           ],
         },
+        {
+          title: '常用链接',
+          items: [{
+              label: '桂电官网',
+              href: 'https://www.guet.edu.cn/',
+            },
+            {
+              label: '学院官网',
+              href: 'https://www.guet.edu.cn/dept7/',
+            },
+          ],
+        },
       ],
+      /*
+      logo: {
+        alt: 'Seven Innovation Base Logo',
+        src: 'img/logo.png',
+        href: '',
+      },
+      */
       copyright: `Copyright © 2003-${new Date().getFullYear()} Seven Innovation Base. Built with Docusaurus.`,
     },
   },
@@ -83,15 +107,15 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'doc1',
+          homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/',
+          editUrl: 'https://github.com/seven-innovation-base/official-website',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
-          editUrl: 'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+          editUrl: 'https://github.com/seven-innovation-base/official-website',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
