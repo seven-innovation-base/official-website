@@ -1,13 +1,17 @@
 ---
 id: StringBuilder-High-Performance-Usecase
 title: StringBuilder的高性能使用方式总结
+author: CkaiGrac
+author_title: 应用软件研发部
+author_url: https://github.com/CkaiGrac
+author_image_url: https://avatars1.githubusercontent.com/u/44230699?s=460&v=4
 tags: [Java]
 ---
 
-### StringBuilder的高性能使用方式总结
-
 #### 一、设置合理的初始长度
+
 在StringBuilder的源码中，有一个char[ ]数组，这个就是用来存储字符的。
+
 ```java
 //AbstractStringBuilder.java
 /**
@@ -19,8 +23,12 @@ char[] value;
 */
 int count;
 ```
+
 而count统计字符数量。当直接`new StringBuilder();`时，传递到父类的默认大小(capacity)为16，也就是默认状态下char[ ]数组的长度为16。
 来看一下append方法：
+
+<!--truncate-->
+
 ```java
 //AbstractStringBuilder.java
 public AbstractStringBuilder append(String str) {
@@ -59,6 +67,7 @@ private int newCapacity(int minCapacity) {
         : newCapacity;
 }
 ```
+
 从上述源码中，可以看到append方法接收String类型的参数，然后调用`ensureCapacityInternal()`方法，在这个方法里面我们可以看到做了一个判断，最小容量`minimumCapacity`是否比数组的长度大，而最小容量的大小是`len+count`。
 数组长度大于最小容量的话就要扩容，`Arrays.copyOf(value,newCapacity(minimumCapacity));`这段代码执行数组拷贝。
 从`Array.copyof(char[] original, int newLength)`可以看到第二个参数是数组新的长度，而这个新的长度来自`newCapacity()`的返回值。
@@ -95,9 +104,10 @@ StringBuilder stringBuilder2 = MyClass.obtainStringBuilder();
 stringBuilder.append(.....);
 stringBuilder2.append(.....);
 ```
+
 从上述的代码中可以看到，`obtainStringBuilder()`方法返回一个StringBuilder对象，方法中首先从ThreadLocal中取StringBuilder然后判断是否为空，如果为空的话则初始化一个StringBuilder对象，大小根据实际情况设置。否则的话就清空StringBuilder的内容来重用。
 对于同一个线程来说，每次调用`obtainStringBuilded()`方法拿到的都是同一个StringBuilder对象。但是对于不同线程来说，两个线程之间的StringBuilder对象是相互独立的，没有任何关系。
-这样的好处是减少申请内存的频率，降低GC（垃圾回收）的发生
+这样的好处是减少申请内存的频率，降低GC（垃圾回收）的发生。
 
 
 
