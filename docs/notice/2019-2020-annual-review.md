@@ -35,6 +35,8 @@ sidebar_label: 2019-2020年度考核会议
 - 应用软件研发部：部长「喻建明」，副部「刘樱桥」
 - 大数据部技术与分析部：部长「贺亚琳」，副部「班浩林」
 
+![图示](https://cdn.jsdelivr.net/gh/ssmath/mypic/20200601120333.png)
+
 ## 寄语
 
 :::warning

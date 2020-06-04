@@ -1,6 +1,6 @@
 module.exports = {
   title: '数学与计算科学学院创新实践基地',
-  tagline: '热爱技术、热爱分享',
+  tagline: '真实、专注、卓越、不设限、创新',
   url: 'https://https://seven-innovation-base.github.io/',
   baseUrl: '/',
   favicon: 'img/logo.png',
