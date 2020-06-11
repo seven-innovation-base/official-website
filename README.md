@@ -1,3 +1,14 @@
+# 环境说明
+
+[Node.js](http://nodejs.cn/) 版本 >= 10.15.1，[Yarn](https://yarn.org.cn/) 版本 >= 1.5
+
+```bash
+# 安装 yarn
+npm install -g yarn@1.5.1
+```
+
+---
+
 # Website
 
 This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
