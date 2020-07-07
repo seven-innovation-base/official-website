@@ -1,5 +1,6 @@
 module.exports = {
   docs: {
+    // 相对于 docs directory
     创新基地简介: ['intro'],
     公告: [
       'contest/contest-02',
@@ -11,6 +12,9 @@ module.exports = {
       'introduction/Software',
       'introduction/information-security',
       'introduction/Big-Data'
+    ],
+    互联网优质资源: [
+      'netsource/README',
     ],
     附: ['doc1', 'doc2', 'doc3', 'mdx'],
   },
