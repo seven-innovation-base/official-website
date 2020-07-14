@@ -52,7 +52,7 @@ yarn run start
 npm run start
 ```
 
-- Step 4：将变更提交至 GitHub，然后向本仓库发起 pull reqeust
+- Step 4：将变更提交至 GitHub，然后向本仓库（main branch）发起 pull reqeust
 
 ```bash
 git add .
