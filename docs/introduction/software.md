@@ -40,6 +40,8 @@ DevOps元素周期表
 
 >来源：https://xebialabs.com/periodic-table-of-devops-tools/
 
+![DevOps 与持续集成](https://s1.ax1x.com/2020/09/20/wTjbjO.png)
+
 - **云原生技术生态**
 
 [CNCF Cloud Native Definition v1.0](https://github.com/cncf/toc/blob/master/DEFINITION.md)
