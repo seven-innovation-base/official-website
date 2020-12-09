@@ -13,7 +13,7 @@ module.exports = {
         alt: 'Site Logo',
         src: 'img/logo.png',
       },
-      links: [{
+      items: [{
           to: 'docs/',
           activeBasePath: 'docs',
           label: '文档',

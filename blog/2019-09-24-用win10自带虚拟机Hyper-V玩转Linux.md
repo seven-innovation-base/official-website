@@ -1,5 +1,5 @@
 ---
-id: win10-hyper-v
+slug: win10-hyper-v
 title: 用win10自带虚拟机Hyper-V玩转Linux
 author: upsilverfox
 author_title: 七院学子
