@@ -74,7 +74,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/facebook/docusaurus/',
             },
           ],
         },
@@ -94,7 +94,7 @@ module.exports = {
           title: '友情链接',
           items: [{
               label: '三院科协',
-              href: 'https://github.com/sanyuankexie',
+              href: 'https://github.com/sanyuankexie/',
             },
           ],
         },
@@ -115,7 +115,6 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl: 'https://github.com/seven-innovation-base/official-website/tree/master',

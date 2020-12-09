@@ -1,4 +1,5 @@
 ---
+slug: /
 id: intro
 title: 基地简介
 sidebar_label: 基地简介
