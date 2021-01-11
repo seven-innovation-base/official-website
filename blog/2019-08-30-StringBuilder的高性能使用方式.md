@@ -1,5 +1,5 @@
 ---
-id: StringBuilder-High-Performance-Usecase
+slug: StringBuilder-High-Performance-Usecase
 title: StringBuilder的高性能使用方式总结
 author: CkaiGrac
 author_title: 应用软件研发部
