@@ -1,4 +1,5 @@
 module.exports = {
+  // plugins: [require.resolve("docusaurus-plugin-less")],
   title: '数学与计算科学学院创新实践基地',
   tagline: '真实、专注、卓越、不设限、创新',
   url: 'https://https://seven-innovation-base.github.io/',
@@ -22,6 +23,11 @@ module.exports = {
         {
           to: 'blog',
           label: '博客',
+          position: 'left'
+        },
+        {
+          to: 'members',
+          label: '团队成员',
           position: 'left'
         },
         {
@@ -129,5 +135,5 @@ module.exports = {
         },
       },
     ],
-  ],
+  ]
 };
