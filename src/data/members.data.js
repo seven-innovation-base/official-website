@@ -22,9 +22,9 @@ const members = [
     blogUrl: 'https://shansan.top',
   },
   {
-    name: '何大佬',
+    name: 'Sustart',
     avatar: 'https://cdn.jsdelivr.net/gh/MrGo123/asset@2020-1-2-1.0/headPortrait/mybloghp.jpg',
-    description: 'the king of the world',
+    description: '集cai成者',
     githubUrl: 'https://github.com/MrGo123',
     blogUrl: 'https://zy68.top/'
   },
