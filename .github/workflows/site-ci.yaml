@@ -13,8 +13,8 @@ jobs:
     steps:
       # check it to your workflow can access it
       # from: https://github.com/actions/checkout
-      - name: Checkout Repository master branch
-        uses: actions/checkout@master
+      - name: Checkout Repository main branch
+        uses: actions/checkout@main
 
       # from: https://github.com/actions/setup-node
       - name: Setup Node.js 12.x
