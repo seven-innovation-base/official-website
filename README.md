@@ -6,17 +6,17 @@
 
 # 参与站点的维护
 
-加入站点的维护并无任何门槛，你只需要懂那么一点点的 Git 操作「即可参与站点文档部分的维护」，还不熟悉 Git 协作的同学可到此练习仓练习 -> [Git2Github-practice](https://github.com/seven-innovation-base/Git2Github-practice)。当然，熟悉前端的同学，能快速上手，对站点进行定制开发。具体可以参考 Docusaurus 官方文档 -> [🔗🌹](https://v2.docusaurus.io/docs/)。
+加入站点的维护并无任何门槛，你只需要懂那么一点点的 Git 操作「即可参与站点文档部分的维护」，还不熟悉 Git 协作的同学可到此练习仓练习 -> [Git2Github-practice](https://github.com/seven-innovation-base/Git2Github-practice)。当然，熟悉前端的同学，能快速上手，对站点进行定制开发。具体可以参考 Docusaurus@v2 官方文档 -> [🔗v2.docusaurus🌹](https://v2.docusaurus.io/docs/)。
 
 ## 开发环境说明
 
 你可以选用 yarn 或 npm 任意一款包管理工具。
 
-[Node.js](http://nodejs.cn/) 版本 >= 10.15.1，[Yarn](https://yarn.org.cn/) 版本 >= 1.5
+[Node.js](http://nodejs.cn/) 版本 >= 10.15.1，[Yarn](https://www.yarnpkg.cn/getting-started/usage) 版本 >= 1.5
 
 ```bash
 # 安装 yarn
-npm install -g yarn@1.5.1
+npm install -g yarn
 ```
 
 ## 参与贡献
@@ -39,6 +39,7 @@ git branch branch-name
 安装项目依赖
 
 ```bash
+yarn set version berry
 yarn
 # or
 npm install

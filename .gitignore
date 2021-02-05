@@ -1,4 +1,5 @@
 # Dependencies
+.yarn
 /node_modules
 
 # Production
