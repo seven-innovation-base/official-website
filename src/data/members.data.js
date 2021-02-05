@@ -35,6 +35,13 @@ const members = [
     githubUrl: 'https://github.com/redhat123456',
     blogUrl: 'https://redhat123456.github.io/'
   },
+   {
+    name: 'name',
+    avatar: 'https://i.loli.net/2020/07/31/QLmPF47aCS8sYGf.jpg',
+    description: '道生一，一生二',
+    githubUrl: 'https://github.com/higgins995',
+    blogUrl: 'https://higgins995.top/',
+  }
 ];
 
 export default members;
