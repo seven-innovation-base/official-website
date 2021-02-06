@@ -1,5 +1,5 @@
 /**
- * 基地成员信息列表，使用洗牌（shuffle）算法进行随机展示
+ * 基地成员信息列表
  * name: 昵称
  * avatar：头像链接
  * description：自我描述
@@ -41,7 +41,7 @@ const members = [
     description: '道生一，一生二',
     githubUrl: 'https://github.com/higgins995',
     blogUrl: 'https://higgins995.top/',
-  }, 
+  },
   {
     name: 'lv',
     avatar: 'http://www.lvshaomei.club/images/banner/labia.jpeg',

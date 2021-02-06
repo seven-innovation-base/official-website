@@ -9,7 +9,8 @@ function MemberList() {
   // const members_shuffle = shuffle(members, { copy: true });
   return (
     <div className="row">
-      {shuffle(members, { copy: true }).map(member => {
+      {members.map(member => {
+        // console.log([member.name, member.avatar]);
         return (
         <TeamMemberProfileCard
           key={member.githubUrl+member.name}
@@ -19,7 +20,6 @@ function MemberList() {
           children={member.description}
           githubUrl={member.githubUrl}
           blogUrl={member.blogUrl}
-          qrCode={member.qrCode}
         />);
       })}
     </div>
@@ -32,11 +32,7 @@ function MembersWall() {
       <main className="container margin-vert--lg">
         <div className="text--center margin-bottom--xs">
           <h1>团队成员</h1>
-          <p>Members，以下卡片组使用
-            <a href="https://leetcode-cn.com/problems/shuffle-an-array/solution/xi-pai-suan-fa-xiang-jie-by-jackwener/" target="_blank">
-            洗牌算法
-            </a>随机排列
-          </p>
+          <p>Members</p>
         </div>
       </main>
       <MemberList />
