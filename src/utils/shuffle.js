@@ -2,7 +2,7 @@
  * Pwoered by: Fisher–Yates Shuffle：https://bost.ocks.org/mike/shuffle/
  */
 
-export default function shuffle(array) {
+function shuffle(array) {
   var m = array.length, t, i;
 
   // While there remain elements to shuffle…
@@ -19,3 +19,5 @@ export default function shuffle(array) {
 
   return array;
 }
+
+export default shuffle;

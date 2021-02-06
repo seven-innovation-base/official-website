@@ -6,7 +6,7 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
-  const members_shuffle = shuffle(members);
+  const members_shuffle = shuffle([...members]);
   return (
     <div className="row">
       {members_shuffle.map(member => (
