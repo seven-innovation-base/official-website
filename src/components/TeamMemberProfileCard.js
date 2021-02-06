@@ -12,7 +12,7 @@ export default function TeamMemberProfileCard({
 }) {
   return (
     <div className={className}>
-      <div className="card card--full-height">
+      <div className="card card--full-height shadow--md">
         <div className="card__header">
           <div className="avatar avatar--vertical">
             <img

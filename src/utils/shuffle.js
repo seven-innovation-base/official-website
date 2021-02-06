@@ -1,23 +1,16 @@
 /*
- * Pwoered by: Fisher–Yates Shuffle：https://bost.ocks.org/mike/shuffle/
+ * Pwoered by: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
  */
 
 function shuffle(array) {
-  var m = array.length, t, i;
+  var result = [], source = array.concat([]);
 
-  // While there remain elements to shuffle…
-  while (m) {
-
-    // Pick a remaining element…
-    i = Math.floor(Math.random() * m--);
-
-    // And swap it with the current element.
-    t = array[m];
-    array[m] = array[i];
-    array[i] = t;
+  while (source.length) {
+    let index = Math.floor(Math.random() * source.length);
+    result.push(source.splice(index, 1)[0]);
   }
 
-  return array;
+  return result;
 }
 
 export default shuffle;
