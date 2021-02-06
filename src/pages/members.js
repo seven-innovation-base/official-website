@@ -1,13 +1,15 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 
+import shuffle from '../utils/shuffle';
 import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
+  const members_shuffle = shuffle(members);
   return (
     <div className="row">
-      {members.map(member => (
+      {members_shuffle.map(member => (
         <TeamMemberProfileCard
           key={member.githubUrl}
           className={'col col--3 margin-bottom--md'}
@@ -29,7 +31,11 @@ function MembersWall() {
       <main className="container margin-vert--lg">
         <div className="text--center margin-bottom--xs">
           <h1>团队成员</h1>
-          <p>Members</p>
+          <p>Members，以下卡片组使用
+            <a href="https://leetcode-cn.com/problems/shuffle-an-array/solution/xi-pai-suan-fa-xiang-jie-by-jackwener/" target="_blank">
+            洗牌算法
+            </a>随机排列
+          </p>
         </div>
       </main>
       <MemberList />
