@@ -8,6 +8,7 @@ module.exports = {
   organizationName: 'seven-innovation-base', // Usually your GitHub org/user name.
   projectName: 'seven-innovation-base.github.io', // Usually your repo name.
   themeConfig: {
+    hideableSidebar: true,
     navbar: {
       title: '数学与计算科学学院创新实践基地',
       logo: {
