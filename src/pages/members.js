@@ -6,12 +6,13 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
-  const members_shuffle = shuffle([...members]);
+  // const members_shuffle = shuffle(members, { copy: true });
   return (
     <div className="row">
-      {members_shuffle.map(member => (
+      {shuffle(members, { copy: true }).map(member => {
+        return (
         <TeamMemberProfileCard
-          key={member.githubUrl}
+          key={member.githubUrl+member.name}
           className={'col col--3 margin-bottom--md'}
           name={member.name}
           avatar={member.avatar}
@@ -19,8 +20,8 @@ function MemberList() {
           githubUrl={member.githubUrl}
           blogUrl={member.blogUrl}
           qrCode={member.qrCode}
-        />
-      ))}
+        />);
+      })}
     </div>
   );
 }
