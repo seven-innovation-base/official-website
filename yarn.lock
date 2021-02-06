@@ -12001,6 +12001,7 @@ fsevents@~2.3.1:
     classnames: ^2.2.6
     react: ^16.14.0
     react-dom: ^16.14.0
+    shuffle-array: ^1.0.1
   languageName: unknown
   linkType: soft
 
@@ -12065,6 +12066,13 @@ fsevents@~2.3.1:
   bin:
     shjs: bin/shjs
   checksum: bdf68e3c2a8a6d191dde3be2800bfcfd688c126344ccaf6cf7024cdaf824d0d3523b8e514cd52264f739cbabd2b0569637dd5a8183377347225af918e03ff5dc
+  languageName: node
+  linkType: hard
+
+"shuffle-array@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "shuffle-array@npm:1.0.1"
+  checksum: 011d34d14ce589cbd2da6a282a007fa1d3b6bf20c303374edbeb92b217d864476f699cef2e92ee003e66dac7d933ce6348dcb98aa7d2f9e44c2a0c1358ccf562
   languageName: node
   linkType: hard
 

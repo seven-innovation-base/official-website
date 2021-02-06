@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
+import shuffle from 'shuffle-array';
 
-import shuffle from '../utils/shuffle';
 import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
