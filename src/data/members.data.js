@@ -41,6 +41,13 @@ const members = [
     description: '道生一，一生二',
     githubUrl: 'https://github.com/higgins995',
     blogUrl: 'https://higgins995.top/',
+  }, 
+  {
+    name: 'lv',
+    avatar: 'http://www.lvshaomei.club/images/banner/labia.jpeg',
+    description: 'The harder, the more fortunate',
+    githubUrl: 'https://github.com/Lvshaomei',
+    blogUrl: 'http://www.lvshaomei.club/',
   }
 ];
 
