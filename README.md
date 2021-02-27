@@ -1,5 +1,7 @@
 ![Site CI](https://github.com/seven-innovation-base/official-website/workflows/Site%20CI/badge.svg) ![pr badgen](https://badgen.net/github/open-prs/seven-innovation-base/official-website/) ![last commit](https://badgen.net/github/last-commit/seven-innovation-base/official-website/main) ![contributors](https://badgen.net/github/contributors/seven-innovation-base/official-website)
 
+> 国内 GitHub 访问问题：https://github.com/521xueweihan/GitHub520
+
 # 简介
 
 这里是桂林电子科技大学数学与计算科学学院创新实践基地的官方站点。站点基于 Facebook 开源站点生成器 [Docusaurus](https://github.com/facebook/docusaurus) 构建，当前使用版本：[2.0.0-alpha.69](https://v2.docusaurus.io/)。项目使用 [GItHub Action](https://github.com/seven-innovation-base/official-website/actions) 进行 CI/CD。
