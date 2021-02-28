@@ -7,7 +7,21 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  check_pull_request:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Test Build
+        run: |
+          npm i
+          npm run build
+
+  github-pages-release:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +53,7 @@ jobs:
           HostName github.com
           IdentityFile ~/.ssh/id_rsa
           EOT
+          
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
