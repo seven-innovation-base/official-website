@@ -36,7 +36,7 @@ const members = [
     blogUrl: 'https://redhat123456.github.io/'
   },
    {
-    name: 'name',
+    name: 'Higgins',
     avatar: 'https://i.loli.net/2020/07/31/QLmPF47aCS8sYGf.jpg',
     description: '道生一，一生二',
     githubUrl: 'https://github.com/higgins995',
