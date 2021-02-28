@@ -7,7 +7,27 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  check_pull_request:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Test Build
+        run: |
+          if [ -e yarn.lock ]; then
+          yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+          npm ci
+          else
+          npm i
+          fi
+          npm run build
+
+  github-pages-release:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +47,8 @@ jobs:
           npm install
 
       - name: Add key to allow access to repository
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -39,7 +61,6 @@ jobs:
           EOT
           
       - name: Release to GitHub Pages
-        if: github.event_name != 'pull_request'
         env:
           USE_SSH: true
           GIT_USER: git
