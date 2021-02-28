@@ -17,7 +17,7 @@ jobs:
           node-version: '12.x'
       - name: Test Build
         run: |
-          npm ci
+          npm i
           npm run build
 
   github-pages-release:
