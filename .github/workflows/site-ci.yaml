@@ -40,6 +40,9 @@ jobs:
           
       - name: Release to GitHub Pages
         if: github.event_name != 'pull_request'
+        env:
+          USE_SSH: true
+          GIT_USER: git
         run: |
           git config --global user.email "1329441308@qq.com"
           git config --global user.name "yeshan333"
