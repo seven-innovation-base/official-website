@@ -24,7 +24,7 @@ const members = [
   {
     name: 'Sustart',
     avatar: 'https://cdn.jsdelivr.net/gh/MrGo123/asset@2020-1-2-1.0/headPortrait/mybloghp.jpg',
-    description: '集cai成者',
+    description: '赶紧学习',
     githubUrl: 'https://github.com/MrGo123',
     blogUrl: 'https://zy68.top/'
   },
