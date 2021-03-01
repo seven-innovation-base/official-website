@@ -50,7 +50,7 @@ const members = [
     blogUrl: 'http://www.lvshaomei.club/',
   },
   {
-    name: 'szue',
+    name: 'suze',
     avatar: 'https://picture.suze666.top/images/2020/02/20/22da933f1a91d0a482256d0a88440337.jpg',
     description: '今天也是努力写代码的一天呢',
     githubUrl: 'https://github.com/suze233',
