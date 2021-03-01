@@ -70,6 +70,13 @@ const members = [
     githubUrl: 'https://github.com/010505',
     blogUrl: 'https://github.com/010505/official-website'
   },
+    {
+    name: 'norno',
+    avatar: 'https://avatars.githubusercontent.com/u/49840142?s=400&u=fcb6055d1e1f7133dc3a363e59c62d3dfc30dac9&v=4',
+    description: '0v0',
+    githubUrl: 'https://github.com/nornoya',
+    blogUrl: 'https://nornoya.github.io/'
+  },
 ];
 
 export default members;
