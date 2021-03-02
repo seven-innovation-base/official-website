@@ -50,7 +50,7 @@ const members = [
     blogUrl: 'http://www.lvshaomei.club/',
   },
   {
-    name: 'szue',
+    name: 'suze',
     avatar: 'https://picture.suze666.top/images/2020/02/20/22da933f1a91d0a482256d0a88440337.jpg',
     description: '今天也是努力写代码的一天呢',
     githubUrl: 'https://github.com/suze233',
@@ -69,6 +69,22 @@ const members = [
     description: '从菜鸟到大神',
     githubUrl: 'https://github.com/010505',
     blogUrl: 'https://github.com/010505/official-website'
+  },
+    {
+    name: 'norno',
+    avatar: 'https://avatars.githubusercontent.com/u/49840142?s=400&u=fcb6055d1e1f7133dc3a363e59c62d3dfc30dac9&v=4',
+    description: '0v0',
+    githubUrl: 'https://github.com/nornoya',
+    blogUrl: 'https://nornoya.github.io/'
+  },
+    {
+
+    name: 'ZXY39',
+
+    avatar: 'https://github.com/zxy39.png',
+    description: '愿存初心',
+    githubUrl: 'https://github.com/ZXY39',
+    blogUrl: 'https://zxy39.gitee.io/'
   },
 ];
 
