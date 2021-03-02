@@ -78,9 +78,7 @@ const members = [
     blogUrl: 'https://nornoya.github.io/'
   },
     {
-
     name: 'ZXY39',
-
     avatar: 'https://github.com/zxy39.png',
     description: '愿存初心',
     githubUrl: 'https://github.com/ZXY39',
