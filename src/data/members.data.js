@@ -43,11 +43,11 @@ const members = [
     blogUrl: 'https://higgins995.top/',
   },
   {
-    name: 'lv',
-    avatar: 'http://www.lvshaomei.club/images/banner/labia.jpeg',
+    name: 'lemon',
+    avatar: 'https://lvshaomei.github.io/images/banner/labia.jpeg',
     description: 'The harder, the more fortunate',
     githubUrl: 'https://github.com/Lvshaomei',
-    blogUrl: 'http://www.lvshaomei.club/',
+    blogUrl: 'https://lvshaomei.github.io/',
   },
   {
     name: 'suze',
