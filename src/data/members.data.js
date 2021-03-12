@@ -84,7 +84,7 @@ const members = [
     githubUrl: 'https://github.com/ZXY39',
     blogUrl: 'https://zxy39.gitee.io/'
   },
-    {
+  {
     name: 'WSX',
     avatar: 'https://raw.githubusercontent.com/SS-YSY/SS-YSY.github.io/master/1614943693671.jpg',
     description: '努力努力再努力',
