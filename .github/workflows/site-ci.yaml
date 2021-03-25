@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  check_pull_request:
+  check-pull-request:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
