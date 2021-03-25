@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 
 // import useBaseUrl from '@docusaurus/useBaseUrl';
-// import styles from './style.css';
+import styles from './style.css';
 
 function Hello() {
   return (
