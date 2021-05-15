@@ -15,6 +15,8 @@ jobs:
         with:
           node-version: 12
       - uses: amannn/action-semantic-pull-request@v3.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_MESSAGE }}
         with:
           # Configure which types are allowed.
           # Default: https://github.com/commitizen/conventional-commit-types
