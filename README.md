@@ -1,6 +1,6 @@
 ![Site CI](https://github.com/seven-innovation-base/official-website/workflows/Site%20CI/badge.svg) ![pr badgen](https://badgen.net/github/open-prs/seven-innovation-base/official-website/) ![last commit](https://badgen.net/github/last-commit/seven-innovation-base/official-website/main) ![contributors](https://badgen.net/github/contributors/seven-innovation-base/official-website)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > 国内 GitHub 访问问题：https://github.com/521xueweihan/GitHub520
@@ -75,6 +75,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://redhat123456.github.io/"><img src="https://avatars.githubusercontent.com/u/57751257?v=4?s=100" width="100px;" alt=""/><br /><sub><b>redhat123456</b></sub></a><br /><a href="https://github.com/seven-innovation-base/official-website/commits?author=redhat123456" title="Documentation">📖</a> <a href="#maintenance-redhat123456" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="https://zy68.top"><img src="https://avatars.githubusercontent.com/u/53072382?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sustart</b></sub></a><br /><a href="https://github.com/seven-innovation-base/official-website/commits?author=MrGo123" title="Documentation">📖</a></td>
   </tr>
 </table>
 
