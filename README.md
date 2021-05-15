@@ -7,7 +7,7 @@
 
 # 简介
 
-这里是桂林电子科技大学数学与计算科学学院创新实践基地的官方站点。站点基于 Facebook 开源站点生成器 [Docusaurus](https://github.com/facebook/docusaurus) 构建，当前使用版本：[2.0.0-alpha.72](https://v2.docusaurus.io/)。项目使用 [GItHub Action](https://github.com/seven-innovation-base/official-website/actions) 进行 CI/CD。
+这里是桂林电子科技大学数学与计算科学学院创新实践基地的官方站点。站点基于 Facebook 开源站点生成器 [Docusaurus](https://github.com/facebook/docusaurus) 构建，当前使用版本：[2.0.0-beta.0](https://v2.docusaurus.io/)。项目使用 [GItHub Action](https://github.com/seven-innovation-base/official-website/actions) 进行 CI/CD。
 
 # 参与站点的维护
 
@@ -44,7 +44,6 @@ git branch branch-name
 安装项目依赖
 
 ```bash
-yarn set version berry
 yarn
 # or
 npm install
