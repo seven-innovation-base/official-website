@@ -6,10 +6,10 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
-  // const members_shuffle = shuffle(members, { copy: true });
+  const members_shuffle = shuffle(members, { copy: true });
   return (
     <div className="row">
-      {members.map(member => {
+      {members_shuffle.map(member => {
         // console.log([member.name, member.avatar]);
         return (
         <TeamMemberProfileCard

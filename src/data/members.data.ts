@@ -6,7 +6,7 @@
  * githubUrl：GitHub 链接，可选
  * blogUrl：博客链接或其他媒体链接，可选
  */
-const members = [
+const members: Member[] = [
   {
     name: 'yww',
     avatar: 'https://github.com/jaslli.png',
