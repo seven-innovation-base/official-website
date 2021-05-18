@@ -23,6 +23,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Higgins995",
+      "name": "Higgins995",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67410832?v=4",
+      "profile": "http://higgins995.top",
+      "contributions": [
+        "doc",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
