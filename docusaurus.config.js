@@ -100,13 +100,27 @@ module.exports = {
               label: '学院官网',
               href: 'https://www.guet.edu.cn/dept7/',
             },
+            {
+              label: '桂电信技中心',
+              href: 'https://www.guet.edu.cn/xjzx/index.htm',
+            },
           ],
         },
         {
           title: '友情链接',
-          items: [{
+          items: [
+            {
               label: '三院科协',
               href: 'https://github.com/sanyuankexie/',
+            },
+          ],
+        },
+        {
+          title: '社区合作伙伴',
+          items: [
+            {
+              label: '牛客网',
+              href: 'https://www.nowcoder.com/',
             },
           ],
         },
