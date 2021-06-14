@@ -1,5 +1,5 @@
-![Site CI/CD Status](https://github.com/seven-innovation-base/official-website/workflows/Site%20CI/badge.svg) ![pr badgen](https://badgen.net/github/open-prs/seven-innovation-base/official-website/) ![last commit](https://badgen.net/github/last-commit/seven-innovation-base/official-website/main) ![contributors](https://badgen.net/github/contributors/seven-innovation-base/official-website) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+![Site CI](https://github.com/seven-innovation-base/official-website/workflows/Site%20CI/badge.svg) ![pr badgen](https://badgen.net/github/open-prs/seven-innovation-base/official-website/) ![last commit](https://badgen.net/github/last-commit/seven-innovation-base/official-website/main) ![contributors](https://badgen.net/github/contributors/seven-innovation-base/official-website) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > 国内 GitHub 访问缓慢问题解决方案：https://github.com/521xueweihan/GitHub520
