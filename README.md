@@ -8,7 +8,7 @@
 
 这里是桂林电子科技大学数学与计算科学学院创新创业实践基地的官方站点。站点基于 Facebook 开源站点生成器 [Docusaurus](https://github.com/facebook/docusaurus) 构建，当前使用版本：[2.0.0-beta.0](https://v2.docusaurus.io/)。项目使用 [GitHub Action](https://github.com/seven-innovation-base/official-website/actions) 进行 CI/CD。
 
-项目的 GitHub Actions 简介 - [.github/workflows](.github/workflows/intro.md)
+项目的 GitHub Actions 简介 - [.github/intro.md)](.github/intro.md)
 
 # 参与站点的维护
 
