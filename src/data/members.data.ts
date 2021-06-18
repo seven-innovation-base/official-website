@@ -1,7 +1,7 @@
 /**
  * 基地成员信息列表
  * name: 昵称
- * avatar：头像链接
+ * avatar：头像链接，也可通过 "github:用户名" 使用 GitHub 头像
  * description：自我描述
  * githubUrl：GitHub 链接，可选
  * blogUrl：博客链接或其他媒体链接，可选
@@ -9,14 +9,14 @@
 const members: Member[] = [
   {
     name: 'yww',
-    avatar: 'https://github.com/jaslli.png',
+    avatar: 'github:jaslli',
     description: '表面很菜，其实很强',
     githubUrl: 'https://github.com/jaslli',
     blogUrl: 'https://yww52.com/',
   },
   {
     name: 'yeshan333',
-    avatar: 'https://github.com/yeshan333.png',
+    avatar: 'github:yeshan333',
     description: '玄学爱好者&摸🐟大师，资深混子',
     githubUrl: 'https://github.com/yeshan333',
     blogUrl: 'https://shansan.top',
@@ -30,7 +30,7 @@ const members: Member[] = [
   },
   {
     name: 'redhat',
-    avatar: 'https://avatars.githubusercontent.com/u/57751257?s=460&u=634fb3d9085fd46aead74e7d0db0ae3d1d933f3f&v=4',
+    avatar: 'github:redhat123456',
     description: '题不可一日不刷',
     githubUrl: 'https://github.com/redhat123456',
     blogUrl: 'https://redhat123456.github.io/'
@@ -58,39 +58,49 @@ const members: Member[] = [
   },
   {
     name: 'lei',
-    avatar: 'http://github.com/Leishen-hub.jpeg',
+    avatar: 'github:Leishen-hub',
     description: '鱼',
     githubUrl: 'https://github.com/Leishen-hub',
     blogUrl: 'https://leishen-hub.github.io/',
   },
   {
     name: 'liang',
-    avatar: 'https://avatars.githubusercontent.com/u/67368157?s=460&v=4',
+    avatar: 'github:010505',
     description: '从菜鸟到大神',
     githubUrl: 'https://github.com/010505',
     blogUrl: 'https://github.com/010505/official-website'
   },
     {
     name: 'norno',
-    avatar: 'https://avatars.githubusercontent.com/u/49840142?s=400&u=fcb6055d1e1f7133dc3a363e59c62d3dfc30dac9&v=4',
+    avatar: 'github:nornoya',
     description: '0v0',
     githubUrl: 'https://github.com/nornoya',
     blogUrl: 'https://nornoya.github.io/'
   },
     {
     name: 'ZXY39',
-    avatar: 'https://github.com/zxy39.png',
+    avatar: 'github:zxy39',
     description: '愿存初心',
     githubUrl: 'https://github.com/ZXY39',
     blogUrl: 'https://zxy39.gitee.io/'
   },
   {
     name: 'WSX',
-    avatar: 'https://raw.githubusercontent.com/SS-YSY/SS-YSY.github.io/master/1614943693671.jpg',
+    avatar: 'github:SS-YSY',
     description: '努力努力再努力',
     githubUrl: 'https://github.com/SS-YSY',
     blogUrl: 'https://ss-ysy.github.io/'
   },
-];
+]
+.map(it => ({
+  ...it,
+  avatar: handleAvatar(it.avatar)
+}));
+
+function handleAvatar(avatar: string) {
+  var match = /^github\:(.+)$/.exec(avatar);
+  if (match) return "https://avatars.githubusercontent.com/" + match[1] + "?s=256";
+  return avatar;
+}
 
 export default members;
