@@ -28,8 +28,8 @@ function MemberList() {
 
 function MembersWall() {
   return (
-    <main>
-      <Layout title="团队成员">
+    <Layout title="团队成员">
+      <main>
         <div className="text--center margin-vert--lg">
           <h1>团队成员</h1>
           <p>Members</p>
@@ -47,8 +47,8 @@ function MembersWall() {
               </a>
           </p>
         </div>
-      </Layout>
-    </main>
+      </main>
+    </Layout>
   );
 }
 
