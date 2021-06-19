@@ -33,6 +33,25 @@
         "doc",
         "bug"
       ]
+    },
+    {
+      "login": "Z233",
+      "name": "Z233",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7451883?v=4",
+      "profile": "https://github.com/Z233",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lideming",
+      "name": "lideming",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14901890?v=4",
+      "profile": "http://yuuza.net",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

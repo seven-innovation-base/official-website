@@ -29,26 +29,27 @@ function MemberList() {
 function MembersWall() {
   return (
     <Layout title="团队成员">
-      <main className="container margin-vert--lg">
-        <div className="text--center margin-bottom--xs">
+      <main>
+        <div className="text--center margin-vert--lg">
           <h1>团队成员</h1>
           <p>Members</p>
         </div>
+        <div className="container">
+          <MemberList />
+        </div>
+        <div className="text--center margin-vert--lg">
+          <p>
+            <a
+              className={'button button--lg button--primary'}
+              href={"https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.ts"}
+              target={'_blank'}>
+              送我上墙
+              </a>
+          </p>
+        </div>
       </main>
-      <MemberList />
-      <div className="text--center margin-bottom--xs">
-        <p>
-          <a
-            className={'button button--lg button--primary'}
-            href={"https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.js"}
-            target={'_blank'}>
-            送我上墙
-            </a>
-        </p>
-      </div>
     </Layout>
   );
 }
 
 export default MembersWall;
-
