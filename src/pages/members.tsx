@@ -30,11 +30,18 @@ function MemberList() {
 
 
 function sort(arr) {
-  var newArr = [];
-  newArr = arr.sort(function() {
-      return Math.random() - 0.5;
-  })
-  return newArr;
+  var length = arr.length,
+  temp,
+  random;
+while(0 != length){
+  random = Math.floor(Math.random() * length)
+  length--;
+  // swap
+  temp = arr[length];
+  arr[length] = arr[random];
+  arr[random] = temp;
+}
+return arr;
 }
 
 
