@@ -1,18 +1,17 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-// import shuffle from 'shuffle-array';
+
 
 import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
-  
-  // const members_shuffle = shuffle(members, { copy: true });
+
   const Newmerber = sort(members);
   return (
     <div className="row">
       {Newmerber.map(member => {
-        // console.log([member.name, member.avatar]);
+
         return (
         <TeamMemberProfileCard
           key={member.githubUrl+member.name}
@@ -36,7 +35,6 @@ function sort(arr) {
 while(0 != length){
   random = Math.floor(Math.random() * length)
   length--;
-  // swap
   temp = arr[length];
   arr[length] = arr[random];
   arr[random] = temp;
