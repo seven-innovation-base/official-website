@@ -6,10 +6,12 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
+  
   // const members_shuffle = shuffle(members, { copy: true });
+  const Newmerber = sort1(members);
   return (
     <div className="row">
-      {members.map(member => {
+      {Newmerber.map(member => {
         // console.log([member.name, member.avatar]);
         return (
         <TeamMemberProfileCard
@@ -26,30 +28,39 @@ function MemberList() {
   );
 }
 
+
+function sort1(arr) {
+  var newArr = [];
+  newArr = arr.sort(function() {
+      return Math.random() - 0.5;
+  })
+  return newArr;
+}
+
+
 function MembersWall() {
   return (
     <Layout title="团队成员">
-      <main>
-        <div className="text--center margin-vert--lg">
+      <main className="container margin-vert--lg">
+        <div className="text--center margin-bottom--xs">
           <h1>团队成员</h1>
           <p>Members</p>
         </div>
-        <div className="container">
-          <MemberList />
-        </div>
-        <div className="text--center margin-vert--lg">
-          <p>
-            <a
-              className={'button button--lg button--primary'}
-              href={"https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.ts"}
-              target={'_blank'}>
-              送我上墙
-              </a>
-          </p>
-        </div>
       </main>
+      <MemberList />
+      <div className="text--center margin-bottom--xs">
+        <p>
+          <a
+            className={'button button--lg button--primary'}
+            href={"https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.ts"}
+            target={'_blank'}>
+            送我上墙
+            </a>
+        </p>
+      </div>
     </Layout>
   );
 }
 
 export default MembersWall;
+
