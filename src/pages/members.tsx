@@ -6,10 +6,12 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
+  
   // const members_shuffle = shuffle(members, { copy: true });
+  const Newmerber = sort(members);
   return (
     <div className="row">
-      {members.map(member => {
+      {Newmerber.map(member => {
         // console.log([member.name, member.avatar]);
         return (
         <TeamMemberProfileCard
@@ -25,6 +27,16 @@ function MemberList() {
     </div>
   );
 }
+
+
+function sort(arr) {
+  var newArr = [];
+  newArr = arr.sort(function() {
+      return Math.random() - 0.5;
+  })
+  return newArr;
+}
+
 
 function MembersWall() {
   return (
@@ -53,3 +65,4 @@ function MembersWall() {
 }
 
 export default MembersWall;
+
