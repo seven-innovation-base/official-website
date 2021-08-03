@@ -33,7 +33,7 @@ const members: Member[] = [
     avatar: 'github:redhat123456',
     description: '题不可一日不刷',
     githubUrl: 'https://github.com/redhat123456',
-    blogUrl: 'https://redhat123456.github.io/'
+    blogUrl: 'https://redhat123456.github.io/router_index/'
   },
   {
     name: 'Higgins',
