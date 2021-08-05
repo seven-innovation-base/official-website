@@ -111,7 +111,7 @@ module.exports = {
           items: [
             {
               label: '三院科协',
-              href: 'https://github.com/sanyuankexie/',
+              href: 'https://hello.kexie.space/',
             },
           ],
         },
