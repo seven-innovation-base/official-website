@@ -6,12 +6,10 @@ import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
-
   const Newmerber = sort(members);
   return (
     <div className="row">
       {Newmerber.map(member => {
-
         return (
         <TeamMemberProfileCard
           key={member.githubUrl+member.name}
@@ -29,6 +27,11 @@ function MemberList() {
 
 
 function sort(arr) {
+  var newArr = [];
+  newArr = arr.sort(function() {
+      return Math.random() - 0.5;
+  })
+  return newArr;
   var length = arr.length,
   temp,
   random;
