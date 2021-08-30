@@ -6,6 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 
+
 const features = [
   {
     title: <>算法部</>,
@@ -52,6 +53,11 @@ const features = [
     ),
   },
 ];
+
+const Video = {
+      poster: "https://hellokexie.obs.cn-north-4.myhuaweicloud.com/images/poster.png",
+      url: "https://corona-images2.obs.cn-north-4.myhuaweicloud.com/pit.mp4",
+}
 
 function Feature({imageUrl, title, description}) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -117,9 +123,20 @@ function Home() {
             </div>
           </section>
         )}
+
+       <div className="video">
+         <h3 text-align = "center">宣传视频</h3>
+         <div className="aspect-ratio">
+         <iframe src="//player.bilibili.com/player.html?aid=332930745&bvid=BV1UA411376M&cid=335090914&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+            </div>
+            </div>
+
       </main>
     </Layout>
+
   );
 }
 
 export default Home;
+
+
