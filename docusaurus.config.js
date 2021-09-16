@@ -113,6 +113,10 @@ module.exports = {
               label: '三院科协',
               href: 'https://hello.kexie.space/',
             },
+	    {
+              label: '校基地软件部',
+              href: 'https://csd.guet.ltd/',
+            },
           ],
         },
         {
