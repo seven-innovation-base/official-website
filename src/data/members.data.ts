@@ -98,6 +98,13 @@ const members: Member[] = [
     githubUrl: 'https://github.com/Axieyun',
     blogUrl: 'http://blog.axieyun.top'
   },
+  {
+    name: 'lucky_dog',
+    avatar: 'github:LuckyLXS',
+    description: '你我终会在山巅相遇',
+    githubUrl: 'https://github.com/LuckyLXS',
+    blogUrl: 'https://LuckyLXS.github.io'
+  },
 ]
 .map(it => ({
   ...it,
