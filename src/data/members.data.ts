@@ -96,7 +96,7 @@ const members: Member[] = [
     avatar: 'github:Axieyun',
     description: '生而为人，无惧挑战',
     githubUrl: 'https://github.com/Axieyun',
-    blogUrl: 'https://Axieyun.github.io/'
+    blogUrl: 'http://blog.axieyun.top'
   },
 ]
 .map(it => ({
