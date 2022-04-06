@@ -112,12 +112,19 @@ const members: Member[] = [
     githubUrl: 'https://github.com/Jellylorry',
     blogUrl: 'https://gitee.com/jellylorry'
   },
-   {
+  {
     name: 'KIKO',
     avatar: 'github:KIKO',
     description: '每天多努力一点点',
     githubUrl: 'https://github.com/2484895358',
     blogUrl: ''
+  },
+  {
+    name: 'jj123t',
+    avatar: 'github:jj123t',
+    description: 'Zzz',
+    githubUrl: 'https://github.com/jj123t',
+    blogUrl: 'https://jj123t.github.io'
   },
 ]
 .map(it => ({
