@@ -1,36 +1,133 @@
 import React from 'react';
-import Layout from '@theme/Layout';
-
-// import useBaseUrl from '@docusaurus/useBaseUrl';
+import {  Table, Tag} from "antd";
 import styles from './style.css';
+import Layout from '@theme/Layout';
+import "antd/dist/antd.css";
+// import useBaseUrl from '@docusaurus/useBaseUrl';
+
+
+const columns = [
+  {
+    title: '名字',
+    dataIndex: 'names',
+    key: 'names',
+    render: names => (
+      <>
+        {names.map(tag => {
+          return (
+            <Tag color={'blue'} key={tag}>
+              {tag.toUpperCase()}
+            </Tag>
+          );
+        })}
+      </>
+    ),
+  },
+  {
+    title: '比赛',
+    dataIndex: 'contest',
+    key: 'contest',
+  },
+  {
+    title: '奖项级别',
+    key: 'tags',
+    dataIndex: 'tags',
+    render: tags  => (
+      <>
+          {tags.map(tag => {
+              let color = "geekblue";
+              switch (tag.substr(tag.length - 2, 2)) {
+                  case "国一":
+                      color = "purple"
+                      break;
+                  case "国二":
+                      color = "magenta"
+                      break;
+                  case "国三":
+                      color = "cyan"
+                      break;
+                  case "省一":
+                      color = "volcano"
+                      break;
+                  case "省二":
+                      color = "orange"
+                      break;
+                  case "省三":
+                      color = "blue"
+                      break;
+              }
+              return (
+                  <Tag color={color} key={tag}>
+                      {tag.toUpperCase()}
+                  </Tag>
+              );
+          })}
+      </>
+  ),
+  },
+];
+
+const data = [
+  {
+    key: '1',
+    names: ['谭前程','梁樱兰','梁坤','吴思萱','李春明','梁美华'],
+    contest: '2021年高教社杯全国大学生数学建模竞赛',
+    tags: ['[1人] · 国一', '[1人] · 国二','[2人] · 省一','[1人] · 省二','[3人] · 省三'],
+  },
+  {
+    key: '2',
+    names: ['习宇兴','何壮艺','杨再骥','梁坤','李春明','谭前程'],
+    contest: '第十二届蓝桥杯全国软件和信息技术专业人才大赛',
+    tags: ['[1人] · 国二', '[2人] · 国优','[4人] · 省一','[2人] · 省二','[1人] · 省三'],
+  },
+  {
+    key: '3',
+    names: ['吕少梅','梁樱兰','谭前程'],
+    contest: '第八届全国金融与证券投资模拟实训大赛',
+    tags: ['[2人] · 国二', '[1人] · 国三'],
+  },
+  {
+    key: '4',
+    names: ['韦宇敬','梁坤','谭前程'],
+    contest: '第七届中国国际“互联网+”大学生创新创业大赛“数广集团杯”',
+    tags: ['[3人] · 省三'],
+  },
+  {
+    key: '5',
+    names: ['梁樱兰'],
+    contest: '第十届正太杯市场调查分析大赛',
+    tags: [ '[1人] · 国三'],
+  },
+  {
+    key: '6',
+    names: ['梁樱兰','梁坤'],
+    contest: '第九届泰迪杯',
+    tags: [ '[2人] · 国三'],
+  },
+  {
+    key: '7',
+    names: ['谭前程'],
+    contest: '第十一届MathorCup数学建模大赛',
+    tags: [ '[1人] · 国三'],
+  },
+  {
+    key: '8',
+    names: ['梁樱兰'],
+    contest: '第四届中青杯全国大学生数学建模',
+    tags: [ '[1人] · 国二'],
+  },
+];
+
 
 function Hello() {
   return (
-    <Layout title="Hello">
-
-      <div id="wrap">
-        <div id="head">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-      </div>
-
-      <p style={{
-        fontSize: '20px',
-        textAlign: 'justify',
-        marginLeft: '20px',
-        marginRight: '20px'
-      }}>
-        &ensp;&ensp;&ensp;&ensp;数学与计算科学学院创新实践基地自2007年成立以来,基地成员开拓创新,积极进取,在全国大学生数学建模竞赛、全国大学生数学竞赛、美赛、蓝桥杯大赛等各类大大小小的赛事中都取得了优异的成绩。在2020,蓝桥杯有两名同学取得国赛二等奖的优异成绩。并且创新基地成员获得省赛以上奖励的同学占全院报名人数的46%以上，占基地报名人数的57%以上，可以说本次蓝桥杯取得了相当不错的成绩。在全国大学生数学建模竞赛中，创新基地成员表现突出，相比去年，获奖比例和获奖等级都有明显的提高。从参加的比赛项目来看，今年创新基地的同学都在不同大大小小的比赛中取得了优异的成绩。在这个过程中他们锻炼了自己的能力，无论获奖与否，在实践中都会获得成长。以战代学，从实践中获得得绝对比“纸”上多。
-	    </p>
+    <Layout title="Hello"> 
+    <div class="_sectionContainer_yoqng_15">
+    <h1 class="ant-typography">近年参赛获奖</h1>
+    <p class="_description_cey0h_16">很多，还在整理当中，下面展示是近年国家级、省部级获奖的一部分......</p>
+    <Table className="table" 
+                 dataSource={data} columns={columns} pagination={false}/>
+            </div>
 
     </Layout>
   );
