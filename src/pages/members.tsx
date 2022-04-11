@@ -1,23 +1,25 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-
+import _ from 'lodash'
 
 import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
 function MemberList() {
+  var members1 = new Array()
+  members1 = _.shuffle(members)
   return (
     <div className="row">
-      {members.map(member => {
+      {members1.map(member1 => {
         return (
         <TeamMemberProfileCard
-          key={member.githubUrl+member.name}
+          key={member1.githubUrl+member1.name}
           className={'col col--3 margin-bottom--md'}
-          name={member.name}
-          avatar={member.avatar}
-          children={member.description}
-          githubUrl={member.githubUrl}
-          blogUrl={member.blogUrl}
+          name={member1.name}
+          avatar={member1.avatar}
+          children={member1.description}
+          githubUrl={member1.githubUrl}
+          blogUrl={member1.blogUrl}
         />);
       })}
     </div>
