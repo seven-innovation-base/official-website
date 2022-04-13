@@ -2,11 +2,12 @@ module.exports = {
   // plugins: [require.resolve("docusaurus-plugin-less")],
   title: '数学与计算科学学院创新实践基地',
   tagline: '真实、专注、卓越、不设限、创新',
-  url: 'https://https://seven-innovation-base.github.io',
+  url: 'https://seven-innovation-base.github.io',
   baseUrl: '/',
   favicon: 'img/logo.png',
   organizationName: 'seven-innovation-base', // Usually your GitHub org/user name.
   projectName: 'seven-innovation-base.github.io', // Usually your repo name.
+  deploymentBranch: 'master',
   themeConfig: {
     hideableSidebar: true,
     navbar: {
