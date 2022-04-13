@@ -1,10 +1,8 @@
 import React from 'react';
-import {  Table, Tag} from "antd";
-import styles from './style.css';
 import Layout from '@theme/Layout';
-import "antd/dist/antd.css";
-// import useBaseUrl from '@docusaurus/useBaseUrl';
+import { Table, Tag } from 'antd';
 
+import 'antd/dist/antd.css';
 
 const columns = [
   {
@@ -128,22 +126,26 @@ const data = [
     contest: '第四届中青杯全国大学生数学建模',
     tags: [ '[1人] · 国二'],
   },
-  
+
 ];
 
 
-function Hello() {
+function HistoricalHonor() {
   return (
-    <Layout title="Hello"> 
-    <div class="_sectionContainer_yoqng_15">
-    <h1 class="ant-typography">近年参赛获奖</h1>
-    <p class="_description_cey0h_16">很多，还在整理当中，下面展示是近年国家级、省部级获奖的一部分......</p>
-    <Table className="table" 
-                 dataSource={data} columns={columns} pagination={false}/>
-            </div>
-
+    <Layout title="Hello">
+      <main>
+        <div className="container">
+          <div className="text--center margin-vert--lg">
+            <h1>近年参赛获奖</h1>
+            <p>很多，还在整理当中，下面展示是近年国家级、省部级获奖的一部分......</p>
+          </div>
+          <Table
+            dataSource={data} columns={columns} pagination={false}
+          />
+        </div>
+      </main>
     </Layout>
   );
 }
 
-export default Hello;
+export default HistoricalHonor;
