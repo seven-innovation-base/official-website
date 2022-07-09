@@ -17,7 +17,7 @@ jobs:
           node-version: '12.x'
       - name: Test Build
         run: |
-          npm i
+          npm install
           npm run build
 
   github-pages-release:
@@ -31,10 +31,11 @@ jobs:
         uses: actions/checkout@main
 
       # from: https://github.com/actions/setup-node
-      - name: Setup Node.js 12.x
-        uses: actions/setup-node@master
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: "12.x"
+          node-version: 16.x
+          cache: yarn
 
       - name: Setup Dependencies
         run: |
@@ -53,7 +54,7 @@ jobs:
           HostName github.com
           IdentityFile ~/.ssh/id_rsa
           EOT
-          
+
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
