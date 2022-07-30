@@ -9,6 +9,7 @@ module.exports = {
   projectName: 'seven-innovation-base.github.io', // Usually your repo name.
   deploymentBranch: 'master',
   themeConfig: {
+    hideableSidebar: true,
     navbar: {
       title: '数学与计算科学学院创新实践基地',
       logo: {
@@ -31,18 +32,14 @@ module.exports = {
           label: '团队成员',
           position: 'left'
         },
-		    {
-		      to: 'HistoricalHonor',
-		      label: '历史荣誉',
-		      position: 'left'
-        },
-        {
-          type: 'localeDropdown',
-          position: 'right',
-        },
+		{
+		  to: 'HistoricalHonor',
+		  label: '历史荣誉',
+		  position: 'left'
+		},
         {
           href: 'https://github.com/seven-innovation-base/',
-          className: 'header-github-link',
+          label: 'GitHub',
           position: 'right',
         },
       ],
@@ -163,17 +160,5 @@ module.exports = {
         },
       },
     ],
-  ],
-  i18n: {
-    defaultLocale: 'zh',
-    locales: ['en', 'zh'],
-    localeConfigs: {
-      en: {
-        label: 'English',
-      },
-      zh: {
-        label: '简体中文',
-      },
-    },
-  },
+  ]
 };
