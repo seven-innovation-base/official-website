@@ -4,6 +4,21 @@
  * CSS files with the .module.css suffix will be treated as CSS modules
  * and scoped locally.
  */
+.hero_title {
+  color: black;
+}
+
+[data-theme=dark] .hero_title{
+  color: #fff;
+}
+
+.hero_subtitle {
+  color: black;
+}
+
+[data-theme=dark] .hero_subtitle{
+  color: #fff;
+}
 
 .heroBanner {
   padding: 4rem 0;
@@ -29,6 +44,16 @@
   align-items: center;
   padding: 2rem 0;
   width: 100%;
+  color: black;
+  background-color: #fff;
+}
+[data-theme=dark] .features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+  color: #fff;
+  background-color: black;
 }
 
 .featureImage {
@@ -47,6 +72,11 @@
 .announcementDark {
   background-color: #20232a;
   color: #fff;
+}
+
+[data-theme=dark] .announcementDark {
+  background-color: #fff;
+  color: #20232a;
 }
 
 .announcementInner {

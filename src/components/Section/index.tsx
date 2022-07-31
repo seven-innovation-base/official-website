@@ -14,7 +14,7 @@ function Section({ title, description, children, bannerStyle }: IProps) {
     return (
         <section className="Section-container">
             <div className="Section-blank" />
-            <Title level={1}>{title}</Title>
+            <Title level={1} className="Section-title">{title}</Title>
             <p className="Section-description">{description}</p>
             <div className="Section-banner" style={bannerStyle}>
                 {children}

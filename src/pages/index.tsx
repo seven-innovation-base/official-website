@@ -83,8 +83,8 @@ function Home() {
             className={classnames(styles.featureImage, 'margin-vert--md')}
             src={useBaseUrl('img/logo.png')}
           />
-          <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <h1 className={styles.hero_title}>{siteConfig.title}</h1>
+          <p className={styles.hero_subtitle}>{siteConfig.tagline}</p>
           <div className={styles.buttons}>
             <Link
               className={classnames(
