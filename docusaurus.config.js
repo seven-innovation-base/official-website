@@ -39,7 +39,7 @@ module.exports = {
 		},
         {
           href: 'https://github.com/seven-innovation-base/',
-          label: 'GitHub',
+          className: 'header-github-link',
           position: 'right',
         },
       ],
