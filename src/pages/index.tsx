@@ -6,7 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import PromotionalVideo from './PromotionalVideo';
-
+import IndexComment from "./IndexComment";
 
 const features = [
   {
@@ -121,7 +121,8 @@ function Home() {
         )}
         
       </main>
-     <PromotionalVideo />
+      <PromotionalVideo />
+      <IndexComment />
     </Layout>
     
   );
