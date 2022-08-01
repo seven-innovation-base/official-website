@@ -1,6 +1,15 @@
+.comment {
+  margin: 0 auto;
+  
+}
 .comment-list-p {
   text-align:left
 }
 .comment-list {
   width: 80%;
+  margin: 0 auto;
+}
+.Comment-setion2{
+  margin-top: 30px;
+  margin-bottom: 50px;
 }
