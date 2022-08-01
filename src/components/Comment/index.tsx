@@ -4,6 +4,7 @@ import { useState , useEffect } from 'react';
 import  './index.css'
 import axios from 'axios';
 import { CommentAPI } from '../../api';
+import Link from '@docusaurus/Link';
 
 export default function App() {
   const [data, setData] = useState([])
@@ -26,7 +27,8 @@ export default function App() {
   }, []);
 
   
-    return (
+  return (
+      <div className='comment'>
     <List
       className="comment-list"
       header={`${data.length} 条评论`}
@@ -42,7 +44,18 @@ export default function App() {
           />
         </li>
       )}
-    />
+      />
+      <div className="Comment-setion2">
+      <div className="buttons">
+            <Link
+              className={
+                'button button--outline button--secondary button--lg'}
+              to={"https://github.com/seven-innovation-base/official-website/issues/86"}>
+              我也来说几句
+            </Link>
+        </div>
+        </div>
+      </div>
   );
 };
 
