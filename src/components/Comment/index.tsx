@@ -3,6 +3,7 @@ import React from 'react';
 import { useState , useEffect } from 'react';
 import  './index.css'
 import axios from 'axios';
+import moment from 'moment';
 import { CommentAPI } from '../../api';
 import Link from '@docusaurus/Link';
 
@@ -18,7 +19,8 @@ export default function App() {
             author: res.data[i].user.login,
             avatar: res.data[i].user.avatar_url,
             content: res.data[i].body,
-            datetime: res.data[i].created_at.slice(0, 10) + " " + String(Number(res.data[i].created_at.slice(11, 12)) + 8) + res.data[i].created_at.slice(13, 19)
+            datetime: moment(res.data[i].created_at).format('YYYY-MM-DD HH:mm:ss') as unknown as string
+            
           }
           data1.push(comment)
         }
@@ -40,7 +42,7 @@ export default function App() {
             author={item.author}
             avatar={item.avatar}
             content={<p className="comment-list-p">{item.content}</p>}
-            datetime={<Tooltip title={item.datetime}><span>{item.datetime}</span></Tooltip>}
+            datetime={<span>{item.datetime}</span>}
           />
         </li>
       )}
@@ -58,7 +60,3 @@ export default function App() {
       </div>
   );
 };
-
-
-
-
