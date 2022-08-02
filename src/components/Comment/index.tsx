@@ -40,7 +40,7 @@ export default function App() {
             author={item.author}
             avatar={item.avatar}
             content={<p className="comment-list-p">{item.content}</p>}
-            datetime={<Tooltip title={item.datetime}><span>{item.datetime}</span></Tooltip>}
+            datetime={<span>{item.datetime}</span>}
           />
         </li>
       )}
