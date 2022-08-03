@@ -1,4 +1,4 @@
-import { Comment, List, Tooltip } from 'antd';
+import { Comment, List, Spin } from 'antd';
 import React from 'react';
 import { useState , useEffect } from 'react';
 import  './index.css'
@@ -9,7 +9,7 @@ import Link from '@docusaurus/Link';
 
 export default function App() {
   const [data, setData] = useState([])
-
+  const [loading , setloading] = useState(false)
   useEffect(() => {
     axios.get(CommentAPI.GithubIssueUrl)
       .then((res) => {
@@ -20,18 +20,20 @@ export default function App() {
             avatar: res.data[i].user.avatar_url,
             content: res.data[i].body,
             datetime: moment(res.data[i].created_at).format('YYYY-MM-DD HH:mm:ss') as unknown as string
-            
           }
           data1.push(comment)
         }
         setData(data1)
+        const loading1 = true;
+        setloading(loading1)
       })
   }, []);
 
   
   return (
-      <div className='comment'>
-    <List
+    <div className='comment'>
+      { <div>
+      {loading ? <List
       className="comment-list"
       header={`${data.length} 条评论`}
       itemLayout="horizontal"
@@ -41,12 +43,15 @@ export default function App() {
           <Comment
             author={item.author}
             avatar={item.avatar}
-            content={<p className="comment-list-p">{item.content}</p>}
+            content={<b><p className="comment-list-p">{item.content}</p></b>}
             datetime={<span>{item.datetime}</span>}
           />
         </li>
       )}
-      />
+      /> : <Spin tip="Loading...">
+    </Spin>} 
+    </div> }
+    
       <div className="Comment-setion2">
       <div className="buttons">
             <Link
