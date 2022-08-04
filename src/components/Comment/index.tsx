@@ -48,7 +48,7 @@ export default function App() {
           />
         </li>
       )}
-      /> : <Spin tip="Loading...">
+      /> : <Spin tip="Loading..." size="large">
     </Spin>} 
     </div> }
     
