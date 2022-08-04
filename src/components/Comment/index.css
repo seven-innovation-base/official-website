@@ -2,7 +2,17 @@
   margin: 0 auto;
 }
 .comment-list-p {
-  text-align:left
+  text-align:left;
+}
+[data-theme=dark] .comment-list-p {
+  text-align:left;
+  color: #fff;
+}
+.comment-list-name {
+  color: black;
+}
+[data-theme=dark] .comment-list-name {
+  color: #fff;
 }
 .comment-list {
   width: 80%;

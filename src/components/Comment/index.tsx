@@ -41,10 +41,10 @@ export default function App() {
       renderItem={item => (
         <li>
           <Comment
-            author={item.author}
+            author={<div className='comment-list-name'>{item.author}</div>}
             avatar={item.avatar}
             content={<b><p className="comment-list-p">{item.content}</p></b>}
-            datetime={<span>{item.datetime}</span>}
+            datetime={<span className='comment-list-name'>{item.datetime}</span>}
           />
         </li>
       )}
