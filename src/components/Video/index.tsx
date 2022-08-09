@@ -2,8 +2,7 @@ import React  from 'react';
 
 function Video(){
   return (
-    <iframe height="750" width="80%" src="//player.bilibili.com/player.html?aid=762641517&bvid=BV1k64y1a72s&cid=399438123&page=1" scrolling="no" border="0" frameBorder="no" framespacing="0" > </iframe>
-    
+    <iframe height="750" width="80%" src="//player.bilibili.com/player.html?aid=644252413&bvid=BV1KY4y1A7Qv&cid=798623842&page=1" scrolling="no" border="0" frameBorder="no" framespacing="0" > </iframe>
   );
 }
 
