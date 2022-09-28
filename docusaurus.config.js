@@ -32,11 +32,16 @@ module.exports = {
           label: '团队成员',
           position: 'left'
         },
-		{
-		  to: 'HistoricalHonor',
-		  label: '历史荣誉',
-		  position: 'left'
-		},
+		    {
+		      to: 'HistoricalHonor',
+	     	  label: '历史荣誉',
+		      position: 'left'
+        },
+        {
+          to: 'IndexRegistration',
+          label: '加入我们！',
+          position: 'left'
+        },
         {
           href: 'https://github.com/seven-innovation-base/',
           className: 'header-github-link',

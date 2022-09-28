@@ -1,7 +1,5 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-
-
 import members from '../data/members.data';
 import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
