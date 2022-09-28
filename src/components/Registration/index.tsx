@@ -15,7 +15,6 @@ export default function Registration() {
   var QQnumber=''
 
 const submit = () => {
-  console.log('asdasf')
   console.log(studentId)
   console.log(studentName)
   console.log(QQnumber)
@@ -72,12 +71,13 @@ useEffect(() => {
   }
   function inputChange1(e) {
   console.log(e)
-  studentName = e;
+  studentId = e;
   }
   function inputChange2(e) {
   console.log(e)
-  studentName = e;
+  QQnumber = e;
   }
+
 
   
   return (
