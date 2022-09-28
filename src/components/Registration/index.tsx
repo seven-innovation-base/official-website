@@ -78,6 +78,7 @@ useEffect(() => {
   QQnumber = e;
   }
 
+
   
   return (
     <div className="Registration">
