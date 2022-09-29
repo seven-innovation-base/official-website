@@ -60,3 +60,15 @@
 .rc-virtual-list-holder-inner {
   flex-direction: row !important ;
 }
+@media Registration and (max-width: 966px) {
+  .show {
+    padding-left: 5%;
+    padding-right:5%;
+   
+  }
+  .list{
+    padding-left: 20%;
+    text-align: center; 
+    position: relative;
+  }
+}
