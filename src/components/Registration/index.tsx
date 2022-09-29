@@ -54,7 +54,7 @@ useEffect(() => {
       for (var i = 0; i < res.data.data.length; i++) {
         var comment = {
           id: i,
-          url : 'https://api.vvhan.com/api/qt?qq=' + res.data.data[i]
+          url :'http://q1.qlogo.cn/g?b=qq&nk=' + res.data.data[i] + '&s=5'
         }
         data1.push(comment)
       }
