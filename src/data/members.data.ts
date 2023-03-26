@@ -134,11 +134,11 @@ const members: Member[] = [
     blogUrl: 'https://www.cnblogs.com/Z-dong/',
   },
   {
-    name: '20kkk', 
-    avatar: 'github:20kkk',
-    description: '摸鱼',
-    githubUrl: 'https://github.com/20kkk',
-    blogUrl: 'https://www.cnblogs.com/20kkk',
+    name: 'zqqqj', 
+    avatar: 'github:zqqqj',
+    description: '知行合一',
+    githubUrl: 'https://github.com/zqqqqqqj1110',
+    blogUrl: 'https://zqqqqqqj1110.github.io/',
   },
 ]
 .map(it => ({
