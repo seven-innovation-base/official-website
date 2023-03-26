@@ -135,7 +135,7 @@ const members: Member[] = [
   },
   {
     name: 'zqqqj', 
-    avatar: 'github:zqqqqqqj1110',
+    avatar: 'github:zqqqj',
     description: '知行合一',
     githubUrl: 'https://github.com/zqqqqqqj1110',
     blogUrl: 'https://zqqqqqqj1110.github.io/',
