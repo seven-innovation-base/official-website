@@ -121,7 +121,7 @@ module.exports = {
             },
 	    {
               label: '校基地软件部',
-              href: 'https://csd.guet.ltd/',
+              href: 'https://csd.moe/',
             },
           ],
         },
