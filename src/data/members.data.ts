@@ -134,7 +134,7 @@ const members: Member[] = [
     blogUrl: 'https://www.cnblogs.com/Z-dong/',
   },
   {
-    name: 'zqqqj', 
+    name: '你猜猜我叫什么', 
     avatar: 'github:zqqqqqqj1110',
     description: '知行合一',
     githubUrl: 'https://github.com/zqqqqqqj1110',
