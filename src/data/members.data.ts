@@ -146,7 +146,7 @@ const members: Member[] = [
     description: '低调~~~',
     githubUrl: 'https://github.com/DiDiiDiii',
     blogUrl: 'https://github.com/DiDiiDiii',
-  }
+  },
 ]
 .map(it => ({
   ...it,
