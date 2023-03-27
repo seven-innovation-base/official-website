@@ -134,12 +134,19 @@ const members: Member[] = [
     blogUrl: 'https://www.cnblogs.com/Z-dong/',
   },
   {
-    name: '你猜猜我叫什么', 
+    name: '爱用酒精勾兑', 
     avatar: 'github:zqqqqqqj1110',
     description: '知行合一',
     githubUrl: 'https://github.com/zqqqqqqj1110',
     blogUrl: 'https://zqqqqqqj1110.github.io/',
   },
+    {
+    name: '情用香烟麻醉', 
+    avatar: 'github:DiDiiDiii',
+    description: '低调~~~',
+    githubUrl: 'https://github.com/DiDiiDiii',
+    blogUrl: 'https://github.com/DiDiiDiii',
+  }
 ]
 .map(it => ({
   ...it,
