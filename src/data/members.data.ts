@@ -140,7 +140,7 @@ const members: Member[] = [
     githubUrl: 'https://github.com/zqqqqqqj1110',
     blogUrl: 'https://zqqqqqqj1110.github.io/',
   },
-  {
+    {
     name: '情用香烟麻醉', 
     avatar: 'github:DiDiiDiii',
     description: '低调~~~',
