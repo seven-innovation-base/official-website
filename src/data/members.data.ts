@@ -114,7 +114,7 @@ const members: Member[] = [
   },
   {
     name: 'KIKO',
-    avatar: 'github:KIKO',
+    avatar: 'github:2484895358',
     description: '每天多努力一点点',
     githubUrl: 'https://github.com/2484895358',
     blogUrl: ''
