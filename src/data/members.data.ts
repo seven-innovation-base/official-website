@@ -8,6 +8,13 @@
  */
 const members: Member[] = [
   {
+    name: 'redhat',
+    avatar: 'github:redhat123456',
+    description: '题不可一日不刷',
+    githubUrl: 'https://github.com/redhat123456',
+    blogUrl: 'https://redhat123456.github.io/router_index/'
+  },
+  {
     name: 'yww',
     avatar: 'github:jaslli',
     description: '表面很菜，其实很强',
@@ -27,13 +34,6 @@ const members: Member[] = [
     description: '赶紧学习',
     githubUrl: 'https://github.com/MrGo123',
     blogUrl: 'https://zy68.top/'
-  },
-  {
-    name: 'redhat',
-    avatar: 'github:redhat123456',
-    description: '题不可一日不刷',
-    githubUrl: 'https://github.com/redhat123456',
-    blogUrl: 'https://redhat123456.github.io/router_index/'
   },
   {
     name: 'Higgins',
