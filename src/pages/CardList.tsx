@@ -1,12 +1,12 @@
 import React from 'react';
-import { Card, Col, Row, Slider, Collapse, Tag } from 'antd';
+import {Collapse, Tag } from 'antd';
 import 'antd/dist/antd.css';
 const { Panel } = Collapse;
 
 
 
-function cardlist(props){
-    let datas = []
+function CardList(props){
+    let datas
     datas = props.datas
     return(
     <>
@@ -22,4 +22,4 @@ function cardlist(props){
     )
 }
 
-export default cardlist;
+export default CardList;

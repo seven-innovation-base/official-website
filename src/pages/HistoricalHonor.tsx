@@ -1,20 +1,7 @@
 import React from 'react';
-import Layout from '@theme/Layout';
-import { Card, Col, Row, Slider, Collapse, Divider, Space, Tag } from 'antd';
-const { Panel } = Collapse;
+import { Card, Col, Row, Collapse } from 'antd';
 import 'antd/dist/antd.css';
-import cardlist from "./cardlist";
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  MinusCircleOutlined,
-  SyncOutlined,
-} from '@ant-design/icons';
-import {actionStatusColor} from "@docusaurus/core/lib/commands/swizzle/common";
-import 'antd/dist/antd.css';
-import Cardlist from "./cardlist";
+import CardList from "./CardList";
 
 const datas_lanqiao = [
     {
@@ -129,7 +116,7 @@ const datas_model = [
     },
 ]
 
-function HistoricalHonor(mun) {
+function HistoricalHonor() {
      return (
             <>
                 <div className="container">
@@ -141,20 +128,20 @@ function HistoricalHonor(mun) {
                 <Row gutter={16}>
                     <Col span={8}>
                         <Card title="蓝桥杯" bordered={false}>
-                                <Cardlist datas={datas_lanqiao}></Cardlist>
+                                <CardList datas={datas_lanqiao}></CardList>
                         </Card>
                     </Col>
                     <Col span={8}>
                         <Card title="mathorcup杯" bordered={false}>
                             <Collapse defaultActiveKey={['1']}>
-                                <Cardlist datas={datas_mmb}></Cardlist>
+                                <CardList datas={datas_mmb}></CardList>
                             </Collapse>
                         </Card>
                     </Col>
                     <Col span={8}>
                         <Card title="数模" bordered={false}>
                             <Collapse defaultActiveKey={['1']}>
-                                <Cardlist datas={datas_model}></Cardlist>
+                                <CardList datas={datas_model}></CardList>
                             </Collapse>
                         </Card>
                     </Col>
