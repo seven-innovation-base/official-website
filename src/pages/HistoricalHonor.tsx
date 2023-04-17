@@ -2,121 +2,23 @@ import React from 'react';
 import { Card, Col, Row, Collapse } from 'antd';
 import 'antd/dist/antd.css';
 import CardList from "./CardList";
+import {CMCM_members, LanQiao_members, MathorCup_members} from "../data/honormenbers";
 
-const datas_lanqiao = [
-    {
-        key: '0',
-        member: '1',
-        aword: '国家一等奖',
-        color: 'purple',
-        count: 1
-    },
-    {
-        key: '1',
-        member: ['1','2','haha'],
-        aword: '国家二等奖',
-        color: 'magenta',
-        count: 1
-    },
-    {
-        key: '2',
-        member: '3',
-        aword: '国家三等奖',
-        color: 'red',
-        count: 1
-    },
-    {
-        key: '3',
-        member: ['5','6'],
-        aword: '省级一等奖',
-        color: 'volcano',
-        count: 1,
-    },
-    {
-        key: '4',
-        member: ['5','6'],
-        aword: '省级二等奖',
-        color: 'orange',
-        count: 1,
-    },
-    {
-        key: '5',
-        member: ['5','6'],
-        aword: '省级三等奖',
-        color: 'gold',
-        count: 1,
-    },
-];
-
-const datas_mmb = [
-    {
-        key: '0',
-        member: '1',
-        aword: '一等奖',
-        color: 'purple',
-        count: 1
-    },
-    {
-        key: '1',
-        member: ['1','2','haha'],
-        aword: '二等奖',
-        color: 'magenta',
-        count: 3
-    },
-    {
-        key: '2',
-        member: '3',
-        aword: '三等奖',
-        color: 'red',
-        count: 1
-    },
-]
-const datas_model = [
-    {
-        key: '0',
-        member: '李春明（超级大佬）',
-        aword: '知网研学奖',
-        color: 'purple',
-        count: 1
-    },
-    {
-        key: '1',
-        member: '1',
-        aword: '国家一等奖',
-        color: 'magenta',
-        count: 1
-    },
-    {
-        key: '2',
-        member: '2',
-        aword: '国家二等奖',
-        color: 'red',
-        count: 1
-    },
-        {
-        key: '3',
-        member: '1',
-        aword: '省级一等奖',
-        color: 'volcano',
-        count: 1,
-    },
-    {
-        key: '4',
-        member: ['5','6'],
-        aword: '省级二等奖',
-        color: 'orange',
-        count: 1,
-    },
-    {
-        key: '5',
-        member: ['5','6'],
-        aword: '省级三等奖',
-        color: 'gold',
-        count: 1,
-    },
-]
 
 function HistoricalHonor() {
+     const Contest1 = '比赛1'
+     const Contest2 = '比赛2'
+     const Contest3 = '比赛3'
+     const Contest4 = '比赛4'
+     const Contest5 = '比赛5'
+     const Contest6 = '比赛6'
+     const Contest7 = '比赛7'
+     const Contest8 = '比赛8'
+     const Contest9 = '比赛9'
+     const Contest10 = '比赛10'
+     const Contest11 = '比赛11'
+     const Contest12 = '比赛12'
+
      return (
             <>
                 <div className="container">
@@ -126,22 +28,85 @@ function HistoricalHonor() {
                     </div>
                 </div>
                 <Row gutter={16}>
-                    <Col span={8}>
-                        <Card title="蓝桥杯" bordered={false}>
-                                <CardList datas={datas_lanqiao}></CardList>
+                    <Col span={6}>
+                        <Card title={Contest1} bordered={false}>
+                                <CardList datas={CMCM_members}></CardList>
                         </Card>
                     </Col>
-                    <Col span={8}>
-                        <Card title="mathorcup杯" bordered={false}>
+                    <Col span={6}>
+                        <Card title={Contest2} bordered={false}>
                             <Collapse defaultActiveKey={['1']}>
-                                <CardList datas={datas_mmb}></CardList>
+                                <CardList datas={CMCM_members}></CardList>
                             </Collapse>
                         </Card>
                     </Col>
-                    <Col span={8}>
-                        <Card title="数模" bordered={false}>
+                    <Col span={6}>
+                        <Card title={Contest3} bordered={false}>
                             <Collapse defaultActiveKey={['1']}>
-                                <CardList datas={datas_model}></CardList>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest4} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                </Row>
+                <Row gutter={32}>
+                    <Col span={6}>
+                        <Card title={Contest5} bordered={false}>
+                                <CardList datas={CMCM_members}></CardList>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest6} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest7} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest8} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                </Row>
+                <Row gutter={32}>
+                    <Col span={6}>
+                        <Card title={Contest9} bordered={false}>
+                                <CardList datas={CMCM_members}></CardList>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest10} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest11} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
+                            </Collapse>
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card title={Contest12} bordered={false}>
+                            <Collapse defaultActiveKey={['1']}>
+                                <CardList datas={CMCM_members}></CardList>
                             </Collapse>
                         </Card>
                     </Col>
