@@ -56,7 +56,7 @@ const LanQiao_members= [
 const CMCM_members = [
     {
         key: '0',
-        member: '李春明（超级大佬）',
+        member: '1',
         aword: '知网研学奖',
         color: 'purple',
         count: 1
@@ -122,3 +122,16 @@ const MathorCup_members = [
         count: 1
     },
 ]
+
+const race = [
+{
+        key: '0',
+        member: '1',
+        aword: '一等奖',
+        color: 'purple',
+        count: 1
+    },
+]
+
+
+export {CMCM_members, MathorCup_members, LanQiao_members}
