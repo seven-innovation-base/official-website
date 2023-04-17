@@ -4,7 +4,6 @@ import 'antd/dist/antd.css';
 const { Panel } = Collapse;
 
 
-
 function CardList(props){
     let datas
     datas = props.datas
