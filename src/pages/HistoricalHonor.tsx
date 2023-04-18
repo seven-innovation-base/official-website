@@ -6,6 +6,8 @@ import {CMCM_members, LanQiao_members, MathorCup_members} from "../data/honormen
 import Layout from '@theme/Layout';
 
 
+
+
 function HistoricalHonor() {
      const Contest1 = '比赛1'
      const Contest2 = '比赛2'
@@ -21,7 +23,8 @@ function HistoricalHonor() {
      const Contest12 = '比赛12'
 
      return (
-            <Layout>
+            <Layout >
+              <div style={{width: '80%',margin:'auto'}}>
                 <div className="container">
                     <div className="text--center margin-vert--lg">
                         <h1>近年参赛获奖</h1>
@@ -112,6 +115,7 @@ function HistoricalHonor() {
                         </Card>
                     </Col>
                 </Row>
+                </div>
             </Layout>
 
         )
