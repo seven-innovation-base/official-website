@@ -3,6 +3,7 @@ import { Card, Col, Row, Collapse } from 'antd';
 import 'antd/dist/antd.css';
 import CardList from "./CardList";
 import {CMCM_members, LanQiao_members, MathorCup_members} from "../data/honormenbers";
+import Layout from '@theme/Layout';
 
 
 function HistoricalHonor() {
@@ -20,7 +21,7 @@ function HistoricalHonor() {
      const Contest12 = '比赛12'
 
      return (
-            <>
+            <Layout>
                 <div className="container">
                     <div className="text--center margin-vert--lg">
                         <h1>近年参赛获奖</h1>
@@ -111,7 +112,7 @@ function HistoricalHonor() {
                         </Card>
                     </Col>
                 </Row>
-            </>
+            </Layout>
 
         )
 }
