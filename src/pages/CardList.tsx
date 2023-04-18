@@ -9,7 +9,7 @@ function CardList(props){
     datas = props.datas
     return(
     <>
-        <Collapse defaultActiveKey={['1']}>
+        <Collapse defaultActiveKey={['0']}>
         {datas.map((data, index) => (
             // key有问题，我想展开的是第一栏(key->data.index)
             <Panel header={data.aword} key={data.key} extra={<Tag color={data.color}>{data.count}人</Tag>}>
