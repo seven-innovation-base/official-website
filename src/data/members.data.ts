@@ -151,8 +151,8 @@ const members: Member[] = [
     name: '邓声源', 
     avatar: 'github:dsylxt',
     description: ' ',
-    githubUrl: 'https://dsylxt.github.io/',
-    blogUrl: 'https://github.com/dsylxt/dsylxt.github.io',
+    githubUrl: 'https://github.com/dsylxt/dsylxt.github.io',
+    blogUrl: 'https://dsylxt.github.io/',
   },
 ]
 .map(it => ({
