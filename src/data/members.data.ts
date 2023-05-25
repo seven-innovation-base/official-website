@@ -1,10 +1,10 @@
 /**
  * 基地成员信息列表
- * name: 昵称
+ * name: 邓声源
  * avatar：头像链接，也可通过 "github:用户名" 使用 GitHub 头像
  * description：自我描述
- * githubUrl：GitHub 链接，可选
- * blogUrl：博客链接或其他媒体链接，可选
+ * githubUrl：https://github.com/dsylxt/dsylxt.github.io
+ * blogUrl：https://dsylxt.github.io/
  */
 const members: Member[] = [
   {
