@@ -1,10 +1,10 @@
 /**
  * 基地成员信息列表
- * name: 邓声源
+ * name: 昵称
  * avatar：头像链接，也可通过 "github:用户名" 使用 GitHub 头像
  * description：自我描述
- * githubUrl：https://github.com/dsylxt/dsylxt.github.io
- * blogUrl：https://dsylxt.github.io/
+ * githubUrl：GitHub 链接，可选
+ * blogUrl：博客链接或其他媒体链接，可选
  */
 const members: Member[] = [
   {
@@ -146,6 +146,13 @@ const members: Member[] = [
     description: '低调~~~',
     githubUrl: 'https://github.com/DiDiiDiii',
     blogUrl: 'https://github.com/DiDiiDiii',
+  },
+  {
+    name: '邓声源', 
+    avatar: 'github:dsylxt',
+    description: '',
+    githubUrl: 'https://dsylxt.github.io/',
+    blogUrl: 'https://github.com/dsylxt/dsylxt.github.io',
   },
 ]
 .map(it => ({
