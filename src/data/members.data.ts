@@ -150,7 +150,7 @@ const members: Member[] = [
   {
     name: '邓声源', 
     avatar: 'github:dsylxt',
-    description: '',
+    description: ' ',
     githubUrl: 'https://dsylxt.github.io/',
     blogUrl: 'https://github.com/dsylxt/dsylxt.github.io',
   },
