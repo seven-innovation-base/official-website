@@ -147,6 +147,13 @@ const members: Member[] = [
     githubUrl: 'https://github.com/DiDiiDiii',
     blogUrl: 'https://github.com/DiDiiDiii',
   },
+  {
+    name: '邓声源', 
+    avatar: 'github:',
+    description: '思源湖鼠鼠',
+    githubUrl: 'https://github.com/dsylxt/dsylxt.github.io',
+    blogUrl: 'https://dsylxt.github.io/',
+  },
 ]
 .map(it => ({
   ...it,
