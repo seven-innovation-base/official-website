@@ -147,7 +147,7 @@ const members: Member[] = [
     githubUrl: 'https://github.com/DiDiiDiii',
     blogUrl: 'https://github.com/DiDiiDiii',
   },
-  {
+    {
     name: 'xunyue', 
     avatar: 'github:dsylxt',
     description: '人海山川，不过尔尔',
