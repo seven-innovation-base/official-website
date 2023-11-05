@@ -138,7 +138,7 @@ const members: Member[] = [
     avatar: 'github:zqqqqqqj1110',
     description: '知行合一',
     githubUrl: 'https://github.com/zqqqqqqj1110',
-    blogUrl: 'http://47.113.196.76/',
+    blogUrl: 'http://8.130.141.48/',
   },
   {
     name: '情用香烟麻醉', 
