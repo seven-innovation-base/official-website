@@ -164,7 +164,7 @@ const members: Member[] = [
   {
     name: '新手佳佳', 
     avatar: 'github:xinshoujiajia',
-    description: '人海山川，不过尔尔',
+    description: '啥都不会，啥都想学',
     blogUrl: 'https://xinshoujiajia.github.io/',
   },
 ]
