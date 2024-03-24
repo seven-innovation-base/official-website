@@ -8,7 +8,7 @@
  */
 const members: Member[] = [
   {
-    name: 'redhat',
+    name: 'Tanger',
     avatar: 'github:redhat123456',
     description: '题不可一日不刷',
     githubUrl: 'https://github.com/redhat123456',
