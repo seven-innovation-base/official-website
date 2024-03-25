@@ -167,6 +167,12 @@ const members: Member[] = [
     description: '啥都不会，啥都想学',
     blogUrl: 'https://xinshoujiajia.github.io/',
   },
+  {name: '昵称未知',
+   avatar: 'github:unknown-v7',
+   description: '机油哒',
+   githubUrl: 'https://github.com/unknown-v7.github.io/',
+   blogUrl: 'https://unknown-v7.io/',
+  },  
 ]
 .map(it => ({
   ...it,
