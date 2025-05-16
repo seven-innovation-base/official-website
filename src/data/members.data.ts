@@ -173,6 +173,12 @@ const members: Member[] = [
    githubUrl: 'https://github.com/unknown-v7.github.io/',
    blogUrl: 'https://unknown-v7.io/',
   },  
+  {
+    name: 'lelouch', 
+    avatar: 'github:lelouch',
+    description: 'zero',
+    blogUrl: 'https://lelouch04321.github.io/',
+  },
 ]
 .map(it => ({
   ...it,
