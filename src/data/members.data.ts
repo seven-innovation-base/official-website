@@ -179,6 +179,13 @@ const members: Member[] = [
     description: 'zero',
     blogUrl: 'https://lelouch04321.github.io/',
   },
+  {
+    name: '西东温',
+    avatar: 'https://xidongwe.github.io/%E5%9B%BE%E7%89%87/07618237eb8bb8651fee9b3db77ce636492309796.jpg@1192w.jpg',
+    description: '泥嚎人类',
+    githubUrl: 'https://github.com/XiDongWe/XiDongWe.github.io',
+    blogUrl: 'XiDongWe.github.io/',
+  },
 ]
 .map(it => ({
   ...it,
