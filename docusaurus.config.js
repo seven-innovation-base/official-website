@@ -9,14 +9,14 @@ module.exports = {
   projectName: 'seven-innovation-base.github.io', // Usually your repo name.
   deploymentBranch: 'master',
   themeConfig: {
-    hideableSidebar: true,
     navbar: {
       title: '数学与计算科学学院创新实践基地',
       logo: {
         alt: 'Site Logo',
         src: 'img/logo.png',
       },
-      items: [{
+      items: [
+        {
           to: 'docs/',
           activeBasePath: 'docs',
           label: '文档',
@@ -25,22 +25,17 @@ module.exports = {
         {
           to: 'blog',
           label: '博客',
-          position: 'left'
+          position: 'left',
         },
         {
           to: 'members',
           label: '团队成员',
-          position: 'left'
-        },
-		    {
-		      to: 'HistoricalHonor',
-	     	  label: '历史荣誉',
-		      position: 'left'
+          position: 'left',
         },
         {
-          to: 'IndexRegistration',
-          label: '加入我们！',
-          position: 'left'
+          to: 'HistoricalHonor',
+          label: '历史荣誉',
+          position: 'left',
         },
         {
           href: 'https://github.com/seven-innovation-base/',
@@ -51,9 +46,11 @@ module.exports = {
     },
     footer: {
       style: 'dark',
-      links: [{
+      links: [
+        {
           title: '文档',
-          items: [{
+          items: [
+            {
               label: 'Git协作练习',
               to: 'https://seven-innovation-base.github.io/Git2Github-practice/',
             },
@@ -65,7 +62,8 @@ module.exports = {
         },
         {
           title: '社区',
-          items: [{
+          items: [
+            {
               label: 'QQ 群',
               href: 'https://mypic-1258313760.cos.ap-guangzhou.myqcloud.com/img/20200530125127.jpg',
             },
@@ -86,7 +84,8 @@ module.exports = {
         },
         {
           title: '更多',
-          items: [{
+          items: [
+            {
               label: '博客',
               to: 'blog',
             },
@@ -98,7 +97,8 @@ module.exports = {
         },
         {
           title: '常用链接',
-          items: [{
+          items: [
+            {
               label: '桂电官网',
               href: 'https://www.guet.edu.cn/',
             },
@@ -119,7 +119,7 @@ module.exports = {
               label: '三院科协',
               href: 'https://hello.kexie.space/',
             },
-	    {
+            {
               label: '校基地软件部',
               href: 'https://csd.moe/',
             },
@@ -150,20 +150,19 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          // It is recommended to set document id as docs home page (`docs/` path).
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: 'https://github.com/seven-innovation-base/official-website/tree/main',
+          editUrl:
+            'https://github.com/seven-innovation-base/official-website/tree/main',
         },
         blog: {
           showReadingTime: true,
-          // Please change this to your repo.
-          editUrl: 'https://github.com/seven-innovation-base/official-website/tree/main',
+          editUrl:
+            'https://github.com/seven-innovation-base/official-website/tree/main',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
       },
     ],
-  ]
-};
+  ],
+}
