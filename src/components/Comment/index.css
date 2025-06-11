@@ -13,7 +13,7 @@
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 16px 80px; /* 底部加 padding，避免贴边 */
+  padding: 0 16px; /* 底部加 padding，避免贴边 */
   box-sizing: border-box;
 }
 

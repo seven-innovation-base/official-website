@@ -4,6 +4,7 @@ import './index.css';
 import axios from 'axios';
 import moment from 'moment';
 import { CommentAPI } from '../../api';
+import Link from '@docusaurus/Link';
 
 
 function parseContent(content) {
@@ -112,7 +113,18 @@ export default function App() {
         )}
       />
     </Spin>
+    <div className="Comment-setion2">
+      <div className="buttons">
+        <Link
+          className="button button--outline button--secondary button--lg"
+          to="https://github.com/FEMATHS/cm.fesmpn.space/issues/7"
+        >
+          我也来说几句
+        </Link>
+      </div>
+    </div>
   </div>
 );
+
 
 }
