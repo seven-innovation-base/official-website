@@ -23,6 +23,24 @@ function parseContent(content) {
   };
 }
 
+
+function parseContent(content) {
+  const lines = content.split('\n');
+  const replyLines = [];
+  const mainLines = [];
+  lines.forEach(line => {
+    if (line.trim().startsWith('>')) {
+      replyLines.push(line.replace(/^>\s?/, ''));
+    } else {
+      mainLines.push(line);
+    }
+  });
+  return {
+    replyContent: replyLines.join('\n'),
+    mainContent: mainLines.join('\n'),
+  };
+}
+
 export default function App() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,7 +130,16 @@ export default function App() {
         )}
       />
     </Spin>
+    <div className="Comment-setion2">
+      <div className="buttons">
+        <Link
+          className="button button--outline button--secondary button--lg"
+          to="https://github.com/seven-innovation-base/official-website/issues/86"
+        >
+          我也来说几句
+        </Link>
+      </div>
+    </div>
   </div>
 );
-
 }
