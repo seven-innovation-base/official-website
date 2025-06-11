@@ -11,14 +11,9 @@ module.exports = {
       'introduction/Algorithms',
       'introduction/Software',
       'introduction/information-security',
-      'introduction/Big-Data'
+      'introduction/Big-Data',
     ],
-    成长: [
-      'growth/growth'
-    ],
-    互联网优质资源: [
-      'netsource/README',
-    ],
-    附: ['doc1', 'doc2', 'doc3', 'mdx'],
+    成长: ['growth/growth'],
+    互联网优质资源: ['netsource/README'],
   },
-};
+}
