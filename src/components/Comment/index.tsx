@@ -5,25 +5,6 @@ import axios from 'axios';
 import moment from 'moment';
 import { CommentAPI } from '../../api';
 
-
-function parseContent(content) {
-  const lines = content.split('\n');
-  const replyLines = [];
-  const mainLines = [];
-  lines.forEach(line => {
-    if (line.trim().startsWith('>')) {
-      replyLines.push(line.replace(/^>\s?/, ''));
-    } else {
-      mainLines.push(line);
-    }
-  });
-  return {
-    replyContent: replyLines.join('\n'),
-    mainContent: mainLines.join('\n'),
-  };
-}
-
-
 function parseContent(content) {
   const lines = content.split('\n');
   const replyLines = [];
