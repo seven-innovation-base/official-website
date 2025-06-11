@@ -117,7 +117,7 @@ export default function App() {
       <div className="buttons">
         <Link
           className="button button--outline button--secondary button--lg"
-          to="https://github.com/FEMATHS/cm.fesmpn.space/issues/7"
+          to="https://github.com/seven-innovation-base/official-website/issues/86"
         >
           我也来说几句
         </Link>
