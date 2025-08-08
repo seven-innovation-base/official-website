@@ -1,63 +1,35 @@
-import React from 'react';
-import Layout from '@theme/Layout';
+import React from "react";
+import Layout from "@theme/Layout";
+import { PageMetadata } from "@docusaurus/theme-common";
+
+import MembersTimeline from "@site/src/components/Members/MembersTimeline";
+import Section from "@site/src/components/Section";  // 假设路径是这样
+
+import styles from "./styles.module.css";
+
+
 import members from '../data/members.data';
-import TeamMemberProfileCard from '../components/TeamMemberProfileCard';
 
-// 洗牌算法：Fisher-Yates Shuffle
-function shuffleArray<T>(array: T[]): T[] {
-  const newArr = [...array];
-  for (let i = newArr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-  }
-  return newArr;
-}
-
-function MemberList() {
-  const shuffledMembers = shuffleArray(members);
-
+export default function Members(): JSX.Element {
   return (
-    <div className="row">
-      {shuffledMembers.map((member) => (
-        <TeamMemberProfileCard
-          key={member.githubUrl + member.name}
-          className={'col col--3 margin-bottom--md'}
-          name={member.name}
-          avatar={member.avatar}
-          children={member.description}
-          githubUrl={member.githubUrl}
-          blogUrl={member.blogUrl}
-        />
-      ))}
-    </div>
-  );
-}
-
-function MembersWall() {
-  return (
-    <Layout title="团队成员">
+    <Layout>
+      <PageMetadata
+        title="Our Members"
+        description="The members directory of the team"
+      />
       <main>
-        <div className="text--center margin-vert--lg">
-          <h1>团队成员</h1>
-          <p>Members</p>
-        </div>
-        <div className="container">
-          <MemberList />
-        </div>
-        <div className="text--center margin-vert--lg">
-          <p>
-            <a
-              className="button button--lg button--primary"
-              href="https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.ts"
-              target="_blank"
-            >
-              送我上墙
-            </a>
-          </p>
+        <div style={{ marginTop: '-100px' }} >
+          <Section
+            title="我们的小组成员"
+            description="这里是我们团队的详细成员介绍"
+            bannerStyle={{  }}
+          >
+            <div className={styles.content}>
+              <MembersTimeline members={members} />
+            </div>
+          </Section>
         </div>
       </main>
     </Layout>
   );
 }
-
-export default MembersWall;

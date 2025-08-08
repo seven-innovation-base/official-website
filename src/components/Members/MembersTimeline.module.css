@@ -1,0 +1,206 @@
+.timelineContainer {
+  position: relative;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* 每个时间项相对定位 */
+.timelineItem {
+  position: relative;
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 20px;
+  padding-left: 100px; /* 给左侧留空间 */
+}
+
+/* 竖线，撑满整个时间项高度 */
+.timelineItem::before {
+  content: "";
+  position: absolute;
+  left: 50px;
+  top: 0;
+  bottom: 40px; /* 离底部空出40px，竖线会短40px */
+  width: 4px;
+  background-color: #000;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* 时间点和文字横向排列 */
+.timelineMarker {
+  position: absolute;
+  left: 50px;  /* 跟竖线对齐 */
+  top: 0;
+  display: flex;
+  align-items: center;
+  margin-left: -8px;
+  margin-top: -60px;
+  gap: 16px; /* 间距稍微大点 */
+  z-index: 10;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* 点改成棱形，大小固定 */
+.timelineDot {
+  width: 20px;   /* 比之前稍大 */
+  height: 20px;
+  background-color: #000;
+  transform: rotate(45deg); /* 旋转45度变成棱形 */
+  flex-shrink: 0;
+}
+
+/* 文字放右侧，往右偏移，高一点，字体更大 */
+.classLabel {
+  font-weight: 700;
+  font-size: 1.6rem;    /* 字体放大 */
+  color: #000;
+  margin-top: 4px;      /* 文字稍微往下，和点垂直居中 */
+  user-select: none;
+}
+
+
+/* 右侧成员卡片列表 */
+.membersList {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.8rem;
+}
+
+/* 超大屏幕（宽度大于1400px）四列布局 */
+@media (min-width: 1401px) {
+  .membersList {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 平板屏幕：2列 */
+@media (max-width: 900px) {
+  .membersList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 手机屏幕：单列布局，时间轴改竖直排列 */
+@media (max-width: 600px) {
+  .timelineContainer {
+    padding-left: 1rem;
+  }
+  .timelineItem {
+  position: relative;
+  margin-bottom: 200px; /* 控制两届之间的垂直距离 */
+}
+  .timelineMarker {
+    flex-direction: row;
+    justify-content: flex-start;
+    width: auto;
+    margin-bottom: 1rem;
+    margin-left: 0; /* 取消左侧偏移 */
+  }
+  .timelineDot {
+    margin-left: 0; /* 取消圆点左边距 */
+    margin-right: 12px; /* 圆点和文字间距 */
+  }
+  .timelineLine {
+    display: none;
+  }
+  .membersList {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* 单个成员卡片样式 */
+.memberCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 3.5rem 4rem; /* 2.5rem -> 3.5rem，内边距更大 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 520px;      /* 460px -> 520px，更高 */
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.memberCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* 头像 */
+.avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 122, 204, 0.3);
+}
+
+/* 信息区域，撑满卡片高度 */
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* 名字 */
+.name {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.5rem;
+}
+
+/* 角色 */
+.role {
+  font-size: 1.15rem;
+  color: #555;
+  margin-bottom: 1.3rem;
+  font-style: italic;
+}
+
+/* 描述 */
+.description {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+  min-height: 60px;
+}
+
+/* 图标容器，水平排列 */
+.icons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* 图标链接悬停颜色 */
+.iconLink {
+  color: #000; /* 默认黑色 */
+}
+
+.iconLink:hover {
+  color: red;
+}
+
+/* 图标大小与颜色 */
+.icon {
+  width: 28px;
+  height: 28px;
+  fill: currentColor; /* 继承父元素颜色 */
+  transition: fill 0.3s ease;
+}
