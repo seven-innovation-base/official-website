@@ -23,7 +23,7 @@ const membersData = [
         name: "新手佳佳",
         role: "野生工程师",
         description: "负责摸鱼和打水赛",
-        avatar: "github:xinshoujiajia",
+        avatar: "https://avatars.githubusercontent.com/u/62921971?v=4",
         github: "https://github.com/xinshoujiajia",
         blog: "https://xinshoujiajia.github.io/",
         email: "xinshoujiajia@mails.guet.edu.cn",
