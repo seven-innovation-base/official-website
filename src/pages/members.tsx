@@ -20,7 +20,7 @@ export default function Members(): JSX.Element {
       <main>
         <div style={{ marginTop: '-100px' }} >
           <Section
-            title="我们的小组成员"
+            title="七院创新基地 · 团队成员"
             description="这里是我们团队的详细成员介绍"
             bannerStyle={{  }}
           >
