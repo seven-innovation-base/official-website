@@ -112,7 +112,7 @@ export default function MembersTimeline({ members }: Props) {
       {/* 左侧时间轴标记 */}
       <div className={styles.timelineMarker}>
         <span className={styles.timelineDot}></span>
-        <div className={styles.classLabel}>{classOf} 届</div>
+        <div className={styles.classLabel}>{classOf} 级</div>
       </div>
 
       {/* 右侧成员卡片列表 */}
