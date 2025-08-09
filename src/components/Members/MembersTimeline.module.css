@@ -120,7 +120,7 @@
 .memberCard {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.48);
   padding: 3.5rem 4rem; /* 2.5rem -> 3.5rem，内边距更大 */
   display: flex;
   flex-direction: column;
@@ -136,7 +136,7 @@
 
 .memberCard:hover {
   transform: translateY(-6px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.60);
 }
 
 /* 头像 */

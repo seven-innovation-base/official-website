@@ -14,7 +14,7 @@ export default function Members(): JSX.Element {
   return (
     <Layout>
       <PageMetadata
-        title="Our Members"
+        title="七院创新基地 · 团队成员"
         description="The members directory of the team"
       />
       <main>
@@ -28,6 +28,17 @@ export default function Members(): JSX.Element {
               <MembersTimeline members={members} />
             </div>
           </Section>
+          <div className="text--center margin-vert--lg">
+          <p>
+            <a
+              className="button button--lg button--primary"
+              href="https://github.com/seven-innovation-base/official-website/edit/main/src/data/members.data.ts"
+              target="_blank"
+            >
+              送我上墙
+            </a>
+          </p>
+        </div>
         </div>
       </main>
     </Layout>

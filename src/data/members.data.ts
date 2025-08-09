@@ -8,20 +8,11 @@
  */
 const membersData = [
   {
-    classOf: '2024',
+    classOf: '2023',
     memberList: [
       {
-        name: "Tanger",
-        role: "2024届主席",
-        description: "记得改我的描述哦",
-        avatar: "https://avatars.githubusercontent.com/u/57751257?v=4",
-        github: "https://github.com/redhat123456",
-        blog: "https://tanger.ltd",
-        email: "1907065810@qq.com",
-      },
-      {
         name: "新手佳佳",
-        role: "野生工程师",
+        role: "2023级副主席",
         description: "负责摸鱼和打水赛",
         avatar: "https://avatars.githubusercontent.com/u/62921971?v=4",
         github: "https://github.com/xinshoujiajia",
@@ -30,8 +21,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -39,8 +30,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -48,8 +39,17 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
+        avatar: "https://randomuser.me/api/portraits/women/24.jpg",
+        github: "https://github.com/lily",
+        blog: "https://lilyblog.com",
+        email: "lily@example.com",
+      },
+      {
+        name: "Lily",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -58,11 +58,11 @@ const membersData = [
     ],
   },
   {
-    classOf: '2023',
+    classOf: '2019',
     memberList: [
       {
         name: "Tanger",
-        role: "2023届主席",
+        role: "2019级主席",
         description: "题不可一日不刷",
         avatar: "https://avatars.githubusercontent.com/u/57751257?v=4",
         github: "https://github.com/redhat123456",
@@ -71,8 +71,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -80,8 +80,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -89,8 +89,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
@@ -98,8 +98,8 @@ const membersData = [
       },
       {
         name: "Lily",
-        role: "前端工程师",
-        description: "负责前端开发和交互设计",
+        role: "这里填职务",
+        description: "这里填个性化的话",
         avatar: "https://randomuser.me/api/portraits/women/24.jpg",
         github: "https://github.com/lily",
         blog: "https://lilyblog.com",
