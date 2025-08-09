@@ -84,15 +84,6 @@ const membersData = [
         email: "1907065810@qq.com",
       },
       {
-        name: "zqqqj",
-        role: "FEMATHS小组成员",
-        description: "超级Bug工程师",
-        avatar: "https://avatars.githubusercontent.com/u/95482898?v=4",
-        github: "https://github.com/zqqqqqqj1110",
-        blog: "http://8.130.141.48",
-        email: "zhouqijia1110@gmail.com",
-      },
-      {
         name: "Lily",
         role: "这里填职务",
         description: "这里填个性化的话",
