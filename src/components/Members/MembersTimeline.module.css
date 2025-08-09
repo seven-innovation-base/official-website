@@ -129,6 +129,9 @@
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: default;
+  max-width: 300px;  /* 或者你想要的具体最大宽度 */
+  width: 100%;       /* 让卡片撑满网格单元格宽度，但不会超过max-width */
+  box-sizing: border-box;
 }
 
 .memberCard:hover {
