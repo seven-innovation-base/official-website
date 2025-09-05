@@ -32,6 +32,7 @@ const membersData = [
         github: "https://github.com/zqqqqqqj1110",
         blog: "http://8.130.141.48/",
         email: "zhouqijia1110@gmail.com",
+      }
     ],
   },
   {
