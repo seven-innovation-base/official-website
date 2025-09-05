@@ -25,13 +25,13 @@ const membersData = [
     classOf: '2021',
     memberList: [
       {
-        name: "爱用酒精勾兑",
+        name: "zqqqj",
         role: "2021级主席",
-        description: "知行合一",
+        description: "超级Bug工程师",
         avatar: "https://avatars.githubusercontent.com/u/95482898?v=4",
         github: "https://github.com/zqqqqqqj1110",
         blog: "http://8.130.141.48/",
-      },
+        email: "zhouqijia1110@gmail.com",
     ],
   },
   {
@@ -133,7 +133,6 @@ const membersData = [
         github: "https://avatars.githubusercontent.com/u/39296814?v=4",
         blog: "https://shansan.top",
       },
-     
     ],
   },
 ];
