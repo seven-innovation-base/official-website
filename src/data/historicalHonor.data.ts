@@ -1,4 +1,5 @@
 export const data = [
+  
   {
     names: ['覃嘉嘉','黄冠雄'],
     contest: '2025年广西大学生工程实践与创新能力大赛',
