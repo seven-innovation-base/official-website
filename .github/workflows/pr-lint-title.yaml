@@ -1,4 +1,5 @@
-name: 'Lint PR title'
+name: Lint PR title
+
 on:
   pull_request_target:
     types:
@@ -9,17 +10,18 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 12
-      - uses: amannn/action-semantic-pull-request@v3.4.0
+          node-version: 18
+
+      - uses: amannn/action-semantic-pull-request@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_MESSAGE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Configure which types are allowed.
-          # Default: https://github.com/commitizen/conventional-commit-types
           types: |
             fix
             feat

@@ -8,59 +8,46 @@ on:
 
 jobs:
   check-pull-request:
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'    
-      - name: Test Build
-        run: |
-          npm install
-          npm run build
+          node-version: 18
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
 
   github-pages-release:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
-      # check it to your workflow can access it
-      # from: https://github.com/actions/checkout
-      - name: Checkout Repository main branch
-        uses: actions/checkout@main
+      - uses: actions/checkout@v4
 
-      # from: https://github.com/actions/setup-node
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-          cache: yarn
+          node-version: 18
+          cache: npm
 
-      - name: Setup Dependencies
-        run: |
-          npm install
+      - name: Install Dependencies
+        run: npm ci
 
-      - name: Add key to allow access to repository
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          echo "${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          cat <<EOT >> ~/.ssh/config
-          Host github.com
-          HostName github.com
-          IdentityFile ~/.ssh/id_rsa
-          EOT
+      - name: Build Site
+        run: npm run build
 
-      - name: Release to GitHub Pages
-        env:
-          USE_SSH: true
-          GIT_USER: git
+      - name: Deploy to seven-innovation-base.github.io
         run: |
-          git config --global user.email "1329441308@qq.com"
-          git config --global user.name "yeshan333"
-          npm ci
-          npx docusaurus deploy
+          git clone https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
+          rm -rf target/*
+          cp -r build/* target/
+          cd target
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git add .
+          git commit -m "Deploy site from ${{ github.repository }}" || echo "No changes"
+          git push origin master
