@@ -50,4 +50,4 @@ jobs:
           git config user.name "github-actions"
           git add .
           git commit -m "Deploy site from ${{ github.repository }}" || echo "No changes"
-          git push origin main
+          git push origin master
