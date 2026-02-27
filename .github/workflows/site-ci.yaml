@@ -37,16 +37,27 @@ github-pages-release:
         node-version: 18
         cache: npm
 
-    - run: npm ci
-    - run: npm run build
+    - name: Install Dependencies
+      run: npm ci
 
-    - name: Configure Git
+    - name: Build Site
+      run: npm run build
+
+    - name: Deploy to seven-innovation-base.github.io
       run: |
-        git config --global user.email "actions@github.com"
-        git config --global user.name "github-actions"
+        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
 
-    - name: Deploy
-      run: npx docusaurus deploy
-      env:
-        GIT_USER: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        rm -rf target/*
+
+        cp -r build/* target/
+
+        cd target
+
+        git config user.email "actions@github.com"
+        git config user.name "github-actions"
+
+        git add .
+
+        git commit -m "Deploy site from ${{ github.repository }}"
+
+        git push origin main
