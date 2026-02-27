@@ -22,42 +22,32 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-github-pages-release:
-  if: github.event_name == 'push'
-  runs-on: ubuntu-latest
+  github-pages-release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
 
-  permissions:
-    contents: write
+    steps:
+      - uses: actions/checkout@v4
 
-  steps:
-    - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 18
-        cache: npm
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Build Site
+        run: npm run build
 
-    - name: Build Site
-      run: npm run build
-
-    - name: Deploy to seven-innovation-base.github.io
-      run: |
-        git clone https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
-
-        rm -rf target/*
-
-        cp -r build/* target/
-
-        cd target
-
-        git config user.email "actions@github.com"
-        git config user.name "github-actions"
-
-        git add .
-
-        git commit -m "Deploy site from ${{ github.repository }}" || echo "No changes"
-
-        git push origin main
+      - name: Deploy to seven-innovation-base.github.io
+        run: |
+          git clone https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
+          rm -rf target/*
+          cp -r build/* target/
+          cd target
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git add .
+          git commit -m "Deploy site from ${{ github.repository }}" || echo "No changes"
+          git push origin main
