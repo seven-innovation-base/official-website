@@ -45,7 +45,7 @@ github-pages-release:
 
     - name: Deploy to seven-innovation-base.github.io
       run: |
-        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
+        git clone https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
 
         rm -rf target/*
 
@@ -58,6 +58,6 @@ github-pages-release:
 
         git add .
 
-        git commit -m "Deploy site from ${{ github.repository }}"
+        git commit -m "Deploy site from ${{ github.repository }}" || echo "No changes"
 
         git push origin main
