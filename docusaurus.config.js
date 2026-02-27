@@ -7,7 +7,7 @@ module.exports = {
   favicon: 'img/logo.png',
   organizationName: 'seven-innovation-base', // Usually your GitHub org/user name.
   projectName: 'seven-innovation-base.github.io', // Usually your repo name.
-  deploymentBranch: 'master',
+  deploymentBranch: 'main',
   trailingSlash: true,
   themeConfig: {
     navbar: {
