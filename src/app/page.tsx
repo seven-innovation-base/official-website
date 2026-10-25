@@ -23,8 +23,17 @@ export default function HomePage() {
         <Hero3DLoader />
 
         <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
-          <h1 className="text-5xl font-bold tracking-wide md:text-7xl">{siteConfig.siteName}</h1>
-          <p className="mt-8 text-lg tracking-[0.35em] text-blue-100 md:text-2xl">
+          {/* Logo（参照三院科协形态：悬于标题上方） */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo.png"
+            alt="七院创新基地 Logo"
+            className="animate-hero-float h-24 w-24 rounded-full bg-white/10 object-cover shadow-2xl shadow-black/40 ring-2 ring-white/30 backdrop-blur"
+          />
+          <h1 className="mt-8 text-5xl font-bold tracking-wide drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] md:text-7xl">
+            {siteConfig.siteName}
+          </h1>
+          <p className="mt-8 text-lg tracking-[0.35em] text-blue-100 drop-shadow-[0_1px_8px_rgba(0,0,0,0.4)] md:text-2xl">
             {siteConfig.tagline}
           </p>
 

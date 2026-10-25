@@ -53,7 +53,7 @@ const NETWORK_FRAG = /* glsl */ `
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float alpha = smoothstep(0.5, 0.08, d);
-    gl_FragColor = vec4(vColor, alpha * (0.5 + 0.32 * vBoost));
+    gl_FragColor = vec4(vColor, alpha * (0.42 + 0.3 * vBoost));
   }
 `;
 
@@ -80,7 +80,7 @@ const NEBULA_FRAG = /* glsl */ `
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float alpha = smoothstep(0.5, 0.06, d);
-    gl_FragColor = vec4(vColor, alpha * vTwinkle * 0.55);
+    gl_FragColor = vec4(vColor, alpha * vTwinkle * 0.5);
   }
 `;
 

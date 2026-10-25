@@ -63,7 +63,9 @@ export default function Hero3DLoader() {
     <>
       {showScene && (
         <div
-          className={`absolute inset-0 transition-opacity duration-1000 ${visible ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 transition-opacity duration-1000 [-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] ${
+            visible ? "opacity-90" : "opacity-0"
+          }`}
           aria-hidden
         >
           <HeroScene variant={variant} quality={tier as SceneQuality} />

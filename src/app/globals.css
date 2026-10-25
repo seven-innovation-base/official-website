@@ -27,3 +27,22 @@
     @apply bg-accent/30;
   }
 }
+
+@layer utilities {
+  /* Hero Logo 轻浮动（尊重系统"减弱动态效果"设置） */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-hero-float {
+      animation: hero-float 5.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
