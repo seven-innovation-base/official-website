@@ -5,3 +5,4 @@ pnpm-lock.yaml
 content/
 content-source/
 scripts/migration/data/
+public/data/
