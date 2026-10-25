@@ -24,6 +24,11 @@ function detectTier(): Tier {
 }
 
 const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
+  { id: "lorenz", label: "洛伦兹风暴眼" },
+  { id: "tesseract", label: "超立方折光门" },
+  { id: "loom", label: "算法织机" },
+  { id: "field", label: "向量场之茧" },
+  { id: "eclipse", label: "日蚀磁场" },
   { id: "converge", label: "Logo 汇聚" },
   { id: "math", label: "数学符号" },
   { id: "aurora", label: "极光" },
@@ -95,13 +100,13 @@ export default function Hero3DLoader() {
 
       {/* 开发模式小样切换器：D4 视觉拍板用（生产构建自动隐藏） */}
       {process.env.NODE_ENV === "development" && (
-        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1.5 text-xs text-white backdrop-blur">
-          <span className="px-1.5 text-[10px] tracking-wider text-slate-400">3D 小样</span>
+        <div className="absolute bottom-3 right-3 z-20 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center justify-end gap-1 rounded-2xl bg-black/60 px-2 py-1.5 text-[11px] text-white backdrop-blur">
+          <span className="px-1 text-[10px] tracking-wider text-slate-400">3D 小样</span>
           {VARIANTS.map((v) => (
             <button
               key={v.id}
               onClick={() => setVariant(v.id)}
-              className={`rounded-full px-2.5 py-1 transition ${
+              className={`rounded-full px-2 py-0.5 transition ${
                 variant === v.id ? "bg-accent text-white" : "text-slate-300 hover:bg-white/10"
               }`}
             >

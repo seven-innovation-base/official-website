@@ -4,6 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
+import {
+  EclipseLayer,
+  FieldLayer,
+  LoomLayer,
+  LorenzLayer,
+  TesseractLayer,
+} from "./sceneExtras";
+
 export type SceneVariant =
   | "network"
   | "nebula"
@@ -13,7 +21,12 @@ export type SceneVariant =
   | "waves"
   | "math"
   | "aurora"
-  | "globe";
+  | "globe"
+  | "lorenz"
+  | "tesseract"
+  | "loom"
+  | "field"
+  | "eclipse";
 export type SceneQuality = "high" | "medium";
 
 /**
@@ -220,7 +233,7 @@ type SoftLayerProps = {
   zOffset?: number;
 };
 
-function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -0.013, zOffset = 0 }: SoftLayerProps) {
+export function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -0.013, zOffset = 0 }: SoftLayerProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const { points, material } = useMemo(() => {
@@ -981,6 +994,42 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
         {variant === "globe" && (
           /* 网格星球：线框行星 + 倾斜光环，经典科技感 */
           <GlobeLayer />
+        )}
+        {variant === "lorenz" && (
+          /* 洛伦兹风暴眼：真实吸引子双翼 + 玻璃光带 + 彗星流点 */
+          <>
+            <LorenzLayer quality={quality} />
+            <SoftLayer count={quality === "high" ? 420 : 260} radiusRange={[12, 26]} sizeScale={0.55} alpha={0.26} spin={-0.006} zOffset={-12} />
+          </>
+        )}
+        {variant === "tesseract" && (
+          /* 超立方折光门：真 4D 旋转投影 + 磨砂玻璃棱柱 + 环绕碎片 */
+          <>
+            <TesseractLayer quality={quality} />
+            <SoftLayer count={quality === "high" ? 320 : 200} radiusRange={[11, 25]} sizeScale={0.5} alpha={0.22} spin={-0.005} zOffset={-13} />
+          </>
+        )}
+        {variant === "loom" && (
+          /* 算法织机：经纬丝线织物 + 高速滑行光梭 */
+          <>
+            <LoomLayer quality={quality} />
+            <SoftLayer count={quality === "high" ? 420 : 260} radiusRange={[12, 26]} sizeScale={0.55} alpha={0.3} spin={-0.006} zOffset={-10} />
+          </>
+        )}
+        {variant === "field" && (
+          /* 向量场之茧：curl noise 流线 + 能量粒子 */
+          <>
+            <FieldLayer quality={quality} />
+            <SoftLayer count={quality === "high" ? 300 : 180} radiusRange={[14, 28]} sizeScale={0.5} alpha={0.22} spin={-0.005} zOffset={-12} />
+          </>
+        )}
+        {variant === "eclipse" && (
+          /* 日蚀 · 深空磁场：暗天体 + 冰青日冕 + 磁弧 */
+          <>
+            <EclipseLayer quality={quality} />
+            <SoftLayer count={quality === "high" ? 260 : 160} radiusRange={[10, 26]} sizeScale={0.5} alpha={0.3} spin={-0.006} zOffset={-10} />
+            <SoftLayer count={3} radiusRange={[12, 20]} sizeScale={11} alpha={0.07} spin={0.01} zOffset={-12} />
+          </>
         )}
         <CameraRig />
       </Canvas>
