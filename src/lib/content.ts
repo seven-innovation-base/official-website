@@ -12,6 +12,7 @@ const DepartmentSchema = z.object({
   name: z.string(),
   short: z.string(),
   tagline: z.string(),
+  image: z.string(),
   branches: z.array(z.string()),
   duty: z.string(),
   learn: z.array(z.string()),
@@ -49,8 +50,11 @@ const SiteConfigSchema = z.object({
   address: z.array(z.string()),
   video: z.object({
     title: z.string(),
-    platform: z.string(),
-    embedUrl: z.string(),
+    type: z.enum(["local", "embed"]),
+    src: z.string().optional(),
+    poster: z.string().optional(),
+    platform: z.string().optional(),
+    embedUrl: z.string().optional(),
     description: z.string(),
   }),
   oj: z.object({

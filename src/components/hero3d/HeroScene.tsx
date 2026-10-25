@@ -4,7 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
-export type SceneVariant = "network" | "nebula" | "combo" | "halo" | "converge" | "waves";
+export type SceneVariant =
+  | "network"
+  | "nebula"
+  | "combo"
+  | "halo"
+  | "converge"
+  | "waves"
+  | "math"
+  | "aurora"
+  | "globe";
 export type SceneQuality = "high" | "medium";
 
 /**
@@ -498,6 +507,378 @@ function WavesLayer({ segments }: { segments: number }) {
   );
 }
 
+/* ---------------- 数学符号粒子层（π ∑ ∫ …）---------------- */
+
+const GLYPH_VERT = /* glsl */ `
+  uniform float uTime;
+  uniform float uPixelRatio;
+  attribute float aSize;
+  attribute float aSeed;
+  attribute vec2 aGlyph;
+  attribute vec3 aColor;
+  varying vec2 vGlyph;
+  varying vec3 vColor;
+  varying float vTw;
+  void main() {
+    vec3 p = position + vec3(
+      sin(uTime * 0.5 + aSeed) * 0.5,
+      cos(uTime * 0.4 + aSeed * 1.7) * 0.5,
+      sin(uTime * 0.3 + aSeed * 0.9) * 0.4
+    );
+    vTw = 0.55 + 0.45 * sin(uTime * 0.9 + aSeed * 3.1);
+    vGlyph = aGlyph;
+    vColor = aColor;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_PointSize = aSize * uPixelRatio * (320.0 / -mv.z);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const GLYPH_FRAG = /* glsl */ `
+  uniform sampler2D uAtlas;
+  varying vec2 vGlyph;
+  varying vec3 vColor;
+  varying float vTw;
+  void main() {
+    vec2 uv = vec2((vGlyph.x + gl_PointCoord.x) / 8.0, 1.0 - (vGlyph.y + gl_PointCoord.y) / 8.0);
+    float a = texture2D(uAtlas, uv).a;
+    gl_FragColor = vec4(vColor, a * vTw * 0.85);
+  }
+`;
+
+const GLYPHS = "π∑∫√∞ΔθλμσφΩαβγxyzne10≈≥≤×÷+−=()∂∇∈∪⊂→ƒ";
+
+function MathGlyphsLayer({ count }: { count: number }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const { points, geometry, material, texture } = useMemo(() => {
+    // 8×8 字符图集
+    const cell = 96;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = cell * 8;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "58px 'Times New Roman', 'Noto Serif', serif";
+      for (let i = 0; i < Math.min(64, GLYPHS.length); i++) {
+        ctx.fillText(
+          GLYPHS[i],
+          (i % 8) * cell + cell / 2,
+          Math.floor(i / 8) * cell + cell / 2,
+        );
+      }
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const seeds = new Float32Array(count);
+    const glyphs = new Float32Array(count * 2);
+    const color = new THREE.Color();
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 26;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
+      positions[i * 3 + 2] = -8 + Math.random() * 9;
+      pickColor(color);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+      sizes[i] = 2.4 + Math.random() * 2.6;
+      seeds[i] = Math.random() * Math.PI * 2;
+      glyphs[i * 2] = Math.floor(Math.random() * 8);
+      glyphs[i * 2 + 1] = Math.floor(Math.random() * 8);
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+    geo.setAttribute("aGlyph", new THREE.BufferAttribute(glyphs, 2));
+
+    const mat = new THREE.ShaderMaterial({
+      vertexShader: GLYPH_VERT,
+      fragmentShader: GLYPH_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: 1 },
+        uAtlas: { value: tex },
+      },
+    });
+
+    return { points: new THREE.Points(geo, mat), geometry: geo, material: mat, texture: tex };
+  }, [count]);
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+    },
+    [geometry, material, texture],
+  );
+
+  useFrame(({ clock, gl }) => {
+    material.uniforms.uTime.value = clock.elapsedTime;
+    material.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(clock.elapsedTime * 0.06) * 0.22;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={points} />
+    </group>
+  );
+}
+
+/* ---------------- 极光帘幕层 ---------------- */
+
+const AURORA_VERT = /* glsl */ `
+  uniform float uTime;
+  uniform float uPixelRatio;
+  attribute float aSize;
+  attribute float aSeed;
+  attribute float aT;
+  attribute float aBand;
+  attribute vec3 aColor;
+  varying vec3 vColor;
+  varying float vT;
+  void main() {
+    vec3 p = position;
+    p.y += sin(p.x * 0.35 + uTime * 0.5 + aBand * 2.1) * 1.1
+         + sin(p.x * 0.9 - uTime * 0.3 + aSeed) * 0.4;
+    p.x += sin(uTime * 0.2 + aSeed) * 0.3;
+    vColor = aColor;
+    vT = aT;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_PointSize = aSize * uPixelRatio * (320.0 / -mv.z);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const AURORA_FRAG = /* glsl */ `
+  varying vec3 vColor;
+  varying float vT;
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5));
+    float alpha = smoothstep(0.5, 0.05, d);
+    float ends = smoothstep(0.0, 0.22, vT) * smoothstep(1.0, 0.78, vT);
+    gl_FragColor = vec4(vColor, alpha * ends * 0.4);
+  }
+`;
+
+function AuroraLayer({ count }: { count: number }) {
+  const { points, geometry, material } = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const seeds = new Float32Array(count);
+    const ts = new Float32Array(count);
+    const bands = new Float32Array(count);
+    // 三条光带：青 / 蓝 / 紫（近品牌色）
+    const bandColors = [new THREE.Color("#13c2c2"), new THREE.Color("#2e7bc4"), new THREE.Color("#7b6cf6")];
+    const bandBase = [
+      [4.2, -2.5],
+      [1.2, -5.5],
+      [6.5, -8.0],
+    ] as const;
+    const color = new THREE.Color();
+    for (let i = 0; i < count; i++) {
+      const band = i % 3;
+      const [baseY, baseZ] = bandBase[band];
+      const t = Math.random();
+      const x = t * 40 - 20;
+      // 高斯式纵向展开，上密下疏（帘幕感）
+      const g = Math.pow(Math.random(), 2.2) * (Math.random() < 0.25 ? 1 : -0.35);
+      const y = baseY + g * 6.5;
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = baseZ + (Math.random() - 0.5) * 2.5;
+      color.copy(bandColors[band]).lerp(new THREE.Color("#eaf5fe"), Math.random() * 0.25);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+      sizes[i] = 1.4 + Math.random() * 2.2;
+      seeds[i] = Math.random() * Math.PI * 2;
+      ts[i] = t;
+      bands[i] = band;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+    geo.setAttribute("aT", new THREE.BufferAttribute(ts, 1));
+    geo.setAttribute("aBand", new THREE.BufferAttribute(bands, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      vertexShader: AURORA_VERT,
+      fragmentShader: AURORA_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uPixelRatio: { value: 1 } },
+    });
+
+    return { points: new THREE.Points(geo, mat), geometry: geo, material: mat };
+  }, [count]);
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      material.dispose();
+    },
+    [geometry, material],
+  );
+
+  useFrame(({ clock, gl }) => {
+    material.uniforms.uTime.value = clock.elapsedTime;
+    material.uniforms.uPixelRatio.value = gl.getPixelRatio();
+  });
+
+  return <primitive object={points} />;
+}
+
+/* ---------------- 网格星球层 ---------------- */
+
+function GlobeLayer() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const { wireframe, surfacePoints, ring, disposables } = useMemo(() => {
+    const geo = new THREE.IcosahedronGeometry(7.2, 2);
+    const wire = new THREE.WireframeGeometry(geo);
+    const wireMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color("#2e7bc4"),
+      transparent: true,
+      opacity: 0.3,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const wireframe = new THREE.LineSegments(wire, wireMat);
+
+    // 顶点发光点
+    const vAttr = geo.getAttribute("position");
+    const vCount = vAttr.count;
+    const colors = new Float32Array(vCount * 3);
+    const sizes = new Float32Array(vCount);
+    const color = new THREE.Color();
+    for (let i = 0; i < vCount; i++) {
+      pickColor(color);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+      sizes[i] = 2.2 + Math.random() * 1.4;
+    }
+    const ptsGeo = new THREE.BufferGeometry();
+    ptsGeo.setAttribute("position", vAttr.clone());
+    ptsGeo.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    ptsGeo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    const phases = new Float32Array(vCount).map(() => Math.random() * Math.PI * 2);
+    ptsGeo.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+    const ptsMat = new THREE.ShaderMaterial({
+      vertexShader: SOFT_VERT,
+      fragmentShader: SOFT_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: 1 },
+        uAlpha: { value: 0.9 },
+      },
+    });
+    const surfacePoints = new THREE.Points(ptsGeo, ptsMat);
+
+    // 倾斜光环
+    const ringCount = 420;
+    const ringPos = new Float32Array(ringCount * 3);
+    const ringCol = new Float32Array(ringCount * 3);
+    const ringSize = new Float32Array(ringCount);
+    const ringPhase = new Float32Array(ringCount);
+    for (let i = 0; i < ringCount; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 9.6 + Math.random() * 1.6;
+      ringPos[i * 3] = Math.cos(a) * r;
+      ringPos[i * 3 + 1] = (Math.random() - 0.5) * 0.5;
+      ringPos[i * 3 + 2] = Math.sin(a) * r;
+      color.set("#13c2c2").lerp(new THREE.Color("#8fd0ff"), Math.random() * 0.5);
+      ringCol[i * 3] = color.r;
+      ringCol[i * 3 + 1] = color.g;
+      ringCol[i * 3 + 2] = color.b;
+      ringSize[i] = 1.2 + Math.random() * 1.8;
+      ringPhase[i] = Math.random() * Math.PI * 2;
+    }
+    const ringGeo = new THREE.BufferGeometry();
+    ringGeo.setAttribute("position", new THREE.BufferAttribute(ringPos, 3));
+    ringGeo.setAttribute("aColor", new THREE.BufferAttribute(ringCol, 3));
+    ringGeo.setAttribute("aSize", new THREE.BufferAttribute(ringSize, 1));
+    ringGeo.setAttribute("aPhase", new THREE.BufferAttribute(ringPhase, 1));
+    const ringMat = new THREE.ShaderMaterial({
+      vertexShader: SOFT_VERT,
+      fragmentShader: SOFT_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: 1 },
+        uAlpha: { value: 0.75 },
+      },
+    });
+    const ring = new THREE.Points(ringGeo, ringMat);
+
+    return {
+      wireframe,
+      surfacePoints,
+      ring,
+      disposables: [geo, wire, wireMat, ptsGeo, ptsMat, ringGeo, ringMat],
+    };
+  }, []);
+
+  useEffect(
+    () => () => {
+      disposables.forEach((d) => d.dispose());
+    },
+    [disposables],
+  );
+
+  const ringRef = useRef<THREE.Group>(null);
+  useFrame(({ clock, gl }) => {
+    const t = clock.elapsedTime;
+    const mat = surfacePoints.material as THREE.ShaderMaterial;
+    mat.uniforms.uTime.value = t;
+    mat.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    const rMat = ring.material as THREE.ShaderMaterial;
+    rMat.uniforms.uTime.value = t;
+    rMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    if (groupRef.current) {
+      groupRef.current.rotation.y = t * 0.06;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.y = -t * 0.1;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, 0.5, -2]} rotation={[0.35, 0, 0]}>
+      <primitive object={wireframe} />
+      <primitive object={surfacePoints} />
+      <group ref={ringRef} rotation={[1.05, 0, 0.2]}>
+        <primitive object={ring} />
+      </group>
+    </group>
+  );
+}
+
 /* ---------------- 相机视差 ---------------- */
 
 function CameraRig() {
@@ -582,6 +963,24 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
             <WavesLayer segments={quality === "high" ? 110 : 70} />
             <SoftLayer count={quality === "high" ? 900 : 500} radiusRange={[10, 24]} sizeScale={0.7} alpha={0.4} spin={-0.008} zOffset={-5} />
           </>
+        )}
+        {variant === "math" && (
+          /* 数学符号：π ∑ ∫ 等符号粒子漂浮闪烁，数学学院的"符号语言" */
+          <>
+            <MathGlyphsLayer count={quality === "high" ? 260 : 150} />
+            <SoftLayer count={quality === "high" ? 8 : 6} radiusRange={[9, 20]} sizeScale={13} alpha={0.1} spin={0.014} zOffset={-8} />
+          </>
+        )}
+        {variant === "aurora" && (
+          /* 极光：三条光带在上半幕流动 */
+          <>
+            <AuroraLayer count={quality === "high" ? 7000 : 3800} />
+            <SoftLayer count={quality === "high" ? 600 : 350} radiusRange={[9, 24]} sizeScale={0.8} alpha={0.3} spin={-0.008} zOffset={-9} />
+          </>
+        )}
+        {variant === "globe" && (
+          /* 网格星球：线框行星 + 倾斜光环，经典科技感 */
+          <GlobeLayer />
         )}
         <CameraRig />
       </Canvas>

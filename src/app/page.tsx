@@ -4,7 +4,7 @@ import VideoSection from "@/components/home/VideoSection";
 import HonorsTable from "@/components/honors/HonorsTable";
 import Hero3DLoader from "@/components/hero3d/Hero3DLoader";
 import Reveal from "@/components/site/Reveal";
-import { departments, siteConfig } from "@/lib/content";
+import { departments, siteConfig, type Department } from "@/lib/content";
 
 const heroEntries = [
   { href: "/join/", label: "加入我们", primary: true },
@@ -12,6 +12,28 @@ const heroEntries = [
   { href: "/oj/", label: "OJ 练习", primary: false, badge: "仅校园网" },
   { href: "/members/", label: "团队成员", primary: false },
 ];
+
+/** 部门卡片：插画 + 一段式介绍（旧站文案风格） */
+function DeptCard({ dept }: { dept: Department }) {
+  return (
+    <div className="group h-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
+      <div className="flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-mist to-white p-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={dept.image}
+          alt={dept.name}
+          loading="lazy"
+          className="max-h-full w-auto object-contain transition duration-300 group-hover:scale-105"
+        />
+      </div>
+      <div className="p-7">
+        <span className="text-xs font-semibold tracking-widest text-accent">{dept.tagline}</span>
+        <h3 className="mt-2 text-xl font-bold text-primary">{dept.name}</h3>
+        <p className="mt-3 text-sm leading-7 text-slate-600">{dept.duty}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -71,52 +93,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ 三大部门 ============ */}
+      {/* ============ 宣传视频（点击封面懒加载，本地自托管）============ */}
+      <Reveal>
+        <VideoSection
+          title={siteConfig.video.title}
+          description={siteConfig.video.description}
+          type={siteConfig.video.type}
+          src={siteConfig.video.src}
+          poster={siteConfig.video.poster}
+          embedUrl={siteConfig.video.embedUrl}
+        />
+      </Reveal>
+
+      {/* ============ 三大部门（文案沿用旧站风格，布局借鉴三院科协 2+1）============ */}
       <section className="mx-auto max-w-6xl px-6 py-24">
         <Reveal className="text-center">
           <h2 className="text-3xl font-bold text-ink">三大部门</h2>
           <p className="mt-3 text-slate-500">软件部 · 大数据部 · 算法部</p>
         </Reveal>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {departments.map((dept, index) => (
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
+          {departments.slice(0, 2).map((dept, index) => (
             <Reveal key={dept.id} delay={index * 90}>
-              <div className="group h-full rounded-2xl border border-slate-200/80 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
-                <span className="text-xs font-semibold tracking-widest text-accent">{dept.tagline}</span>
-                <h3 className="mt-2 text-2xl font-bold text-primary">{dept.name}</h3>
-                <p className="mt-4 text-sm leading-7 text-slate-600">{dept.duty}</p>
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {dept.branches.map((branch) => (
-                    <span
-                      key={branch}
-                      className="rounded-full bg-mist px-3 py-1 text-xs font-medium text-primary-dark"
-                    >
-                      {branch}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="mt-5 text-xs leading-6 text-slate-400">技术栈：{dept.tools.join(" · ")}</p>
-
-                <p className="mt-4 border-t border-dashed border-slate-200 pt-4 text-sm leading-7 text-ink">
-                  <span className="font-semibold text-accent">一年后：</span>
-                  {dept.outcome}
-                </p>
-              </div>
+              <DeptCard dept={dept} />
             </Reveal>
           ))}
+          {departments.length > 2 && (
+            <Reveal delay={180} className="md:col-span-2 md:mx-auto md:w-[calc(50%-0.75rem)]">
+              <DeptCard dept={departments[2]} />
+            </Reveal>
+          )}
         </div>
       </section>
-
-      {/* ============ 宣传视频（点击封面懒加载）============ */}
-      <Reveal>
-        <VideoSection
-          title={siteConfig.video.title}
-          description={siteConfig.video.description}
-          embedUrl={siteConfig.video.embedUrl}
-        />
-      </Reveal>
 
       {/* ============ 历史荣誉（留言板上方）============ */}
       <section className="mx-auto max-w-6xl px-6 pb-24 pt-6">

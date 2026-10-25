@@ -25,10 +25,13 @@ function detectTier(): Tier {
 
 const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
   { id: "converge", label: "Logo 汇聚" },
+  { id: "math", label: "数学符号" },
+  { id: "aurora", label: "极光" },
+  { id: "waves", label: "正弦波场" },
   { id: "network", label: "粒子网络" },
   { id: "nebula", label: "深空星云" },
+  { id: "globe", label: "网格星球" },
   { id: "combo", label: "组合" },
-  { id: "waves", label: "正弦波场" },
   { id: "halo", label: "光晕" },
 ];
 

@@ -7,6 +7,9 @@
   "address": ["花江慧谷 4 号楼 305", "四创中心 4 号楼 303"],
   "video": {
     "title": "宣传 & 介绍视频",
+    "type": "local",
+    "src": "/videos/promo.mp4",
+    "poster": "/videos/promo.jpg",
     "platform": "bilibili",
     "embedUrl": "https://player.bilibili.com/player.html?aid=644252413&bvid=BV1KY4y1A7Qv&cid=798623842&page=1",
     "description": "可以通过该视频来了解我们基地"
