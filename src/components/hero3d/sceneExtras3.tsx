@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * 进阶场景组 B：勃艮第红（红移星环）/ 石墨银（镜面纪念碑）/ 青铜绿（时间算法）。
- * 均带交互 uniforms（uMouse 扰动 + 点击能量波），配合 InteractionRig 使用。
+ * 进阶场景：红移星环（勃艮第酒红 × 珊瑚金）/ 时间算法（青铜绿 × 铜金）。
+ * 带交互 uniforms（uMouse 扰动 + 点击能量波），配合 InteractionRig 使用。
  */
 
 import { useEffect, useMemo, useRef } from "react";
@@ -17,7 +17,7 @@ import {
 } from "./interaction";
 
 /* ================================================================
- * 4. 红移星环：暗天体 + 猩红日冕 + 引力弧 + 旋转星环
+ * 红移星环：暗天体 + 猩红日冕 + 引力弧 + 旋转星环
  * ================================================================ */
 
 const RED_CORONA_VERT = /* glsl */ `
@@ -239,7 +239,7 @@ function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
         ringGeo,
         ringMat,
       ];
-      return { disc, rimSharp, rimSoft, corona, coronaMat, arcs, arcMat, ringPts, ringGeo, ringMat, disposables };
+      return { disc, rimSharp, rimSoft, corona, coronaMat, arcs, arcMat, ringPts, ringMat, disposables };
     }, [quality]);
 
   useEffect(
@@ -280,186 +280,7 @@ function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
 }
 
 /* ================================================================
- * 5. 镜面纪念碑：液态铬曲面带（伪棚拍反射）+ 漂浮金属微滴
- * ================================================================ */
-
-const CHROME_VERT = /* glsl */ `
-  uniform float uTime;
-  attribute float aU;
-  attribute float aV;
-  attribute vec3 aNormal;
-  varying float vU;
-  varying float vV;
-  varying vec3 vNormal;
-  varying vec3 vView;
-  varying vec3 vWpos;
-  void main() {
-    vec3 p = position;
-    // 40–60s 缓慢形变
-    p += aNormal * (sin(aU * 4.0 + uTime * 0.126) * 0.3 + sin(aV * 3.0 + uTime * 0.105) * 0.2);
-    vU = aU;
-    vV = aV;
-    vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    vNormal = normalize(normalMatrix * aNormal);
-    vView = normalize(-mv.xyz);
-    vWpos = (modelMatrix * vec4(p, 1.0)).xyz;
-    gl_Position = projectionMatrix * mv;
-  }
-`;
-
-const CHROME_FRAG = /* glsl */ `
-  ${GLSL_RIPPLE_FRAG}
-  varying float vU;
-  varying float vV;
-  varying vec3 vNormal;
-  varying vec3 vView;
-  varying vec3 vWpos;
-  void main() {
-    vec3 coldBlack = vec3(0.067, 0.082, 0.106);  // #11151B
-    vec3 smoke = vec3(0.557, 0.604, 0.663);      // #8E9AA9
-    vec3 silver = vec3(0.863, 0.902, 0.949);     // #DCE6F2
-    vec3 n = normalize(vNormal);
-    float fres = pow(1.0 - abs(dot(n, vView)), 2.0);
-    // 伪棚拍反射：世界 Y 方向柔光带 + 视角依赖
-    float band = 0.5 + 0.5 * sin(vWpos.y * 2.6 + fres * 3.0 + vU * 2.0);
-    band = pow(band, 3.0);
-    vec3 col = mix(coldBlack, smoke, fres * 0.6);
-    col = mix(col, silver, band * (0.35 + fres * 0.5));
-    col += vec3(1.0) * pow(fres, 5.0) * 0.4;
-    float alpha = 0.5 + fres * 0.4;
-    float rippleGlow;
-    ${GLSL_RIPPLE_GLOW}
-    col = mix(col, vec3(1.0), rippleGlow * 0.65);
-    alpha += rippleGlow * 0.3;
-    gl_FragColor = vec4(col, alpha);
-  }
-`;
-
-function MonolithLayer({ quality }: { quality: "high" | "medium" }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const dropsRef = useRef<THREE.InstancedMesh>(null);
-  const dropCount = quality === "high" ? 26 : 14;
-
-  const { bands, chromeMat, bandGeos, dropGeo } = useMemo(() => {
-    // 三条液态瀑布带：左上 / 右侧 / 底部
-    const defs: Array<{ x0: number; z0: number; phase: number; dir: 1 | -1 }> = [
-      { x0: -9.5, z0: -4, phase: 0.0, dir: 1 },
-      { x0: 10.5, z0: -5, phase: 2.1, dir: -1 },
-      { x0: 2.0, z0: -8, phase: 4.2, dir: 1 },
-    ];
-    const segU = 46;
-    const segV = 8;
-    const bandGeos: THREE.BufferGeometry[] = [];
-    const bands: THREE.Mesh[] = [];
-    const chromeMat = new THREE.ShaderMaterial({
-      vertexShader: CHROME_VERT,
-      fragmentShader: CHROME_FRAG,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      uniforms: { uTime: { value: 0 }, ...interactionUniforms() },
-    });
-    defs.forEach((d) => {
-      const pos: number[] = [];
-      const nor: number[] = [];
-      const au: number[] = [];
-      const av: number[] = [];
-      const idx: number[] = [];
-      for (let i = 0; i <= segU; i++) {
-        const u = i / segU;
-        const y = -11 + u * 22;
-        const x = d.x0 + d.dir * 3.2 * Math.sin(u * 2.4 + d.phase) + 1.4 * Math.sin(u * 5.1);
-        for (let j = 0; j <= segV; j++) {
-          const v = j / segV;
-          const z = d.z0 + (v - 0.5) * 3.6;
-          pos.push(x, y, z);
-          nor.push(-d.dir, 0.35, 0);
-          au.push(u);
-          av.push(v);
-        }
-      }
-      for (let i = 0; i < segU; i++) {
-        for (let j = 0; j < segV; j++) {
-          const a = i * (segV + 1) + j;
-          const b = a + segV + 1;
-          idx.push(a, b, a + 1, b, b + 1, a + 1);
-        }
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(pos), 3));
-      geo.setAttribute("aNormal", new THREE.BufferAttribute(new Float32Array(nor), 3));
-      geo.setAttribute("aU", new THREE.BufferAttribute(new Float32Array(au), 1));
-      geo.setAttribute("aV", new THREE.BufferAttribute(new Float32Array(av), 1));
-      geo.setIndex(idx);
-      const mesh = new THREE.Mesh(geo, chromeMat);
-      mesh.frustumCulled = false;
-      bandGeos.push(geo);
-      bands.push(mesh);
-    });
-
-    const dropGeo = new THREE.SphereGeometry(0.16, 12, 12);
-    return { bands, chromeMat, bandGeos, dropGeo };
-  }, []);
-
-  // 微滴参数（缓慢漂移）
-  const drops = useMemo(
-    () =>
-      Array.from({ length: dropCount }, () => ({
-        base: new THREE.Vector3((Math.random() - 0.5) * 24, -9 + Math.random() * 18, -3 - Math.random() * 6),
-        amp: 0.4 + Math.random() * 0.9,
-        speed: 0.1 + Math.random() * 0.2,
-        phase: Math.random() * 6.28,
-        scale: 0.5 + Math.random() * 1.1,
-      })),
-    [dropCount],
-  );
-
-  useEffect(
-    () => () => {
-      bandGeos.forEach((g) => g.dispose());
-      chromeMat.dispose();
-      dropGeo.dispose();
-    },
-    [bandGeos, chromeMat, dropGeo],
-  );
-
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    chromeMat.uniforms.uTime.value = t;
-    updateInteractionUniforms(chromeMat);
-    const inst = dropsRef.current;
-    if (inst) {
-      drops.forEach((d, i) => {
-        dummy.position.set(
-          d.base.x + Math.sin(t * d.speed + d.phase) * d.amp,
-          d.base.y + Math.cos(t * d.speed * 0.8 + d.phase) * d.amp * 0.6,
-          d.base.z,
-        );
-        dummy.scale.setScalar(d.scale);
-        dummy.updateMatrix();
-        inst.setMatrixAt(i, dummy.matrix);
-      });
-      inst.instanceMatrix.needsUpdate = true;
-    }
-    if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(t * 0.038) * 0.12; // ~50s 摆动
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      {bands.map((b, i) => (
-        <primitive key={i} object={b} />
-      ))}
-      <instancedMesh ref={dropsRef} args={[dropGeo, chromeMat, dropCount]} frustumCulled={false} />
-    </group>
-  );
-}
-
-/* ================================================================
- * 6. 时间算法：浑天仪轨道环 + 刻度 + 沿轨铜色粒子
+ * 时间算法：浑天仪轨道环 + 刻度 + 沿轨铜色粒子
  * ================================================================ */
 
 const BRONZE_VERT = /* glsl */ `
@@ -514,10 +335,10 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
     });
 
     const base = [
-      { r: 7.4, tube: 0.1, tilt: [1.15, 0.0, 0.0], speed: 2 * Math.PI / 86, ticks: 72 },
-      { r: 9.0, tube: 0.085, tilt: [0.5, 0.4, -0.3], speed: -2 * Math.PI / 62, ticks: 84 },
-      { r: 10.6, tube: 0.075, tilt: [1.35, -0.3, 0.2], speed: 2 * Math.PI / 52, ticks: 96 },
-      { r: 12.2, tube: 0.065, tilt: [0.9, 0.6, -0.5], speed: -2 * Math.PI / 74, ticks: 108 },
+      { r: 7.4, tube: 0.1, tilt: [1.15, 0.0, 0.0], speed: (2 * Math.PI) / 86, ticks: 72 },
+      { r: 9.0, tube: 0.085, tilt: [0.5, 0.4, -0.3], speed: -(2 * Math.PI) / 62, ticks: 84 },
+      { r: 10.6, tube: 0.075, tilt: [1.35, -0.3, 0.2], speed: (2 * Math.PI) / 52, ticks: 96 },
+      { r: 12.2, tube: 0.065, tilt: [0.9, 0.6, -0.5], speed: -(2 * Math.PI) / 74, ticks: 108 },
     ];
     const ringDefs = base.slice(0, ringCount);
     const ringGeos: THREE.BufferGeometry[] = [];
@@ -536,7 +357,6 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
         dummy.updateMatrix();
         tickList.push({ m: dummy.matrix.clone() });
       }
-      // 刻度用实例化在组件里挂，这里只准备几何
       tickGeos.push(new THREE.BoxGeometry(def.tube * 2.4, def.tube * 6, def.tube * 2.4));
       (def as { tickList?: Array<{ m: THREE.Matrix4 }> }).tickList = tickList;
     });
@@ -654,4 +474,4 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
   );
 }
 
-export { RedshiftLayer, MonolithLayer, ArmillaryLayer };
+export { RedshiftLayer, ArmillaryLayer };

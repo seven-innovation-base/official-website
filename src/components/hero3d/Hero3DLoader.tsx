@@ -15,35 +15,18 @@ type Tier = SceneQuality | "low";
 type Palette = { from: string; via: string; to: string; accent: string };
 
 const SCENE_PALETTES: Partial<Record<SceneVariant, Palette>> = {
-  goldenRatio: { from: "#050505", via: "#17120b", to: "#0a0906", accent: "#C8A25F" },
-  fractalForest: { from: "#03130f", via: "#06281f", to: "#041c14", accent: "#7DF9C6" },
-  quantumRibbon: { from: "#0b0612", via: "#1b0f2d", to: "#0d0916", accent: "#B69CFF" },
   redshift: { from: "#120406", via: "#310a10", to: "#180609", accent: "#FF6B5E" },
-  monolith: { from: "#050608", via: "#11151b", to: "#08090d", accent: "#DCE6F2" },
   armillary: { from: "#07130f", via: "#12281f", to: "#0a1a14", accent: "#C58A4A" },
 };
 
 const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
-  { id: "goldenRatio", label: "黄金比例之门" },
-  { id: "fractalForest", label: "分形算法林" },
-  { id: "quantumRibbon", label: "量子棱镜潮汐" },
   { id: "redshift", label: "红移星环" },
-  { id: "monolith", label: "镜面纪念碑" },
   { id: "armillary", label: "时间算法" },
   { id: "lorenz", label: "洛伦兹风暴眼" },
-  { id: "tesseract", label: "超立方折光门" },
-  { id: "loom", label: "算法织机" },
   { id: "field", label: "向量场之茧" },
-  { id: "eclipse", label: "日蚀磁场" },
-  { id: "converge", label: "Logo 汇聚" },
-  { id: "math", label: "数学符号" },
-  { id: "aurora", label: "极光" },
   { id: "waves", label: "正弦波场" },
-  { id: "network", label: "粒子网络" },
   { id: "nebula", label: "深空星云" },
   { id: "globe", label: "网格星球" },
-  { id: "combo", label: "组合" },
-  { id: "halo", label: "光晕" },
 ];
 
 /** 分级质量探测：WebGL 可用性与设备能力，一次性决策 */
@@ -71,7 +54,7 @@ export default function Hero3DLoader() {
   const [tier, setTier] = useState<Tier | null>(null);
   const [ready, setReady] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [variant, setVariant] = useState<SceneVariant>("goldenRatio");
+  const [variant, setVariant] = useState<SceneVariant>("redshift");
 
   const palette = SCENE_PALETTES[variant];
 
@@ -101,14 +84,6 @@ export default function Hero3DLoader() {
   useEffect(() => {
     heroInteraction.rippleColor.set(palette?.accent ?? "#13c2c2");
   }, [palette]);
-
-  // "Logo 汇聚"模式下，粒子成形后淡出静态 Logo 图，避免重影
-  useEffect(() => {
-    const staticLogo = document.querySelector<HTMLElement>("[data-hero-logo]");
-    if (staticLogo) {
-      staticLogo.style.opacity = variant === "converge" && visible ? "0" : "1";
-    }
-  }, [variant, visible]);
 
   // DOM 侧交互监听：视差坐标 + 拖拽 + 单击能量波（3D 画布保持 pointer-events:none，按钮绝对安全）
   useEffect(() => {
@@ -173,9 +148,7 @@ export default function Hero3DLoader() {
 
   const showScene = tier !== null && tier !== "low" && ready;
   const mask =
-    variant === "converge"
-      ? "[-webkit-mask-image:radial-gradient(ellipse_52%_36%_at_50%_64%,transparent_26%,black_66%)] [mask-image:radial-gradient(ellipse_52%_36%_at_50%_64%,transparent_26%,black_66%)]"
-      : "[-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)]";
+    "[-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)]";
 
   return (
     <div ref={wrapRef} className="contents">
