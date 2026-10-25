@@ -4,13 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
-import {
-  EclipseLayer,
-  FieldLayer,
-  LoomLayer,
-  LorenzLayer,
-  TesseractLayer,
-} from "./sceneExtras";
+import { heroInteraction } from "./interaction";
+import { EclipseLayer, FieldLayer, LoomLayer, LorenzLayer, TesseractLayer } from "./sceneExtras";
+import { FractalForestLayer, GoldenRatioLayer, QuantumRibbonLayer } from "./sceneExtras2";
+import { ArmillaryLayer, MonolithLayer, RedshiftLayer } from "./sceneExtras3";
 
 export type SceneVariant =
   | "network"
@@ -26,8 +23,24 @@ export type SceneVariant =
   | "tesseract"
   | "loom"
   | "field"
-  | "eclipse";
+  | "eclipse"
+  | "goldenRatio"
+  | "fractalForest"
+  | "quantumRibbon"
+  | "redshift"
+  | "monolith"
+  | "armillary";
 export type SceneQuality = "high" | "medium";
+
+/** 进阶场景（带专属配色与完整交互：结构视差 + 拖拽 + 引力扰动 + 点击能量波） */
+const ADVANCED_VARIANTS: SceneVariant[] = [
+  "goldenRatio",
+  "fractalForest",
+  "quantumRibbon",
+  "redshift",
+  "monolith",
+  "armillary",
+];
 
 /**
  * 性能策略（对齐三院科协"顺滑"标准）：
@@ -231,14 +244,25 @@ type SoftLayerProps = {
   /** 缓慢自转速度 */
   spin?: number;
   zOffset?: number;
+  /** 自定义色板（默认品牌藏青蓝色板） */
+  colors?: Array<[string, number]>;
 };
 
-export function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -0.013, zOffset = 0 }: SoftLayerProps) {
+export function SoftLayer({
+  count,
+  radiusRange,
+  sizeScale,
+  alpha = 0.5,
+  spin = -0.013,
+  zOffset = 0,
+  colors,
+}: SoftLayerProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const palette = colors ?? PALETTE;
 
   const { points, material } = useMemo(() => {
     const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
+    const colorsArr = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     const phases = new Float32Array(count);
     const color = new THREE.Color();
@@ -249,17 +273,26 @@ export function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) * 0.62;
       positions[i * 3 + 2] = radius * Math.cos(phi) * 0.55 + zOffset;
-      pickColor(color);
-      colors[i * 3] = color.r;
-      colors[i * 3 + 1] = color.g;
-      colors[i * 3 + 2] = color.b;
+      let r = Math.random();
+      let picked = palette[0][0];
+      for (const [hex, weight] of palette) {
+        r -= weight;
+        if (r <= 0) {
+          picked = hex;
+          break;
+        }
+      }
+      color.set(picked);
+      colorsArr[i * 3] = color.r;
+      colorsArr[i * 3 + 1] = color.g;
+      colorsArr[i * 3 + 2] = color.b;
       sizes[i] = (0.8 + Math.random() * 2.4) * sizeScale;
       phases[i] = Math.random() * Math.PI * 2;
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute("aColor", new THREE.BufferAttribute(colorsArr, 3));
     geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
 
@@ -277,7 +310,7 @@ export function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -
     });
 
     return { points: new THREE.Points(geometry, mat), material: mat };
-  }, [count, radiusRange, sizeScale, alpha, zOffset]);
+  }, [count, radiusRange, sizeScale, alpha, zOffset, palette]);
 
   useEffect(
     () => () => {
@@ -907,6 +940,84 @@ function CameraRig() {
   return null;
 }
 
+/* ---------------- 交互系统 ---------------- */
+
+/** 交互状态更新器：世界坐标换算、涟漪推进、拖拽惯性回中（所有场景生效） */
+function InteractionUpdater() {
+  useFrame(({ pointer, viewport }, delta) => {
+    const dt = Math.min(delta, 0.05);
+    const it = heroInteraction;
+    it.mouseWorld.set((pointer.x * viewport.width) / 2, (pointer.y * viewport.height) / 2, 0);
+    if (it.rippleTime < 5) {
+      if (it.rippleTime < 0.001) {
+        it.rippleCenter.set((it.rippleNx * viewport.width) / 2, (it.rippleNy * viewport.height) / 2);
+      }
+      it.rippleTime += dt;
+    }
+    if (!it.dragging) {
+      it.dragOffset += it.dragVel * dt;
+      it.dragVel *= Math.pow(0.02, dt * 2.4);
+      it.dragOffset *= Math.pow(0.3, dt);
+      if (Math.abs(it.dragOffset) < 0.0004) {
+        it.dragOffset = 0;
+        it.dragVel = 0;
+      }
+    }
+  });
+  return null;
+}
+
+/** 进阶场景交互刚体：±4° 阻尼视差 + ±18° 拖拽旋转（松手惯性回中） */
+function InteractionRig({ children }: { children: React.ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const it = heroInteraction;
+    const targetY = (it.inside ? it.px * 0.07 : 0) + it.dragOffset;
+    const targetX = it.inside ? -it.py * 0.045 : 0;
+    if (!g.current) return;
+    const k = 1 - Math.pow(0.0015, 0.016);
+    g.current.rotation.y += (targetY - g.current.rotation.y) * k;
+    g.current.rotation.x += (targetX - g.current.rotation.x) * k;
+  });
+  return <group ref={g}>{children}</group>;
+}
+
+/** 点击能量波：从点击位置扩散的柔和光环（配色随场景） */
+function RippleFx() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+
+  useFrame(() => {
+    const it = heroInteraction;
+    const mesh = meshRef.current;
+    const mat = matRef.current;
+    if (!mesh || !mat) return;
+    if (it.rippleTime < 0.9) {
+      const e = 1 - Math.pow(1 - it.rippleTime / 0.9, 3);
+      mesh.visible = true;
+      mesh.position.set(it.rippleCenter.x, it.rippleCenter.y, 0.5);
+      mesh.scale.setScalar(0.4 + e * 14);
+      mat.opacity = (1 - it.rippleTime / 0.9) * 0.5;
+      mat.color.set(it.rippleColor);
+    } else {
+      mesh.visible = false;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} visible={false} frustumCulled={false}>
+      <ringGeometry args={[0.94, 1, 64]} />
+      <meshBasicMaterial
+        ref={matRef}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
 /* ---------------- 场景入口 ---------------- */
 
 export default function HeroScene({ variant, quality }: { variant: SceneVariant; quality: SceneQuality }) {
@@ -1031,7 +1142,131 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
             <SoftLayer count={3} radiusRange={[12, 20]} sizeScale={11} alpha={0.07} spin={0.01} zOffset={-12} />
           </>
         )}
-        <CameraRig />
+
+        {/* —— 进阶场景组（专属配色 + 完整交互：视差/拖拽/引力扰动/能量波）—— */}
+        {ADVANCED_VARIANTS.includes(variant) && (
+          <InteractionRig>
+            {variant === "goldenRatio" && (
+              /* 黄金比例之门：黑曜石 × 香槟金 */
+              <>
+                <GoldenRatioLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 260 : 160}
+                  radiusRange={[11, 26]}
+                  sizeScale={0.55}
+                  alpha={0.2}
+                  spin={-0.005}
+                  zOffset={-11}
+                  colors={[
+                    ["#C8A25F", 0.5],
+                    ["#F2DFB8", 0.3],
+                    ["#8a6a35", 0.2],
+                  ]}
+                />
+              </>
+            )}
+            {variant === "fractalForest" && (
+              /* 分形算法林：深松石绿 × 薄荷荧光 */
+              <>
+                <FractalForestLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 300 : 180}
+                  radiusRange={[11, 26]}
+                  sizeScale={0.55}
+                  alpha={0.18}
+                  spin={-0.005}
+                  zOffset={-11}
+                  colors={[
+                    ["#7DF9C6", 0.4],
+                    ["#10B981", 0.35],
+                    ["#F4FFFB", 0.25],
+                  ]}
+                />
+              </>
+            )}
+            {variant === "quantumRibbon" && (
+              /* 量子棱镜潮汐：午夜梅子 × 冰紫 */
+              <>
+                <QuantumRibbonLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 280 : 170}
+                  radiusRange={[11, 26]}
+                  sizeScale={0.55}
+                  alpha={0.18}
+                  spin={-0.005}
+                  zOffset={-11}
+                  colors={[
+                    ["#B69CFF", 0.4],
+                    ["#6B46C1", 0.35],
+                    ["#F5F0FF", 0.25],
+                  ]}
+                />
+              </>
+            )}
+            {variant === "redshift" && (
+              /* 红移星环：勃艮第酒红 × 珊瑚金 */
+              <>
+                <RedshiftLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 260 : 160}
+                  radiusRange={[11, 26]}
+                  sizeScale={0.6}
+                  alpha={0.16}
+                  spin={-0.004}
+                  zOffset={-11}
+                  colors={[
+                    ["#FF6B5E", 0.35],
+                    ["#8F1D2C", 0.4],
+                    ["#FFD4B8", 0.25],
+                  ]}
+                />
+              </>
+            )}
+            {variant === "monolith" && (
+              /* 镜面纪念碑：石墨黑 × 液态银 */
+              <>
+                <MonolithLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 240 : 150}
+                  radiusRange={[11, 26]}
+                  sizeScale={0.5}
+                  alpha={0.15}
+                  spin={-0.004}
+                  zOffset={-11}
+                  colors={[
+                    ["#DCE6F2", 0.4],
+                    ["#8E9AA9", 0.4],
+                    ["#FFFFFF", 0.2],
+                  ]}
+                />
+              </>
+            )}
+            {variant === "armillary" && (
+              /* 时间算法：青铜绿 × 铜金 */
+              <>
+                <ArmillaryLayer quality={quality} />
+                <SoftLayer
+                  count={quality === "high" ? 260 : 160}
+                  radiusRange={[12, 27]}
+                  sizeScale={0.5}
+                  alpha={0.16}
+                  spin={-0.004}
+                  zOffset={-12}
+                  colors={[
+                    ["#C58A4A", 0.4],
+                    ["#4F7B67", 0.35],
+                    ["#F1DDBA", 0.25],
+                  ]}
+                />
+              </>
+            )}
+          </InteractionRig>
+        )}
+
+        {/* 交互系统（所有场景生效） */}
+        <InteractionUpdater />
+        <RippleFx />
+        {!ADVANCED_VARIANTS.includes(variant) && <CameraRig />}
       </Canvas>
     </div>
   );

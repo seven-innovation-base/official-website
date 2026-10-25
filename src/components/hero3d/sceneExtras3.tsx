@@ -1,0 +1,657 @@
+"use client";
+
+/**
+ * 进阶场景组 B：勃艮第红（红移星环）/ 石墨银（镜面纪念碑）/ 青铜绿（时间算法）。
+ * 均带交互 uniforms（uMouse 扰动 + 点击能量波），配合 InteractionRig 使用。
+ */
+
+import { useEffect, useMemo, useRef } from "react";
+import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+
+import {
+  GLSL_RIPPLE_FRAG,
+  GLSL_RIPPLE_GLOW,
+  interactionUniforms,
+  updateInteractionUniforms,
+} from "./interaction";
+
+/* ================================================================
+ * 4. 红移星环：暗天体 + 猩红日冕 + 引力弧 + 旋转星环
+ * ================================================================ */
+
+const RED_CORONA_VERT = /* glsl */ `
+  uniform float uTime;
+  attribute float aAng;
+  attribute float aR0;
+  attribute float aT;
+  attribute float aLen;
+  attribute float aSeed;
+  varying float vT;
+  varying float vSeed;
+  varying vec3 vWpos;
+  void main() {
+    float breath = 1.0 + 0.10 * sin(uTime * 0.314); // ~20s 脉动
+    float r = aR0 + aT * aLen * breath;
+    float ang = aAng + aT * 0.22;
+    vec3 p = vec3(cos(ang) * r, sin(ang) * r, 0.0);
+    vT = aT;
+    vSeed = aSeed;
+    vWpos = (modelMatrix * vec4(p, 1.0)).xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+  }
+`;
+
+const RED_CORONA_FRAG = /* glsl */ `
+  uniform float uTime;
+  ${GLSL_RIPPLE_FRAG}
+  varying float vT;
+  varying float vSeed;
+  varying vec3 vWpos;
+  void main() {
+    float pulse = 0.28 + 0.30 * sin(uTime * 0.5 + vSeed * 7.0);
+    vec3 coral = vec3(1.0, 0.42, 0.369);      // #FF6B5E
+    vec3 ivory = vec3(1.0, 0.831, 0.722);     // #FFD4B8
+    vec3 darkRed = vec3(0.561, 0.114, 0.173); // #8F1D2C
+    vec3 col = mix(darkRed, coral, fract(vSeed * 0.618));
+    col = mix(col, ivory, 0.15);
+    float rippleGlow;
+    ${GLSL_RIPPLE_GLOW}
+    col = mix(col, ivory, rippleGlow * 0.6);
+    gl_FragColor = vec4(col, (pulse + rippleGlow * 0.4) * (1.0 - vT));
+  }
+`;
+
+const RED_RING_VERT = /* glsl */ `
+  uniform float uTime;
+  uniform float uPixelRatio;
+  attribute float aPhase;
+  attribute float aSize;
+  varying float vTw;
+  void main() {
+    vTw = 0.55 + 0.45 * sin(uTime * 0.9 + aPhase);
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = aSize * uPixelRatio * (320.0 / -mv.z);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const RED_RING_FRAG = /* glsl */ `
+  varying float vTw;
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5));
+    float a = smoothstep(0.5, 0.06, d) * vTw * 0.65;
+    vec3 coral = vec3(1.0, 0.42, 0.369);
+    vec3 ivory = vec3(1.0, 0.831, 0.722);
+    gl_FragColor = vec4(mix(coral, ivory, 0.3), a);
+  }
+`;
+
+function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
+  const CENTER = useMemo(() => new THREE.Vector3(-7.2, 6.2, -7), []);
+  const groupRef = useRef<THREE.Group>(null);
+  const coronaGroupRef = useRef<THREE.Group>(null);
+  const ringGroupRef = useRef<THREE.Group>(null);
+
+  const { disc, rimSharp, rimSoft, corona, coronaMat, arcs, arcMat, ringPts, ringMat, disposables } =
+    useMemo(() => {
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(5.6, 72),
+        new THREE.MeshBasicMaterial({ color: "#1a0507" }),
+      );
+      const rimSharp = new THREE.Mesh(
+        new THREE.RingGeometry(5.6, 5.7, 160),
+        new THREE.MeshBasicMaterial({
+          color: "#FF6B5E",
+          transparent: true,
+          opacity: 0.9,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        }),
+      );
+      const rimSoft = new THREE.Mesh(
+        new THREE.RingGeometry(5.72, 7.0, 160),
+        new THREE.ShaderMaterial({
+          vertexShader: `varying float vR; void main(){ vR = length(position.xy); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+          fragmentShader: `varying float vR; void main(){ float t = clamp((vR - 5.72) / (7.0 - 5.72), 0.0, 1.0);
+            gl_FragColor = vec4(vec3(0.561,0.114,0.173), pow(1.0 - t, 2.2) * 0.55); }`,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide,
+        }),
+      );
+
+      // 日冕
+      const n = quality === "high" ? 380 : 210;
+      const pos = new Float32Array(n * 2 * 3);
+      const aAng = new Float32Array(n * 2);
+      const aR0 = new Float32Array(n * 2);
+      const aT = new Float32Array(n * 2);
+      const aLen = new Float32Array(n * 2);
+      const aSeed = new Float32Array(n * 2);
+      for (let i = 0; i < n; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const r0 = 5.85 + Math.random() * 0.25;
+        const len = 0.5 + Math.pow(Math.random(), 2.2) * 2.6;
+        const seed = Math.random() * 6.283;
+        for (let k = 0; k < 2; k++) {
+          const idx = i * 2 + k;
+          aAng[idx] = ang;
+          aR0[idx] = r0;
+          aT[idx] = k;
+          aLen[idx] = len;
+          aSeed[idx] = seed;
+        }
+      }
+      const coronaGeo = new THREE.BufferGeometry();
+      coronaGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      coronaGeo.setAttribute("aAng", new THREE.BufferAttribute(aAng, 1));
+      coronaGeo.setAttribute("aR0", new THREE.BufferAttribute(aR0, 1));
+      coronaGeo.setAttribute("aT", new THREE.BufferAttribute(aT, 1));
+      coronaGeo.setAttribute("aLen", new THREE.BufferAttribute(aLen, 1));
+      coronaGeo.setAttribute("aSeed", new THREE.BufferAttribute(aSeed, 1));
+      const coronaMat = new THREE.ShaderMaterial({
+        vertexShader: RED_CORONA_VERT,
+        fragmentShader: RED_CORONA_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: { uTime: { value: 0 }, ...interactionUniforms() },
+      });
+      const corona = new THREE.LineSegments(coronaGeo, coronaMat);
+      corona.frustumCulled = false;
+
+      // 引力弧 ×3
+      const arcMat = new THREE.ShaderMaterial({
+        vertexShader: `attribute float aT; varying float vT; void main(){ vT = aT; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+        fragmentShader: `uniform float uTime; varying float vT;
+          void main(){ float a = pow(sin(3.1416 * vT), 0.65) * (0.16 + 0.08 * sin(uTime * 0.35 + vT * 9.0));
+          gl_FragColor = vec4(vec3(1.0, 0.42, 0.369), a); }`,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: { uTime: { value: 0 } },
+      });
+      const arcPos: number[] = [];
+      const arcT: number[] = [];
+      for (let arc = 0; arc < 3; arc++) {
+        const R = 14 + arc * 2.8;
+        const segs = 72;
+        let prev: [number, number, number] | null = null;
+        for (let s = 0; s <= segs; s++) {
+          const t = s / segs;
+          const ang = -1.75 + t * 1.85;
+          const p: [number, number, number] = [Math.cos(ang) * R, Math.sin(ang) * R, arc * 1.4 - 2.5];
+          if (prev) {
+            arcPos.push(...prev, ...p);
+            arcT.push((s - 1) / segs, t);
+          }
+          prev = p;
+        }
+      }
+      const arcGeo = new THREE.BufferGeometry();
+      arcGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(arcPos), 3));
+      arcGeo.setAttribute("aT", new THREE.BufferAttribute(new Float32Array(arcT), 1));
+      const arcs = new THREE.LineSegments(arcGeo, arcMat);
+      arcs.frustumCulled = false;
+
+      // 星环（椭圆尘埃环，60–80s 自转）
+      const ringCount = quality === "high" ? 520 : 300;
+      const rp = new Float32Array(ringCount * 3);
+      const rPhase = new Float32Array(ringCount);
+      const rSize = new Float32Array(ringCount);
+      for (let i = 0; i < ringCount; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const r = 10 + Math.random() * 3.2;
+        rp[i * 3] = Math.cos(a) * r;
+        rp[i * 3 + 1] = Math.sin(a) * r * 0.32; // 椭圆
+        rp[i * 3 + 2] = (Math.random() - 0.5) * 0.6;
+        rPhase[i] = Math.random() * 6.283;
+        rSize[i] = 1.0 + Math.random() * 1.8;
+      }
+      const ringGeo = new THREE.BufferGeometry();
+      ringGeo.setAttribute("position", new THREE.BufferAttribute(rp, 3));
+      ringGeo.setAttribute("aPhase", new THREE.BufferAttribute(rPhase, 1));
+      ringGeo.setAttribute("aSize", new THREE.BufferAttribute(rSize, 1));
+      const ringMat = new THREE.ShaderMaterial({
+        vertexShader: RED_RING_VERT,
+        fragmentShader: RED_RING_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: { uTime: { value: 0 }, uPixelRatio: { value: 1 } },
+      });
+      const ringPts = new THREE.Points(ringGeo, ringMat);
+      ringPts.frustumCulled = false;
+
+      const disposables = [
+        disc.geometry,
+        disc.material as THREE.Material,
+        rimSharp.geometry,
+        rimSharp.material as THREE.Material,
+        rimSoft.geometry,
+        rimSoft.material as THREE.Material,
+        coronaGeo,
+        coronaMat,
+        arcGeo,
+        arcMat,
+        ringGeo,
+        ringMat,
+      ];
+      return { disc, rimSharp, rimSoft, corona, coronaMat, arcs, arcMat, ringPts, ringGeo, ringMat, disposables };
+    }, [quality]);
+
+  useEffect(
+    () => () => {
+      disposables.forEach((d) => d.dispose());
+    },
+    [disposables],
+  );
+
+  useFrame(({ clock, gl }) => {
+    const t = clock.elapsedTime;
+    coronaMat.uniforms.uTime.value = t;
+    updateInteractionUniforms(coronaMat);
+    arcMat.uniforms.uTime.value = t;
+    ringMat.uniforms.uTime.value = t;
+    ringMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    if (coronaGroupRef.current) coronaGroupRef.current.rotation.z = t * 0.009;
+    if (ringGroupRef.current) ringGroupRef.current.rotation.z = t * 0.085; // ~74s 一圈
+    if (groupRef.current) groupRef.current.scale.setScalar(1 + 0.012 * Math.sin(t * 0.314));
+  });
+
+  return (
+    <>
+      <group ref={groupRef} position={CENTER.toArray()}>
+        <primitive object={disc} />
+        <primitive object={rimSharp} />
+        <primitive object={rimSoft} />
+        <group ref={coronaGroupRef}>
+          <primitive object={corona} />
+        </group>
+      </group>
+      <group ref={ringGroupRef} position={[1.5, -1, -5]} rotation={[0.35, 0.2, -0.3]}>
+        <primitive object={ringPts} />
+      </group>
+      <primitive object={arcs} />
+    </>
+  );
+}
+
+/* ================================================================
+ * 5. 镜面纪念碑：液态铬曲面带（伪棚拍反射）+ 漂浮金属微滴
+ * ================================================================ */
+
+const CHROME_VERT = /* glsl */ `
+  uniform float uTime;
+  attribute float aU;
+  attribute float aV;
+  attribute vec3 aNormal;
+  varying float vU;
+  varying float vV;
+  varying vec3 vNormal;
+  varying vec3 vView;
+  varying vec3 vWpos;
+  void main() {
+    vec3 p = position;
+    // 40–60s 缓慢形变
+    p += aNormal * (sin(aU * 4.0 + uTime * 0.126) * 0.3 + sin(aV * 3.0 + uTime * 0.105) * 0.2);
+    vU = aU;
+    vV = aV;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    vNormal = normalize(normalMatrix * aNormal);
+    vView = normalize(-mv.xyz);
+    vWpos = (modelMatrix * vec4(p, 1.0)).xyz;
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const CHROME_FRAG = /* glsl */ `
+  ${GLSL_RIPPLE_FRAG}
+  varying float vU;
+  varying float vV;
+  varying vec3 vNormal;
+  varying vec3 vView;
+  varying vec3 vWpos;
+  void main() {
+    vec3 coldBlack = vec3(0.067, 0.082, 0.106);  // #11151B
+    vec3 smoke = vec3(0.557, 0.604, 0.663);      // #8E9AA9
+    vec3 silver = vec3(0.863, 0.902, 0.949);     // #DCE6F2
+    vec3 n = normalize(vNormal);
+    float fres = pow(1.0 - abs(dot(n, vView)), 2.0);
+    // 伪棚拍反射：世界 Y 方向柔光带 + 视角依赖
+    float band = 0.5 + 0.5 * sin(vWpos.y * 2.6 + fres * 3.0 + vU * 2.0);
+    band = pow(band, 3.0);
+    vec3 col = mix(coldBlack, smoke, fres * 0.6);
+    col = mix(col, silver, band * (0.35 + fres * 0.5));
+    col += vec3(1.0) * pow(fres, 5.0) * 0.4;
+    float alpha = 0.5 + fres * 0.4;
+    float rippleGlow;
+    ${GLSL_RIPPLE_GLOW}
+    col = mix(col, vec3(1.0), rippleGlow * 0.65);
+    alpha += rippleGlow * 0.3;
+    gl_FragColor = vec4(col, alpha);
+  }
+`;
+
+function MonolithLayer({ quality }: { quality: "high" | "medium" }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const dropsRef = useRef<THREE.InstancedMesh>(null);
+  const dropCount = quality === "high" ? 26 : 14;
+
+  const { bands, chromeMat, bandGeos, dropGeo } = useMemo(() => {
+    // 三条液态瀑布带：左上 / 右侧 / 底部
+    const defs: Array<{ x0: number; z0: number; phase: number; dir: 1 | -1 }> = [
+      { x0: -9.5, z0: -4, phase: 0.0, dir: 1 },
+      { x0: 10.5, z0: -5, phase: 2.1, dir: -1 },
+      { x0: 2.0, z0: -8, phase: 4.2, dir: 1 },
+    ];
+    const segU = 46;
+    const segV = 8;
+    const bandGeos: THREE.BufferGeometry[] = [];
+    const bands: THREE.Mesh[] = [];
+    const chromeMat = new THREE.ShaderMaterial({
+      vertexShader: CHROME_VERT,
+      fragmentShader: CHROME_FRAG,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      uniforms: { uTime: { value: 0 }, ...interactionUniforms() },
+    });
+    defs.forEach((d) => {
+      const pos: number[] = [];
+      const nor: number[] = [];
+      const au: number[] = [];
+      const av: number[] = [];
+      const idx: number[] = [];
+      for (let i = 0; i <= segU; i++) {
+        const u = i / segU;
+        const y = -11 + u * 22;
+        const x = d.x0 + d.dir * 3.2 * Math.sin(u * 2.4 + d.phase) + 1.4 * Math.sin(u * 5.1);
+        for (let j = 0; j <= segV; j++) {
+          const v = j / segV;
+          const z = d.z0 + (v - 0.5) * 3.6;
+          pos.push(x, y, z);
+          nor.push(-d.dir, 0.35, 0);
+          au.push(u);
+          av.push(v);
+        }
+      }
+      for (let i = 0; i < segU; i++) {
+        for (let j = 0; j < segV; j++) {
+          const a = i * (segV + 1) + j;
+          const b = a + segV + 1;
+          idx.push(a, b, a + 1, b, b + 1, a + 1);
+        }
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(pos), 3));
+      geo.setAttribute("aNormal", new THREE.BufferAttribute(new Float32Array(nor), 3));
+      geo.setAttribute("aU", new THREE.BufferAttribute(new Float32Array(au), 1));
+      geo.setAttribute("aV", new THREE.BufferAttribute(new Float32Array(av), 1));
+      geo.setIndex(idx);
+      const mesh = new THREE.Mesh(geo, chromeMat);
+      mesh.frustumCulled = false;
+      bandGeos.push(geo);
+      bands.push(mesh);
+    });
+
+    const dropGeo = new THREE.SphereGeometry(0.16, 12, 12);
+    return { bands, chromeMat, bandGeos, dropGeo };
+  }, []);
+
+  // 微滴参数（缓慢漂移）
+  const drops = useMemo(
+    () =>
+      Array.from({ length: dropCount }, () => ({
+        base: new THREE.Vector3((Math.random() - 0.5) * 24, -9 + Math.random() * 18, -3 - Math.random() * 6),
+        amp: 0.4 + Math.random() * 0.9,
+        speed: 0.1 + Math.random() * 0.2,
+        phase: Math.random() * 6.28,
+        scale: 0.5 + Math.random() * 1.1,
+      })),
+    [dropCount],
+  );
+
+  useEffect(
+    () => () => {
+      bandGeos.forEach((g) => g.dispose());
+      chromeMat.dispose();
+      dropGeo.dispose();
+    },
+    [bandGeos, chromeMat, dropGeo],
+  );
+
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    chromeMat.uniforms.uTime.value = t;
+    updateInteractionUniforms(chromeMat);
+    const inst = dropsRef.current;
+    if (inst) {
+      drops.forEach((d, i) => {
+        dummy.position.set(
+          d.base.x + Math.sin(t * d.speed + d.phase) * d.amp,
+          d.base.y + Math.cos(t * d.speed * 0.8 + d.phase) * d.amp * 0.6,
+          d.base.z,
+        );
+        dummy.scale.setScalar(d.scale);
+        dummy.updateMatrix();
+        inst.setMatrixAt(i, dummy.matrix);
+      });
+      inst.instanceMatrix.needsUpdate = true;
+    }
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(t * 0.038) * 0.12; // ~50s 摆动
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {bands.map((b, i) => (
+        <primitive key={i} object={b} />
+      ))}
+      <instancedMesh ref={dropsRef} args={[dropGeo, chromeMat, dropCount]} frustumCulled={false} />
+    </group>
+  );
+}
+
+/* ================================================================
+ * 6. 时间算法：浑天仪轨道环 + 刻度 + 沿轨铜色粒子
+ * ================================================================ */
+
+const BRONZE_VERT = /* glsl */ `
+  varying float vF;
+  varying vec3 vWpos;
+  void main() {
+    #ifdef USE_INSTANCING
+      mat4 im = instanceMatrix;
+    #else
+      mat4 im = mat4(1.0);
+    #endif
+    vec4 mv = modelViewMatrix * im * vec4(position, 1.0);
+    vec3 n = normalize(normalMatrix * mat3(im) * normal);
+    vF = pow(1.0 - abs(dot(n, normalize(-mv.xyz))), 1.9);
+    vWpos = (modelMatrix * im * vec4(position, 1.0)).xyz;
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const BRONZE_FRAG = /* glsl */ `
+  ${GLSL_RIPPLE_FRAG}
+  varying float vF;
+  varying vec3 vWpos;
+  void main() {
+    vec3 oxide = vec3(0.071, 0.157, 0.122);   // #12281F
+    vec3 copper = vec3(0.773, 0.541, 0.290);  // #C58A4A
+    vec3 ivory = vec3(0.945, 0.867, 0.729);   // #F1DDBA
+    vec3 col = mix(oxide, copper, pow(vF, 1.5) * 0.9);
+    col += ivory * pow(vF, 5.0) * 0.45;
+    float alpha = 0.32 + vF * 0.52;
+    float rippleGlow;
+    ${GLSL_RIPPLE_GLOW}
+    col = mix(col, ivory, rippleGlow * 0.6);
+    alpha += rippleGlow * 0.3;
+    gl_FragColor = vec4(col, alpha);
+  }
+`;
+
+function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const ringGroups = useRef<Array<THREE.Group | null>>([]);
+  const ringCount = quality === "high" ? 4 : 3;
+
+  const { ringDefs, bronzeMat, ringGeos, tickGeos, orbitGeo, orbitMat, orbitPts } = useMemo(() => {
+    const bronzeMat = new THREE.ShaderMaterial({
+      vertexShader: BRONZE_VERT,
+      fragmentShader: BRONZE_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: { ...interactionUniforms() },
+    });
+
+    const base = [
+      { r: 7.4, tube: 0.1, tilt: [1.15, 0.0, 0.0], speed: 2 * Math.PI / 86, ticks: 72 },
+      { r: 9.0, tube: 0.085, tilt: [0.5, 0.4, -0.3], speed: -2 * Math.PI / 62, ticks: 84 },
+      { r: 10.6, tube: 0.075, tilt: [1.35, -0.3, 0.2], speed: 2 * Math.PI / 52, ticks: 96 },
+      { r: 12.2, tube: 0.065, tilt: [0.9, 0.6, -0.5], speed: -2 * Math.PI / 74, ticks: 108 },
+    ];
+    const ringDefs = base.slice(0, ringCount);
+    const ringGeos: THREE.BufferGeometry[] = [];
+    const tickGeos: THREE.BufferGeometry[] = [];
+    ringDefs.forEach((def) => {
+      ringGeos.push(new THREE.TorusGeometry(def.r, def.tube, 10, 110));
+      // 刻度：沿环分布的小方块
+      const dummy = new THREE.Object3D();
+      const tickList: Array<{ m: THREE.Matrix4 }> = [];
+      for (let i = 0; i < def.ticks; i++) {
+        const a = (i / def.ticks) * Math.PI * 2;
+        dummy.position.set(Math.cos(a) * def.r, Math.sin(a) * def.r, 0);
+        dummy.rotation.set(0, 0, a);
+        const s = i % 6 === 0 ? 1.9 : 1.0;
+        dummy.scale.set(0.5, s * 0.6, 0.5);
+        dummy.updateMatrix();
+        tickList.push({ m: dummy.matrix.clone() });
+      }
+      // 刻度用实例化在组件里挂，这里只准备几何
+      tickGeos.push(new THREE.BoxGeometry(def.tube * 2.4, def.tube * 6, def.tube * 2.4));
+      (def as { tickList?: Array<{ m: THREE.Matrix4 }> }).tickList = tickList;
+    });
+
+    // 沿轨铜色粒子（CPU 更新）
+    const orbitCount = quality === "high" ? 46 : 26;
+    const orbitGeo = new THREE.BufferGeometry();
+    orbitGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(orbitCount * 3), 3));
+    const phases = new Float32Array(orbitCount);
+    const sizes = new Float32Array(orbitCount);
+    for (let i = 0; i < orbitCount; i++) {
+      phases[i] = Math.random() * 6.283;
+      sizes[i] = 1.8 + Math.random() * 1.8;
+    }
+    orbitGeo.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+    orbitGeo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    const orbitMat = new THREE.ShaderMaterial({
+      vertexShader: `uniform float uTime; uniform float uPixelRatio; attribute float aSize; attribute float aPhase; varying float vTw;
+        void main(){ vTw = 0.6 + 0.4 * sin(uTime * 1.1 + aPhase); vec4 mv = modelViewMatrix * vec4(position,1.0);
+        gl_PointSize = aSize * uPixelRatio * (320.0 / -mv.z); gl_Position = projectionMatrix * mv; }`,
+      fragmentShader: `varying float vTw; void main(){ float d = length(gl_PointCoord - vec2(0.5));
+        float a = smoothstep(0.5, 0.06, d) * vTw * 0.85; gl_FragColor = vec4(vec3(0.945,0.867,0.729), a); }`,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uPixelRatio: { value: 1 } },
+    });
+    const orbitPts = new THREE.Points(orbitGeo, orbitMat);
+    orbitPts.frustumCulled = false;
+
+    return { ringDefs, bronzeMat, ringGeos, tickGeos, orbitGeo, orbitMat, orbitPts };
+  }, [ringCount, quality]);
+
+  // 轨道粒子参数（含各环倾斜四元数，保证粒子沿倾斜轨道运行）
+  const orbiters = useMemo(
+    () =>
+      Array.from({ length: quality === "high" ? 46 : 26 }, () => {
+        const ring = Math.floor(Math.random() * ringCount);
+        const def = ringDefs[ring];
+        const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(def.tilt[0], def.tilt[1], def.tilt[2]));
+        return {
+          ring,
+          q,
+          radius: def.r,
+          angle: Math.random() * Math.PI * 2,
+          speed: 0.1 + Math.random() * 0.18,
+        };
+      }),
+    [ringCount, quality, ringDefs],
+  );
+
+  useEffect(
+    () => () => {
+      ringGeos.forEach((g) => g.dispose());
+      tickGeos.forEach((g) => g.dispose());
+      bronzeMat.dispose();
+      orbitGeo.dispose();
+      orbitMat.dispose();
+    },
+    [ringGeos, tickGeos, bronzeMat, orbitGeo, orbitMat],
+  );
+
+  useFrame(({ clock, gl }) => {
+    const t = clock.elapsedTime;
+    updateInteractionUniforms(bronzeMat);
+    orbitMat.uniforms.uTime.value = t;
+    orbitMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
+
+    // 各环自转（局部 z 轴 = 环平面法线）
+    ringGroups.current.forEach((g, i) => {
+      if (g) g.rotation.z = ringDefs[i].speed * t;
+    });
+
+    // 轨道粒子沿倾斜环运行
+    const attr = orbitGeo.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    const tmp = new THREE.Vector3();
+    orbiters.forEach((o, i) => {
+      const a = o.angle + t * o.speed;
+      tmp.set(Math.cos(a) * o.radius, Math.sin(a) * o.radius, 0).applyQuaternion(o.q);
+      arr[i * 3] = tmp.x;
+      arr[i * 3 + 1] = tmp.y;
+      arr[i * 3 + 2] = tmp.z;
+    });
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {ringDefs.map((def, i) => (
+        <group
+          key={i}
+          rotation={def.tilt as [number, number, number]}
+          ref={(g) => {
+            ringGroups.current[i] = g;
+          }}
+        >
+          <mesh geometry={ringGeos[i]} material={bronzeMat} />
+          <instancedMesh
+            args={[tickGeos[i], bronzeMat, def.ticks]}
+            frustumCulled={false}
+            ref={(inst) => {
+              if (!inst) return;
+              const list = (def as { tickList?: Array<{ m: THREE.Matrix4 }> }).tickList;
+              if (!list || (inst as unknown as { _ticked?: boolean })._ticked) return;
+              list.forEach((tk, k) => inst.setMatrixAt(k, tk.m));
+              inst.instanceMatrix.needsUpdate = true;
+              (inst as unknown as { _ticked?: boolean })._ticked = true;
+            }}
+          />
+        </group>
+      ))}
+      <primitive object={orbitPts} />
+    </group>
+  );
+}
+
+export { RedshiftLayer, MonolithLayer, ArmillaryLayer };

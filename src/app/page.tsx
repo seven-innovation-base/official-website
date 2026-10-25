@@ -55,13 +55,13 @@ export default function HomePage() {
             data-hero-logo
             className="animate-hero-float h-24 w-24 rounded-full bg-white/10 object-cover shadow-2xl shadow-black/40 ring-2 ring-white/30 backdrop-blur transition-opacity duration-1000"
           />
-          <h1 className="mt-8 bg-gradient-to-b from-white via-blue-50 to-blue-200/90 bg-clip-text text-5xl font-bold tracking-wide text-transparent drop-shadow-[0_2px_14px_rgba(10,45,94,0.55)] md:text-7xl">
+          <h1 className="mt-8 bg-gradient-to-b from-white via-white to-slate-300/90 bg-clip-text text-5xl font-bold tracking-wide text-transparent drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] md:text-7xl">
             {siteConfig.siteName}
           </h1>
-          <p className="mt-7 flex items-center justify-center gap-4 text-base text-blue-100/95 drop-shadow-[0_1px_8px_rgba(10,45,94,0.5)] md:text-xl">
-            <span className="h-px w-8 bg-gradient-to-r from-transparent to-blue-200/70 md:w-14" />
+          <p className="mt-7 flex items-center justify-center gap-4 text-base text-slate-100/95 drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] md:text-xl">
+            <span className="h-px w-8 bg-gradient-to-r from-transparent to-white/50 md:w-14" />
             <span className="tracking-[0.3em] md:tracking-[0.4em]">{siteConfig.tagline}</span>
-            <span className="h-px w-8 bg-gradient-to-l from-transparent to-blue-200/70 md:w-14" />
+            <span className="h-px w-8 bg-gradient-to-l from-transparent to-white/50 md:w-14" />
           </p>
 
           <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
@@ -71,7 +71,7 @@ export default function HomePage() {
                 href={entry.href}
                 className={
                   entry.primary
-                    ? "rounded-xl bg-white px-7 py-3 text-base font-semibold text-primary shadow-lg shadow-black/20 transition hover:scale-105 hover:bg-blue-50"
+                    ? "rounded-xl bg-white px-7 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/25 transition hover:scale-105 hover:bg-slate-100"
                     : "rounded-xl border border-white/40 px-7 py-3 text-base font-medium text-white backdrop-blur transition hover:scale-105 hover:border-white hover:bg-white/10"
                 }
               >
@@ -87,7 +87,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <p className="absolute bottom-8 text-xs tracking-widest text-blue-200/60">
+          <p className="absolute bottom-8 text-xs tracking-widest text-white/50">
             桂林电子科技大学 · 数学与计算科学学院
           </p>
         </div>
