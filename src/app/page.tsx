@@ -38,11 +38,11 @@ function DeptCard({ dept }: { dept: Department }) {
 export default function HomePage() {
   return (
     <>
-      {/* ============ Hero（3D 主视觉区：时间算法，D4 定稿）============ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#07130f] via-[#12281f] to-[#0a1a14] text-white">
-        {/* 静态渐变光晕：3D 场景加载前后的兜底视觉（青铜绿 × 铜金） */}
-        <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-[#C58A4A]/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-[#4F7B67]/25 blur-3xl" />
+      {/* ============ Hero（3D 主视觉区：时间算法·冰蓝×白，D4 定稿）============ */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#061019] via-[#0e2436] to-[#081826] text-white">
+        {/* 静态渐变光晕：3D 场景加载前后的兜底视觉（深海蓝 × 冰蓝） */}
+        <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-[#7CC4F2]/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-[#2E7BC4]/25 blur-3xl" />
 
         <Hero3DLoader />
 

@@ -11,12 +11,12 @@ const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
 
 type Tier = SceneQuality | "low";
 
-/** 「时间算法」专属配色（青铜绿 × 铜金，D4 定稿） */
+/** 「时间算法」专属配色·方案一「冰蓝 × 白」（深海蓝渐变 + 冰蓝 accent，D4 定稿） */
 const ARMILLARY_PALETTE = {
-  from: "#07130f",
-  via: "#12281f",
-  to: "#0a1a14",
-  accent: "#C58A4A",
+  from: "#061019",
+  via: "#0e2436",
+  to: "#081826",
+  accent: "#7CC4F2",
 };
 
 /** 分级质量探测：WebGL 可用性与设备能力，一次性决策 */
@@ -67,7 +67,7 @@ export default function Hero3DLoader() {
     return () => window.clearTimeout(t);
   }, [ready]);
 
-  // 能量波配色（铜金）
+  // 能量波配色（冰蓝）
   useEffect(() => {
     heroInteraction.rippleColor.set(ARMILLARY_PALETTE.accent);
   }, []);

@@ -26,6 +26,13 @@
   ::selection {
     @apply bg-accent/30;
   }
+
+  /* 锚点跳转平滑滚动（尊重"减弱动态效果"设置） */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
 }
 
 @layer utilities {

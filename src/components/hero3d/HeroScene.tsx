@@ -176,7 +176,7 @@ function InteractionRig({ children }: { children: React.ReactNode }) {
   return <group ref={g}>{children}</group>;
 }
 
-/** 点击能量波：从点击位置扩散的柔和铜金光环 */
+/** 点击能量波：从点击位置扩散的柔和冰蓝光环 */
 function RippleFx() {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
@@ -252,9 +252,9 @@ export default function HeroScene({ quality }: { quality: SceneQuality }) {
             spin={-0.004}
             zOffset={-12}
             colors={[
-              ["#C58A4A", 0.4],
-              ["#4F7B67", 0.35],
-              ["#F1DDBA", 0.25],
+              ["#7CC4F2", 0.4],
+              ["#2E7BC4", 0.35],
+              ["#F4FAFF", 0.25],
             ]}
           />
         </InteractionRig>

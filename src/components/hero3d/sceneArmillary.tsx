@@ -2,7 +2,8 @@
 
 /**
  * 「时间算法」——官网 Hero 定稿场景（D4，2026-10-25）。
- * 古代浑天仪 × 未来数学装置：同心轨道环 + 刻度 + 沿轨铜色粒子。
+ * 配色方案一「冰蓝 × 白」：深海蓝背景 + 钢青蓝环体 + 冰蓝边缘光 + 雪白粒子。
+ * 古代浑天仪 × 未来数学装置：同心轨道环 + 刻度 + 沿轨粒子。
  * 带完整交互（±4° 视差 / ±18° 拖拽 / 鼠标引力扰动 / 点击能量波）。
  * 其他候选场景见 archive/hero3d/。
  */
@@ -41,15 +42,15 @@ const BRONZE_FRAG = /* glsl */ `
   varying float vF;
   varying vec3 vWpos;
   void main() {
-    vec3 oxide = vec3(0.071, 0.157, 0.122);   // #12281F 氧化铜绿
-    vec3 copper = vec3(0.773, 0.541, 0.290);  // #C58A4A 古铜金
-    vec3 ivory = vec3(0.945, 0.867, 0.729);   // #F1DDBA 暖象牙
-    vec3 col = mix(oxide, copper, pow(vF, 1.5) * 0.9);
-    col += ivory * pow(vF, 5.0) * 0.45;
+    vec3 steel = vec3(0.086, 0.196, 0.306);  // #16324E 钢青蓝（环体底色）
+    vec3 iceBlue = vec3(0.486, 0.769, 0.949); // #7CC4F2 冰蓝（边缘光）
+    vec3 snow = vec3(0.957, 0.980, 1.0);      // #F4FAFF 雪白（高光）
+    vec3 col = mix(steel, iceBlue, pow(vF, 1.5) * 0.9);
+    col += snow * pow(vF, 5.0) * 0.45;
     float alpha = 0.32 + vF * 0.52;
     float rippleGlow;
     ${GLSL_RIPPLE_GLOW}
-    col = mix(col, ivory, rippleGlow * 0.6);
+    col = mix(col, snow, rippleGlow * 0.6);
     alpha += rippleGlow * 0.3;
     gl_FragColor = vec4(col, alpha);
   }
@@ -115,7 +116,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
         void main(){ vTw = 0.6 + 0.4 * sin(uTime * 1.1 + aPhase); vec4 mv = modelViewMatrix * vec4(position,1.0);
         gl_PointSize = aSize * uPixelRatio * (320.0 / -mv.z); gl_Position = projectionMatrix * mv; }`,
       fragmentShader: `varying float vTw; void main(){ float d = length(gl_PointCoord - vec2(0.5));
-        float a = smoothstep(0.5, 0.06, d) * vTw * 0.85; gl_FragColor = vec4(vec3(0.945,0.867,0.729), a); }`,
+        float a = smoothstep(0.5, 0.06, d) * vTw * 0.85; gl_FragColor = vec4(vec3(0.957, 0.980, 1.0), a); }`,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import FooterHomeLink from "@/components/site/FooterHomeLink";
 import { siteConfig } from "@/lib/content";
 
 /**
@@ -23,7 +24,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-[#C58A4A]/20 bg-[#14352a] text-slate-300">
+    <footer className="border-t border-[#7CC4F2]/20 bg-[#10314a] text-slate-300">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <div className="flex items-center gap-2.5">
@@ -45,7 +46,10 @@ export default function Footer() {
         <div>
           <h3 className="text-sm font-semibold tracking-wider text-slate-200">站内导航</h3>
           <ul className="mt-4 space-y-2.5 text-sm">
-            {navLinks.map((link) => (
+            <li>
+              <FooterHomeLink />
+            </li>
+            {navLinks.slice(1).map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="hover:text-white">
                   {link.label}
