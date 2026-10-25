@@ -2,12 +2,29 @@ import Link from "next/link";
 
 import { siteConfig } from "@/lib/content";
 
+/**
+ * 页脚（兼站内导航）：顶部导航栏已移除，导航入口全部收拢于此。
+ * 列结构：基地 / 站内导航 / 资源中心 / 常用链接 / 友情链接
+ */
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  const navLinks = [
+    { href: "/", label: "首页" },
+    { href: "/members/", label: "团队成员" },
+    { href: "/honors/", label: "历史荣誉" },
+    { href: "/join/", label: "加入我们" },
+  ];
+
+  const resourceLinks = [
+    { href: "/ftp/", label: "FTP 资料库" },
+    { href: "/oj/", label: "OJ 练习（仅校园网）" },
+    { href: "/legacy/", label: "学习文档" },
+  ];
+
   return (
     <footer className="bg-primary-deep text-slate-300">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <div className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -21,7 +38,34 @@ export default function Footer() {
                 {addr}
               </span>
             ))}
+            <span className="mt-1 block">招新 QQ 群：{siteConfig.qqGroup}</span>
           </p>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold tracking-wider text-slate-200">站内导航</h3>
+          <ul className="mt-4 space-y-2.5 text-sm">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold tracking-wider text-slate-200">资源中心</h3>
+          <ul className="mt-4 space-y-2.5 text-sm">
+            {resourceLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div>
@@ -29,7 +73,7 @@ export default function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm">
             <li>
               <a href={siteConfig.links.guet} target="_blank" rel="noreferrer" className="hover:text-white">
-                桂林电子科技大学官网
+                桂林电子科技大学
               </a>
             </li>
             <li>
@@ -55,27 +99,6 @@ export default function Footer() {
                 </a>
               </li>
             ))}
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-semibold tracking-wider text-slate-200">加入我们</h3>
-          <ul className="mt-4 space-y-2.5 text-sm">
-            <li>
-              <Link href="/join/" className="hover:text-white">
-                招新咨询 QQ 群：{siteConfig.qqGroup}
-              </Link>
-            </li>
-            <li>
-              <Link href="/ftp/" className="hover:text-white">
-                FTP 资料库
-              </Link>
-            </li>
-            <li>
-              <Link href="/oj/" className="hover:text-white">
-                OJ 练习系统（仅校园网）
-              </Link>
-            </li>
           </ul>
         </div>
       </div>

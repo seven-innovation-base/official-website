@@ -46,7 +46,7 @@ export default function HomePage() {
 
         <Hero3DLoader />
 
-        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
           {/* Logo（参照三院科协形态：悬于标题上方） */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -82,23 +82,35 @@ export default function HomePage() {
             ))}
           </div>
 
-          <p className="absolute bottom-8 text-xs tracking-widest text-white/50">
+          <a
+            href="#video"
+            aria-label="向下滚动查看更多"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/60 transition hover:text-white"
+          >
+            <svg className="h-6 w-6 animate-bounce" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+
+          <p className="absolute bottom-3.5 text-[10px] tracking-widest text-white/50">
             桂林电子科技大学 · 数学与计算科学学院
           </p>
         </div>
       </section>
 
       {/* ============ 宣传视频（点击封面懒加载，本地自托管）============ */}
-      <Reveal>
-        <VideoSection
-          title={siteConfig.video.title}
-          description={siteConfig.video.description}
-          type={siteConfig.video.type}
-          src={siteConfig.video.src}
-          poster={siteConfig.video.poster}
-          embedUrl={siteConfig.video.embedUrl}
-        />
-      </Reveal>
+      <div id="video" className="scroll-mt-4">
+        <Reveal>
+          <VideoSection
+            title={siteConfig.video.title}
+            description={siteConfig.video.description}
+            type={siteConfig.video.type}
+            src={siteConfig.video.src}
+            poster={siteConfig.video.poster}
+            embedUrl={siteConfig.video.embedUrl}
+          />
+        </Reveal>
+      </div>
 
       {/* ============ 三大部门（文案沿用旧站风格，布局借鉴三院科协 2+1）============ */}
       <section className="mx-auto max-w-6xl px-6 py-24">
