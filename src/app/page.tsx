@@ -50,7 +50,7 @@ export default function HomePage() {
           {/* Logo（参照三院科协形态：悬于标题上方） */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo.png"
+            src="/images/logo2.png"
             alt="七院创新基地 Logo"
             className="animate-hero-float h-20 w-20 rounded-full bg-white/10 object-cover shadow-2xl shadow-black/40 ring-2 ring-white/30 backdrop-blur"
           />

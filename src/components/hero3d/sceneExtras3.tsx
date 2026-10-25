@@ -363,7 +363,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
     });
 
     // 沿轨铜色粒子（CPU 更新）
-    const orbitCount = quality === "high" ? 92 : 52;
+    const orbitCount = quality === "high" ? 184 : 104;
     const orbitGeo = new THREE.BufferGeometry();
     orbitGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(orbitCount * 3), 3));
     const phases = new Float32Array(orbitCount);
@@ -391,10 +391,10 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
     return { ringDefs, bronzeMat, ringGeos, tickGeos, orbitGeo, orbitMat, orbitPts };
   }, [ringCount, quality]);
 
-  // 轨道粒子参数（含各环倾斜四元数，保证粒子沿倾斜轨道运行）
+  // 轨道粒子参数（含各环倾斜四元数，保证粒子沿倾斜轨道运行；速度 ×2）
   const orbiters = useMemo(
     () =>
-      Array.from({ length: quality === "high" ? 92 : 52 }, () => {
+      Array.from({ length: quality === "high" ? 184 : 104 }, () => {
         const ring = Math.floor(Math.random() * ringCount);
         const def = ringDefs[ring];
         const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(def.tilt[0], def.tilt[1], def.tilt[2]));
@@ -403,7 +403,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
           q,
           radius: def.r,
           angle: Math.random() * Math.PI * 2,
-          speed: 0.1 + Math.random() * 0.18,
+          speed: (0.1 + Math.random() * 0.18) * 2,
         };
       }),
     [ringCount, quality, ringDefs],
