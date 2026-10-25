@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import VideoSection from "@/components/home/VideoSection";
+import HonorsTable from "@/components/honors/HonorsTable";
 import Hero3DLoader from "@/components/hero3d/Hero3DLoader";
 import Reveal from "@/components/site/Reveal";
 import { departments, siteConfig } from "@/lib/content";
@@ -24,18 +25,21 @@ export default function HomePage() {
         <Hero3DLoader />
 
         <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
-          {/* Logo（参照三院科协形态：悬于标题上方） */}
+          {/* Logo（参照三院科协形态：悬于标题上方；"汇聚"模式下粒子成形后本图淡出） */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo.png"
             alt="七院创新基地 Logo"
-            className="animate-hero-float h-24 w-24 rounded-full bg-white/10 object-cover shadow-2xl shadow-black/40 ring-2 ring-white/30 backdrop-blur"
+            data-hero-logo
+            className="animate-hero-float h-24 w-24 rounded-full bg-white/10 object-cover shadow-2xl shadow-black/40 ring-2 ring-white/30 backdrop-blur transition-opacity duration-1000"
           />
-          <h1 className="mt-8 text-5xl font-bold tracking-wide drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] md:text-7xl">
+          <h1 className="mt-8 bg-gradient-to-b from-white via-blue-50 to-blue-200/90 bg-clip-text text-5xl font-bold tracking-wide text-transparent drop-shadow-[0_2px_14px_rgba(10,45,94,0.55)] md:text-7xl">
             {siteConfig.siteName}
           </h1>
-          <p className="mt-8 text-lg tracking-[0.35em] text-blue-100 drop-shadow-[0_1px_8px_rgba(0,0,0,0.4)] md:text-2xl">
-            {siteConfig.tagline}
+          <p className="mt-7 flex items-center justify-center gap-4 text-base text-blue-100/95 drop-shadow-[0_1px_8px_rgba(10,45,94,0.5)] md:text-xl">
+            <span className="h-px w-8 bg-gradient-to-r from-transparent to-blue-200/70 md:w-14" />
+            <span className="tracking-[0.3em] md:tracking-[0.4em]">{siteConfig.tagline}</span>
+            <span className="h-px w-8 bg-gradient-to-l from-transparent to-blue-200/70 md:w-14" />
           </p>
 
           <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
@@ -113,6 +117,19 @@ export default function HomePage() {
           embedUrl={siteConfig.video.embedUrl}
         />
       </Reveal>
+
+      {/* ============ 历史荣誉（留言板上方）============ */}
+      <section className="mx-auto max-w-6xl px-6 pb-24 pt-6">
+        <Reveal className="text-center">
+          <h2 className="text-3xl font-bold text-ink">近年参赛获奖</h2>
+          <p className="mt-3 text-slate-500">
+            很多，还在整理当中，下面展示是近年国家级、省部级获奖的一部分......
+          </p>
+        </Reveal>
+        <Reveal delay={120} className="mt-10">
+          <HonorsTable />
+        </Reveal>
+      </section>
 
       {/* ============ 留言板（Phase 4 接入 Waline，历史评论完整保留）============ */}
       <section className="mx-auto max-w-4xl px-6 py-24">

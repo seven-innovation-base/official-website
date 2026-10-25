@@ -24,11 +24,19 @@ function detectTier(): Tier {
 }
 
 const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
+  { id: "converge", label: "Logo 汇聚" },
   { id: "network", label: "粒子网络" },
   { id: "nebula", label: "深空星云" },
   { id: "combo", label: "组合" },
+  { id: "waves", label: "正弦波场" },
   { id: "halo", label: "光晕" },
 ];
+
+/** 中心镂空遮罩：默认遮标题区；"汇聚"模式 logo 悬在上方，只遮下方文字按钮区 */
+const MASK_DEFAULT =
+  "[-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)]";
+const MASK_CONVERGE =
+  "[-webkit-mask-image:radial-gradient(ellipse_52%_36%_at_50%_64%,transparent_26%,black_66%)] [mask-image:radial-gradient(ellipse_52%_36%_at_50%_64%,transparent_26%,black_66%)]";
 
 export default function Hero3DLoader() {
   const [tier, setTier] = useState<Tier | null>(null);
@@ -58,13 +66,22 @@ export default function Hero3DLoader() {
     return () => window.clearTimeout(t);
   }, [ready]);
 
+  // "Logo 汇聚"模式下，粒子成形后淡出静态 Logo 图，避免重影
+  useEffect(() => {
+    const staticLogo = document.querySelector<HTMLElement>("[data-hero-logo]");
+    if (staticLogo) {
+      staticLogo.style.opacity = variant === "converge" && visible ? "0" : "1";
+    }
+  }, [variant, visible]);
+
   const showScene = tier !== null && tier !== "low" && ready;
+  const mask = variant === "converge" ? MASK_CONVERGE : MASK_DEFAULT;
 
   return (
     <>
       {showScene && (
         <div
-          className={`absolute inset-0 transition-opacity duration-1000 [-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] ${
+          className={`absolute inset-0 transition-opacity duration-1000 ${mask} ${
             visible ? "opacity-90" : "opacity-0"
           }`}
           aria-hidden
