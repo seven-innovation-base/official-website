@@ -1,162 +1,71 @@
-# Hero 3D 场景调参手册
+# Hero 3D「时间算法」调参手册
 
-> 给手动改参数的人：每个场景的可调参数、所在位置、当前值与调整效果。
-> 通用规则见文末「注意事项」。改动后 `pnpm dev` 即时预览；提交前跑 `pnpm lint && pnpm build`。
+> D4 定稿场景：青铜绿 × 铜金的浑天仪数学装置。
+> 落选的六个候选场景存档在 `archive/hero3d/`（含恢复说明）。
+> 改动后 `pnpm dev` 即时预览；提交前跑 `pnpm lint && pnpm build`。
 
 ## 文件地图
 
 | 文件 | 内容 |
 |------|------|
-| `interaction.ts` | 全局速度 `ANIM_SPEED`、鼠标扰动半径、点击波参数 |
-| `HeroScene.tsx` | 场景总装：波场、星球、星云/尘埃层（SoftLayer）、相机、交互刚体 |
-| `sceneExtras.tsx` | 洛伦兹风暴眼、向量场之茧 |
-| `sceneExtras3.tsx` | 红移星环、时间算法 |
-| `Hero3DLoader.tsx` | 场景切换器、红移/时间算法的 Hero 底色、中心镂空遮罩、拖拽换算 |
-| `../app/page.tsx` | Hero 文字大小 / 按钮样式 / Logo 尺寸 |
-
----
+| `sceneArmillary.tsx` | 场景本体：轨道环、刻度、轨道粒子 |
+| `HeroScene.tsx` | 装配：尘埃层、交互刚体、能量波、Canvas |
+| `Hero3DLoader.tsx` | 专属配色、中心镂空遮罩、拖拽换算、懒加载 |
+| `interaction.ts` | 全局速度 `ANIM_SPEED`、鼠标扰动、点击波 |
+| `../app/page.tsx` | Hero 文字 / 按钮 / Logo / 兜底渐变 |
 
 ## 全局
 
 | 参数 | 位置 | 当前值 | 效果 |
 |------|------|--------|------|
-| 动效总速度 | `interaction.ts` → `ANIM_SPEED` | `2` | 所有场景统一倍率；1 = 原始慢速 |
-| 鼠标扰动半径 | `interaction.ts` → `GLSL_MOUSE_APPLY` 的 `2.4` | 2.4 世界单位(≈150px) | 指针附近粒子被吸引的范围 |
-| 扰动强度 | 同上 `* 0.7` | 0.7 | 吸得动不动 |
-| 点击波波速 | `interaction.ts` → `GLSL_RIPPLE_GLOW` 的 `18.0` | 18 | 涟漪扩散快慢 |
-| 点击波寿命 | 同上 `/ 0.45` 与 `RippleFx`（HeroScene）里的 `0.45` | 0.45s | 两处要一起改 |
-| 中心镂空遮罩 | `Hero3DLoader.tsx` → `mask` 常量 | 椭圆 58%×52% @50% 46%，内洞 32%→外缘 78% | 文字保护区大小；嫌挡字就加大 transparent 比例 |
-| 画质分档 | `Hero3DLoader.tsx` → `detectTier()` | 桌面≥8核/8G=high；<768px=medium | 数量参数都有 high/medium 两档 |
-| DPR 上限 | `HeroScene.tsx` Canvas `dpr={[1, ...]}` | high 1.5 / medium 1.25 | 渲染分辨率倍率 |
+| 动效总速度 | `interaction.ts` → `ANIM_SPEED` | `2` | 全场景统一倍率 |
+| 鼠标扰动半径 | `interaction.ts` → `GLSL_MOUSE_APPLY` 的 `2.4` | ≈150px | 指针影响范围 |
+| 扰动强度 | 同上 `* 0.7` | 0.7 | 吸引力度 |
+| 点击波波速/寿命 | `interaction.ts` → `18.0` / `0.45`（RippleFx 同步 0.45） | — | 两处一起改 |
+| 中心镂空遮罩 | `Hero3DLoader.tsx` → `mask` | 椭圆 58%×52%，内洞 32% | 文字保护区；嫌挡字加大 transparent |
+| 画质分档 | `Hero3DLoader.tsx` → `detectTier()` | ≥8核/8G=high；<768px=medium | 数量参数两档成对 |
+| 场景配色 | `Hero3DLoader.tsx` → `ARMILLARY_PALETTE` | 三段渐变 + 铜金 accent | Hero 底色与能量波 |
 
----
-
-## 1. 洛伦兹风暴眼（sceneExtras.tsx → LorenzLayer）
+## 场景本体（sceneArmillary.tsx）
 
 | 参数 | 位置 | 当前值 | 效果 |
 |------|------|--------|------|
-| 光带条数 | `ribbons` | high 16 / med 10 | 层叠玻璃带的密度 |
-| 每条带采样点 | `N` | 2400 | 曲线分辨率（一般不动） |
-| 整体尺寸 | `buildLorenz(N, 0.42)` 的 `0.42` | 0.42 | 吸引子放大缩小 |
-| 双翼面向镜头的倾角 | `rotation={[0.12, 0, 0]}` | 0.12 rad | 换个角度看双翼 |
-| 自转速度 | useFrame 里 `t * 0.03` | 0.03 | 整体旋转 |
-| 呼吸幅度 | `0.025 * Math.sin(t * 0.2)` | 0.025 | 缩放呼吸的强弱 |
-| 光带底线亮度 | GLSL `LORENZ_LINE_FRAG` 里 `0.10` | 0.10 | 光带平时的存在感 |
-| 白色流光段速度 | 同上 `uTime * 0.045` | 0.045 | 高光段沿曲线跑的速度 |
-| 彗星流点速度 | `LORENZ_FLOW_FRAG` 里 `0.012 + 0.005` | — | 流点滑行速度 |
-| 彗星亮度 | 同上 `* 0.85` | 0.85 | 流点存在感 |
+| 四环半径 | `base` 数组 `r` | 7.4 / 9 / 10.6 / 12.2 | 环的大小 |
+| 环管粗细 | `tube` | 0.1 → 0.065 | 越外环越细 |
+| 各环倾角 | `tilt` 三元组 | 各不相同 | 空间姿态（弧度） |
+| 各环转速 | `speed: ±2π/86 等` | 86/62/52/74 秒一圈 | 负值反向 |
+| 刻度密度 | `ticks` | 144/168/192/216 | `i % 6` 控制长刻度间隔 |
+| 铜色亮度 | `BRONZE_FRAG` 的 `0.32 + 0.52` | — | 环底亮 / 边缘亮 |
+| 金/白比例 | 同上 `pow(vF,1.5)*0.9` 与 `pow(vF,5.0)*0.45` | — | 边缘偏金还是偏象牙白 |
+| 轨道粒子数 | `orbitCount` 与 `orbiters`（两处！） | high 368 / med 208 | 沿轨光点 |
+| 粒子速度 | `speed: (0.1+rand*0.18) * 4` | 累计 ×4 | 沿轨快慢 |
+| 粒子大小/闪烁 | `sizes 1.8+1.8`、`uTime * 1.1` | — | 光点颗粒感与明灭 |
 
-## 2. 向量场之茧（sceneExtras.tsx → FieldLayer）
-
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 流线数量 | `streamCount` | high 3000 / med 1700 | 茧的密度 |
-| 能量粒子数 | `particleCount` | high 112 / med 60 | 沿流线滑行的亮点 |
-| 流线摆动幅度 | GLSL `FIELD_VERT` 三个 `* 0.18` | 0.18 | 线的晃动幅度 |
-| 明暗呼吸频率 | `FIELD_FRAG` 里 `uTime * 0.5` | 0.5 | 流线闪烁快慢 |
-| 中心稀疏半径 | 同上 `smoothstep(3.5, 8.5, vR)` | 3.5→8.5 | 越大中心越空（护文字） |
-| 内外配色分界 | 同上 `smoothstep(8.0, 16.0, vR)` | 8→16 | 深蓝(内)→青(外)过渡位置 |
-| 底色/亮色 | 同上 `vec3 deep` / `vec3 cyan` | 深蓝/青 | GLSL 0–1 浮点色 |
-| 粒子滑行速度 | useFrame 里 `* 0.032` | 0.032 | 能量粒子速度 |
-
-## 3. 正弦波场（HeroScene.tsx → WavesLayer + waves case）
+## 尘埃与交互（HeroScene.tsx）
 
 | 参数 | 位置 | 当前值 | 效果 |
 |------|------|--------|------|
-| 网格密度 | case 里 `segments` | high 220 / med 140 | 线框疏密 |
-| 波面尺寸 | `PlaneGeometry(52, 28, ...)` | 52×28 | 波面铺多宽 |
-| 三个波的频率 | `WAVES_VERT` 里 `0.55 / 0.7 / 0.32` | — | 波纹细密程度 |
-| 三个波的速度 | 同里 `uTime * 0.8 / 0.55 / 0.4` | — | 流动快慢 |
-| 波幅 | 同里 `* 0.9 / 0.7 / 0.9` | — | 起伏高度 |
-| 波面亮度 | `WAVES_FRAG` 里 `0.16 + 0.3 * h` | 0.16/0.3 | 底部亮度/波峰增亮 |
-| 波面位置/倾角 | `<group position={[0, -7.5, -3]} rotation={[0.5, 0, 0]}>` | — | 往下/倾斜看波面 |
-| 尘埃数量 | case 里 SoftLayer `count` | high 1800 / med 1000 | 背景星尘 |
-
-## 4. 深空星云（HeroScene.tsx → nebula case）
-
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 粒子数 | `nebulaCount` | high 24000 / med 12000 | 星云浓度 |
-| 分布半径 | SoftLayer `radiusRange={[11, 27]}` | 11–27 | 星云范围（内圈越大中心越空） |
-| 粒子大小 | `sizeScale={1.15}` | 1.15 | 星尘颗粒感 |
-| 亮度 | `alpha={0.5}` | 0.5 | 整体明暗 |
-| 漂移速度 | SoftLayer `spin={-0.013}` | -0.013 | 自转（负=反向） |
-| 呼吸频率 | `SOFT_VERT` 里 `uTime * 0.7` | 0.7 | 星点明灭快慢 |
-| 配色 | HeroScene 顶部 `PALETTE` | 青蓝系 5 色 | 所有蓝系场景尘埃共用 |
-
-## 5. 网格星球（HeroScene.tsx → GlobeLayer）
-
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 球体半径 | `IcosahedronGeometry(7.2, 3)` 的 `7.2` | 7.2 | 星球大小 |
-| 线框密度 | 同上 `3`（细分等级） | 3 | +1 档密度约 ×4 |
-| 线框亮度 | `wireMat` 的 `opacity: 0.3` | 0.3 | 球壳存在感 |
-| 自转速度 | useFrame 里 `t * 0.06` | 0.06 | 球转、`-t * 0.1` 是环反向转 |
-| 光环粒子数 | `ringCount` | 840 | 环的浓度 |
-| 光环半径 | `9.6 + Math.random() * 1.6` | 9.6–11.2 | 环的粗细范围 |
-| 光环倾角 | `<group rotation={[1.05, 0, 0.2]}>` | — | 环的斜度 |
-| 星球位置 | `<group position={[0, 0.5, -2]} rotation={[0.35,0,0]}>` | — | 整体摆位 |
-
-## 6. 红移星环（sceneExtras3.tsx → RedshiftLayer + Hero3DLoader 配色）
-
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 天体位置 | `CENTER (-7.2, 6.2, -7)` | 左上 | 天体摆位（第二三个数是 y/z） |
-| 天体大小 | `CircleGeometry(5.6, 72)` 与两个 Ring 的 5.6/5.7/5.72/7.0 | 5.6 | 四个数要一起改 |
-| 锐缘亮度 | `rimSharp` 的 `opacity: 0.9` | 0.9 | 珊瑚色描边 |
-| 柔光范围 | `rimSoft` 的 `pow(1.0 - t, 2.2) * 0.55` | 2.2/0.55 | 轮廓光的扩散与浓度 |
-| 日冕条数 | `n` | high 760 / med 420 | 日冕密度 |
-| 日冕长度 | `0.5 + pow(rand,2.2) * 2.6` | — | 长短分布（调 2.6） |
-| 日冕脉动周期 | GLSL `uTime * 0.314` | ~10s(已×2) | 呼吸快慢 |
-| 星环粒子数 | `ringCount` | high 1040 / med 600 | 尘埃环浓度 |
-| 星环椭圆度 | `r * 0.32` | 0.32 | 越小越扁 |
-| 星环转速 | useFrame `t * 0.085` | ~37s/圈 | 环的公转 |
-| 引力弧半径 | `R = 14 + arc * 2.8` | 14/16.8/19.6 | 三条大弧的范围 |
-| Hero 底色 | Hero3DLoader → `SCENE_PALETTES.redshift` | 酒红三段+accent | 背景/能量波颜色 |
-
-## 7. 时间算法（sceneExtras3.tsx → ArmillaryLayer + 配色）
-
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 四环参数 | `base` 数组 | r 7.4/9/10.6/12.2，tube 0.1→0.065 | 半径=环大小，tube=环管粗细 |
-| 各环倾角 | `tilt` 三元组 | 各不相同 | 环的空间姿态（弧度） |
-| 各环转速 | `speed: ±2π/86 等` | 86/62/52/74 秒一圈 | 负值=反向 |
-| 刻度密度 | `ticks` | 144/168/192/216 | 每环刻度数；`i % 6` 控制长刻度间隔 |
-| 铜色亮度 | `BRONZE_FRAG` 的 `0.32 + 0.52` | — | 环的底亮/边缘亮 |
-| 铜金/象牙比例 | 同上 `pow(vF, 1.5) * 0.9` 与 `pow(vF, 5.0) * 0.45` | — | 边缘偏金还是偏白 |
-| 轨道粒子数 | `orbiters` 与 `orbitCount`（两处！） | high 184 / med 104 | 沿轨光点 |
-| 粒子速度 | `speed: (0.1 + rand * 0.18) * 2` | ×2 | 光点沿轨速度 |
-| Hero 底色 | `SCENE_PALETTES.armillary` | 青铜三段+accent | 背景/能量波颜色 |
-
----
+| 背景尘埃数 | SoftLayer `count` | high 520 / med 320 | 苔绿雾感 |
+| 尘埃配色 | `colors` 数组 | 铜金/灰绿/象牙 | 权重即配比 |
+| 视差角度 | `InteractionRig` 的 `0.07 / 0.045` | ±4°/±2.6° | 结构摆动幅度 |
+| 拖拽范围/换算 | `Hero3DLoader` 的 `0.315` / `0.63` | ±18° | 按住拖动 |
+| 回中速度 | `InteractionUpdater` 的 `0.3` / `0.02` | — | 松手弹回 |
 
 ## Hero 文字与按钮（../app/page.tsx）
 
 | 参数 | 位置 | 当前值 |
 |------|------|--------|
-| 主标题字号 | h1 `text-4xl sm:text-5xl md:text-6xl` | 手机36 / 平板48 / 桌面60px |
+| 主标题字号 | h1 `text-4xl sm:text-5xl md:text-6xl` | 36/48/60px |
 | 副标题字号 | p `text-sm md:text-base` | 14/16px |
-| 按钮内边距/字号 | Link `px-5 py-2.5 text-sm md:px-6 md:py-3 md:text-base` | — |
-| Logo 尺寸 | img `h-20 w-20` | 80px |
-| 按钮悬浮放大 | `hover:scale-105` | 1.05 倍 |
+| 按钮 | `px-5 py-2.5 text-sm md:px-6 md:py-3 md:text-base` | 统一白描边样式 |
+| Logo | `h-20 w-20`（logo2.png） | 80px |
+| 兜底渐变 | section `from-[#07130f] via-[#12281f] to-[#0a1a14]` | 与场景配色一致 |
 
-## 交互幅度（进阶场景：红移/时间算法）
+## 注意事项
 
-| 参数 | 位置 | 当前值 | 效果 |
-|------|------|--------|------|
-| 视差角度 | HeroScene `InteractionRig` 的 `0.07 / 0.045` | ±4°/±2.6° | 鼠标结构摆动幅度 |
-| 拖拽范围 | Hero3DLoader `onMove` 里 `0.315` 与换算 `0.63` | ±18° | 按住拖动的最大角 |
-| 拖拽回中速度 | HeroScene `InteractionUpdater` 的 `0.3` 与 `0.02` | — | 松手弹回的快慢 |
-
----
-
-## 注意事项（改代码前必读）
-
-1. **两套颜色写法**：JS 里是十六进制（`"#FF6B5E"`），GLSL 里是 0–1 浮点（`vec3(1.0, 0.42, 0.369)`）。同一个颜色两边写法不同，改色要自己换算（十六进制各通道 ÷255）。
-2. **数量参数成对出现**：几乎所有 count 都有 `high` / `medium` 两档。桌面开发基本跑 high 档；两档建议一起改，别只改一档后疑惑"怎么没变化"。
-3. **改 GLSL 数字后没生效**：Next 开发服务器偶尔不重建着色器材质——`Ctrl+Shift+R` 强制刷新，还不行就重启 `pnpm dev`。
-4. **全局速度 vs 单场景速度**：`ANIM_SPEED` 是所有场景的公共倍率；想单独加速某个场景，改它 shader 里的 `uTime * 系数`，别动 `ANIM_SPEED`。
-5. **亮度 = alpha**：所有场景用加色混合（AdditiveBlending），想调亮/调暗改 alpha（不透明度）即可；同时猛加颜色值会过曝发白。
-6. **性能红线**（当前值已在安全上限附近）：星云类 ≤3 万粒子、波场 ≤250 段、流线 ≤3000 条。再往上加请盯着任务管理器/帧率改。
-7. **不要单独改名**：`attribute`（aT/aSeed/aColor…）、`varying`（vT/vWpos…）、`uniform`（uTime/uMouse…）的名字在顶点和片元两侧必须成对出现，改一个不改另一个直接黑屏/报错。
-8. **提交纪律**：`pnpm lint && pnpm build` 双绿才 commit；构建不过不推送（当前项目铁律）。
+1. **颜色两套写法**：JS 十六进制（`"#C58A4A"`）vs GLSL 浮点（`vec3(0.773,0.541,0.290)`），改色自己换算（÷255）。
+2. **数量参数成对**（high/medium），桌面开发跑 high 档。
+3. 改 GLSL 后不生效就 `Ctrl+Shift+R` 强刷或重启 dev。
+4. **亮度 = alpha**（加色混合），调亮改 alpha；猛加颜色值会过曝。
+5. **别改名字**：attribute（aT…）/varying（vWpos…）/uniform（uTime…）顶点片元成对出现，单独改名黑屏。
+6. 提交纪律：`pnpm lint && pnpm build` 双绿才 commit，构建不过不推送。

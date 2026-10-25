@@ -4,30 +4,20 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
 import { heroInteraction } from "./interaction";
-import type { SceneQuality, SceneVariant } from "./HeroScene";
+import type { SceneQuality } from "./HeroScene";
 
 // three.js 不参与 SSR，也不打入主 chunk（方案 §4.5.1 加载策略）
 const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
 
 type Tier = SceneQuality | "low";
 
-/** 进阶场景专属配色（Hero 底色随之切换，避免品牌藏青污染整体色调） */
-type Palette = { from: string; via: string; to: string; accent: string };
-
-const SCENE_PALETTES: Partial<Record<SceneVariant, Palette>> = {
-  redshift: { from: "#120406", via: "#310a10", to: "#180609", accent: "#FF6B5E" },
-  armillary: { from: "#07130f", via: "#12281f", to: "#0a1a14", accent: "#C58A4A" },
+/** 「时间算法」专属配色（青铜绿 × 铜金，D4 定稿） */
+const ARMILLARY_PALETTE = {
+  from: "#07130f",
+  via: "#12281f",
+  to: "#0a1a14",
+  accent: "#C58A4A",
 };
-
-const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
-  { id: "redshift", label: "红移星环" },
-  { id: "armillary", label: "时间算法" },
-  { id: "lorenz", label: "洛伦兹风暴眼" },
-  { id: "field", label: "向量场之茧" },
-  { id: "waves", label: "正弦波场" },
-  { id: "nebula", label: "深空星云" },
-  { id: "globe", label: "网格星球" },
-];
 
 /** 分级质量探测：WebGL 可用性与设备能力，一次性决策 */
 function detectTier(): Tier {
@@ -54,9 +44,6 @@ export default function Hero3DLoader() {
   const [tier, setTier] = useState<Tier | null>(null);
   const [ready, setReady] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [variant, setVariant] = useState<SceneVariant>("redshift");
-
-  const palette = SCENE_PALETTES[variant];
 
   // LCP 之后空闲时再加载 3D，永不阻塞首屏内容
   useEffect(() => {
@@ -80,10 +67,10 @@ export default function Hero3DLoader() {
     return () => window.clearTimeout(t);
   }, [ready]);
 
-  // 场景能量波配色
+  // 能量波配色（铜金）
   useEffect(() => {
-    heroInteraction.rippleColor.set(palette?.accent ?? "#13c2c2");
-  }, [palette]);
+    heroInteraction.rippleColor.set(ARMILLARY_PALETTE.accent);
+  }, []);
 
   // DOM 侧交互监听：视差坐标 + 拖拽 + 单击能量波（3D 画布保持 pointer-events:none，按钮绝对安全）
   useEffect(() => {
@@ -149,28 +136,27 @@ export default function Hero3DLoader() {
   const showScene = tier !== null && tier !== "low" && ready;
   const mask =
     "[-webkit-mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)] [mask-image:radial-gradient(ellipse_58%_52%_at_50%_46%,transparent_32%,black_78%)]";
+  const palette = ARMILLARY_PALETTE;
 
   return (
     <div ref={wrapRef} className="contents">
-      {/* 进阶场景专属底色（覆盖品牌藏青渐变，3D 层之下） */}
-      {palette && (
+      {/* 「时间算法」专属底色（青铜绿渐变 + 铜金光晕，3D 层之下） */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.via} 55%, ${palette.to} 100%)`,
+        }}
+        aria-hidden
+      >
         <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.via} 55%, ${palette.to} 100%)`,
-          }}
-          aria-hidden
-        >
-          <div
-            className="absolute -left-24 -top-24 h-96 w-96 rounded-full blur-3xl"
-            style={{ background: palette.accent, opacity: 0.13 }}
-          />
-          <div
-            className="absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full blur-3xl"
-            style={{ background: palette.accent, opacity: 0.09 }}
-          />
-        </div>
-      )}
+          className="absolute -left-24 -top-24 h-96 w-96 rounded-full blur-3xl"
+          style={{ background: palette.accent, opacity: 0.13 }}
+        />
+        <div
+          className="absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full blur-3xl"
+          style={{ background: palette.accent, opacity: 0.09 }}
+        />
+      </div>
 
       {showScene && (
         <div
@@ -179,25 +165,7 @@ export default function Hero3DLoader() {
           }`}
           aria-hidden
         >
-          <HeroScene variant={variant} quality={tier as SceneQuality} />
-        </div>
-      )}
-
-      {/* 开发模式小样切换器：D4 视觉拍板用（生产构建自动隐藏） */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="absolute bottom-3 right-3 z-20 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center justify-end gap-1 rounded-2xl bg-black/60 px-2 py-1.5 text-[11px] text-white backdrop-blur">
-          <span className="px-1 text-[10px] tracking-wider text-slate-400">3D 小样</span>
-          {VARIANTS.map((v) => (
-            <button
-              key={v.id}
-              onClick={() => setVariant(v.id)}
-              className={`rounded-full px-2 py-0.5 transition ${
-                variant === v.id ? "bg-accent text-white" : "text-slate-300 hover:bg-white/10"
-              }`}
-            >
-              {v.label}
-            </button>
-          ))}
+          <HeroScene quality={tier as SceneQuality} />
         </div>
       )}
     </div>
