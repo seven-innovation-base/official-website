@@ -1,6 +1,12 @@
 import * as THREE from "three";
 
 /**
+ * 全局动效速度倍率（D4 优化指令：2 倍速）。所有 uTime 与旋转动画统一乘此值，
+ * 后续想整体调速只改这一处。
+ */
+export const ANIM_SPEED = 2;
+
+/**
  * Hero 交互共享状态（模块级单例，DOM 侧写入、Canvas 侧每帧读取）。
  * 设计约束：屏幕空间计算、无逐粒子 Raycast、Shader 内处理鼠标影响。
  */
@@ -64,6 +70,6 @@ export const GLSL_RIPPLE_FRAG = /* glsl */ `
 
 export const GLSL_RIPPLE_GLOW = /* glsl */ `
   float dRip = distance(vWpos.xy, uRippleCenter.xy);
-  float rRip = uRippleTime * 9.0;
-  rippleGlow = smoothstep(1.8, 0.0, abs(dRip - rRip)) * max(0.0, 1.0 - uRippleTime / 0.9);
+  float rRip = uRippleTime * 18.0;
+  rippleGlow = smoothstep(1.8, 0.0, abs(dRip - rRip)) * max(0.0, 1.0 - uRippleTime / 0.45);
 `;

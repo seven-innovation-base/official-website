@@ -9,6 +9,8 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
+import { ANIM_SPEED } from "./interaction";
+
 /* ================================================================
  * 洛伦兹风暴眼：真实洛伦兹吸引子双翼 + 层叠玻璃光带 + 彗星流点
  * ================================================================ */
@@ -105,7 +107,7 @@ const LORENZ_FLOW_FRAG = /* glsl */ `
 
 function LorenzLayer({ quality }: { quality: "high" | "medium" }) {
   const groupRef = useRef<THREE.Group>(null);
-  const ribbons = quality === "high" ? 9 : 6;
+  const ribbons = quality === "high" ? 16 : 10;
 
   const { lines, flow, geometry, lineMat, flowGeo, flowMat } = useMemo(() => {
     const N = 2400;
@@ -126,7 +128,7 @@ function LorenzLayer({ quality }: { quality: "high" | "medium" }) {
       const s = 0.92 + 0.16 * ((r * 0.618) % 1);
       m.makeRotationY(rotY);
       m.scale(new THREE.Vector3(s, s, s));
-      const shift = (r * 137) % 9;
+      const shift = (r * 137) % 4;
       for (let i = 0; i < N - 1; i++) {
         for (const k of [i, i + 1]) {
           v.set(base[k * 3], base[k * 3 + 1], base[k * 3 + 2]).applyMatrix4(m);
@@ -134,7 +136,7 @@ function LorenzLayer({ quality }: { quality: "high" | "medium" }) {
           lineT.push(k / N);
           lineR.push(r);
         }
-        if ((i + shift) % 9 === 0) {
+        if ((i + shift) % 4 === 0) {
           v.set(base[i * 3], base[i * 3 + 1], base[i * 3 + 2]).applyMatrix4(m);
           flowPos.push(v.x, v.y, v.z);
           flowT.push(i / N);
@@ -190,13 +192,13 @@ function LorenzLayer({ quality }: { quality: "high" | "medium" }) {
   );
 
   useFrame(({ clock, gl }) => {
-    const t = clock.elapsedTime;
+    const t = clock.elapsedTime * ANIM_SPEED;
     lineMat.uniforms.uTime.value = t;
     flowMat.uniforms.uTime.value = t;
     flowMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (groupRef.current) {
       groupRef.current.rotation.y = t * 0.03;
-      const breathe = 1 + 0.025 * Math.sin(t * 0.2); // ~31s 呼吸
+      const breathe = 1 + 0.025 * Math.sin(t * 0.2);
       groupRef.current.scale.setScalar(breathe);
     }
   });
@@ -270,8 +272,8 @@ const FIELD_FRAG = /* glsl */ `
 `;
 
 function FieldLayer({ quality }: { quality: "high" | "medium" }) {
-  const streamCount = quality === "high" ? 1500 : 850;
-  const particleCount = quality === "high" ? 56 : 30;
+  const streamCount = quality === "high" ? 3000 : 1700;
+  const particleCount = quality === "high" ? 112 : 60;
 
   const { lines, streams, geometry, material, energyGeo } = useMemo(() => {
     const pos: number[] = [];
@@ -382,7 +384,7 @@ function FieldLayer({ quality }: { quality: "high" | "medium" }) {
   );
 
   useFrame(({ clock, gl }) => {
-    const t = clock.elapsedTime;
+    const t = clock.elapsedTime * ANIM_SPEED;
     material.uniforms.uTime.value = t;
     energyMat.uniforms.uTime.value = t;
     energyMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
@@ -390,7 +392,7 @@ function FieldLayer({ quality }: { quality: "high" | "medium" }) {
     const attr = energyGeo.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     particles.forEach((p, i) => {
-      p.param += p.speed * 0.016;
+      p.param += p.speed * 0.032;
       if (p.param > 1) {
         p.param = 0;
         p.stream = Math.floor(Math.random() * streams.length);

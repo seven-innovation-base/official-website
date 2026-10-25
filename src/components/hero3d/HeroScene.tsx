@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
-import { heroInteraction } from "./interaction";
+import { heroInteraction, ANIM_SPEED } from "./interaction";
 import { FieldLayer, LorenzLayer } from "./sceneExtras";
 import { ArmillaryLayer, RedshiftLayer } from "./sceneExtras3";
 
@@ -166,10 +166,10 @@ export function SoftLayer({
   );
 
   useFrame(({ clock, gl }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
+    material.uniforms.uTime.value = clock.elapsedTime * ANIM_SPEED;
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (groupRef.current) {
-      groupRef.current.rotation.y = clock.elapsedTime * spin;
+      groupRef.current.rotation.y = clock.elapsedTime * spin * ANIM_SPEED;
     }
   });
 
@@ -234,9 +234,9 @@ function WavesLayer({ segments }: { segments: number }) {
 
   const groupRef = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
+    material.uniforms.uTime.value = clock.elapsedTime * ANIM_SPEED;
     if (groupRef.current) {
-      groupRef.current.rotation.z = clock.elapsedTime * 0.015;
+      groupRef.current.rotation.z = clock.elapsedTime * 0.015 * ANIM_SPEED;
     }
   });
 
@@ -254,7 +254,8 @@ function GlobeLayer() {
   const groupRef = useRef<THREE.Group>(null);
 
   const { wireframe, surfacePoints, ring, disposables } = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(7.2, 2);
+    // detail 3：线框与顶点密度约为 detail 2 的 4 倍（D4 优化：密度加倍再加倍观感）
+    const geo = new THREE.IcosahedronGeometry(7.2, 3);
     const wire = new THREE.WireframeGeometry(geo);
     const wireMat = new THREE.LineBasicMaterial({
       color: new THREE.Color("#2e7bc4"),
@@ -299,7 +300,7 @@ function GlobeLayer() {
     const surfacePoints = new THREE.Points(ptsGeo, ptsMat);
 
     // 倾斜光环
-    const ringCount = 420;
+    const ringCount = 840;
     const ringPos = new Float32Array(ringCount * 3);
     const ringCol = new Float32Array(ringCount * 3);
     const ringSize = new Float32Array(ringCount);
@@ -353,7 +354,7 @@ function GlobeLayer() {
 
   const ringRef = useRef<THREE.Group>(null);
   useFrame(({ clock, gl }) => {
-    const t = clock.elapsedTime;
+    const t = clock.elapsedTime * ANIM_SPEED;
     const mat = surfacePoints.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = t;
     mat.uniforms.uPixelRatio.value = gl.getPixelRatio();
@@ -387,7 +388,7 @@ function CameraRig() {
 
   useFrame(({ pointer }) => {
     target.current.set(pointer.x * 1.5, pointer.y * 0.9, 16);
-    camera.position.lerp(target.current, 0.03);
+    camera.position.lerp(target.current, 0.06);
     camera.lookAt(0, 0, 0);
   });
 
@@ -446,12 +447,12 @@ function RippleFx() {
     const mesh = meshRef.current;
     const mat = matRef.current;
     if (!mesh || !mat) return;
-    if (it.rippleTime < 0.9) {
-      const e = 1 - Math.pow(1 - it.rippleTime / 0.9, 3);
+    if (it.rippleTime < 0.45) {
+      const e = 1 - Math.pow(1 - it.rippleTime / 0.45, 3);
       mesh.visible = true;
       mesh.position.set(it.rippleCenter.x, it.rippleCenter.y, 0.5);
       mesh.scale.setScalar(0.4 + e * 14);
-      mat.opacity = (1 - it.rippleTime / 0.9) * 0.5;
+      mat.opacity = (1 - it.rippleTime / 0.45) * 0.5;
       mat.color.set(it.rippleColor);
     } else {
       mesh.visible = false;
@@ -494,7 +495,7 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
     };
   }, []);
 
-  const nebulaCount = quality === "high" ? 12000 : 6000;
+  const nebulaCount = quality === "high" ? 24000 : 12000;
 
   return (
     <div ref={wrapRef} className="absolute inset-0" aria-hidden>
@@ -508,21 +509,21 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
           /* 洛伦兹风暴眼：真实吸引子双翼 + 玻璃光带 + 彗星流点 */
           <>
             <LorenzLayer quality={quality} />
-            <SoftLayer count={quality === "high" ? 420 : 260} radiusRange={[12, 26]} sizeScale={0.55} alpha={0.26} spin={-0.006} zOffset={-12} />
+            <SoftLayer count={quality === "high" ? 840 : 520} radiusRange={[12, 26]} sizeScale={0.55} alpha={0.26} spin={-0.006} zOffset={-12} />
           </>
         )}
         {variant === "field" && (
           /* 向量场之茧：curl noise 流线 + 能量粒子 */
           <>
             <FieldLayer quality={quality} />
-            <SoftLayer count={quality === "high" ? 300 : 180} radiusRange={[14, 28]} sizeScale={0.5} alpha={0.22} spin={-0.005} zOffset={-12} />
+            <SoftLayer count={quality === "high" ? 600 : 360} radiusRange={[14, 28]} sizeScale={0.5} alpha={0.22} spin={-0.005} zOffset={-12} />
           </>
         )}
         {variant === "waves" && (
           /* 正弦波场：正弦叠加的函数曲面线框，数学与计算科学学院的"数形"表达 */
           <>
-            <WavesLayer segments={quality === "high" ? 110 : 70} />
-            <SoftLayer count={quality === "high" ? 900 : 500} radiusRange={[10, 24]} sizeScale={0.7} alpha={0.4} spin={-0.008} zOffset={-5} />
+            <WavesLayer segments={quality === "high" ? 220 : 140} />
+            <SoftLayer count={quality === "high" ? 1800 : 1000} radiusRange={[10, 24]} sizeScale={0.7} alpha={0.4} spin={-0.008} zOffset={-5} />
           </>
         )}
         {variant === "nebula" && (
@@ -542,7 +543,7 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
               <>
                 <RedshiftLayer quality={quality} />
                 <SoftLayer
-                  count={quality === "high" ? 260 : 160}
+                  count={quality === "high" ? 520 : 320}
                   radiusRange={[11, 26]}
                   sizeScale={0.6}
                   alpha={0.16}
@@ -561,7 +562,7 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
               <>
                 <ArmillaryLayer quality={quality} />
                 <SoftLayer
-                  count={quality === "high" ? 260 : 160}
+                  count={quality === "high" ? 520 : 320}
                   radiusRange={[12, 27]}
                   sizeScale={0.5}
                   alpha={0.16}

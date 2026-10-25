@@ -10,6 +10,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
 import {
+  ANIM_SPEED,
   GLSL_RIPPLE_FRAG,
   GLSL_RIPPLE_GLOW,
   interactionUniforms,
@@ -123,7 +124,7 @@ function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
       );
 
       // 日冕
-      const n = quality === "high" ? 380 : 210;
+      const n = quality === "high" ? 760 : 420;
       const pos = new Float32Array(n * 2 * 3);
       const aAng = new Float32Array(n * 2);
       const aR0 = new Float32Array(n * 2);
@@ -197,7 +198,7 @@ function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
       arcs.frustumCulled = false;
 
       // 星环（椭圆尘埃环，60–80s 自转）
-      const ringCount = quality === "high" ? 520 : 300;
+      const ringCount = quality === "high" ? 1040 : 600;
       const rp = new Float32Array(ringCount * 3);
       const rPhase = new Float32Array(ringCount);
       const rSize = new Float32Array(ringCount);
@@ -250,14 +251,14 @@ function RedshiftLayer({ quality }: { quality: "high" | "medium" }) {
   );
 
   useFrame(({ clock, gl }) => {
-    const t = clock.elapsedTime;
+    const t = clock.elapsedTime * ANIM_SPEED;
     coronaMat.uniforms.uTime.value = t;
     updateInteractionUniforms(coronaMat);
     arcMat.uniforms.uTime.value = t;
     ringMat.uniforms.uTime.value = t;
     ringMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (coronaGroupRef.current) coronaGroupRef.current.rotation.z = t * 0.009;
-    if (ringGroupRef.current) ringGroupRef.current.rotation.z = t * 0.085; // ~74s 一圈
+    if (ringGroupRef.current) ringGroupRef.current.rotation.z = t * 0.085;
     if (groupRef.current) groupRef.current.scale.setScalar(1 + 0.012 * Math.sin(t * 0.314));
   });
 
@@ -335,10 +336,10 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
     });
 
     const base = [
-      { r: 7.4, tube: 0.1, tilt: [1.15, 0.0, 0.0], speed: (2 * Math.PI) / 86, ticks: 72 },
-      { r: 9.0, tube: 0.085, tilt: [0.5, 0.4, -0.3], speed: -(2 * Math.PI) / 62, ticks: 84 },
-      { r: 10.6, tube: 0.075, tilt: [1.35, -0.3, 0.2], speed: (2 * Math.PI) / 52, ticks: 96 },
-      { r: 12.2, tube: 0.065, tilt: [0.9, 0.6, -0.5], speed: -(2 * Math.PI) / 74, ticks: 108 },
+      { r: 7.4, tube: 0.1, tilt: [1.15, 0.0, 0.0], speed: (2 * Math.PI) / 86, ticks: 144 },
+      { r: 9.0, tube: 0.085, tilt: [0.5, 0.4, -0.3], speed: -(2 * Math.PI) / 62, ticks: 168 },
+      { r: 10.6, tube: 0.075, tilt: [1.35, -0.3, 0.2], speed: (2 * Math.PI) / 52, ticks: 192 },
+      { r: 12.2, tube: 0.065, tilt: [0.9, 0.6, -0.5], speed: -(2 * Math.PI) / 74, ticks: 216 },
     ];
     const ringDefs = base.slice(0, ringCount);
     const ringGeos: THREE.BufferGeometry[] = [];
@@ -362,7 +363,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
     });
 
     // 沿轨铜色粒子（CPU 更新）
-    const orbitCount = quality === "high" ? 46 : 26;
+    const orbitCount = quality === "high" ? 92 : 52;
     const orbitGeo = new THREE.BufferGeometry();
     orbitGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(orbitCount * 3), 3));
     const phases = new Float32Array(orbitCount);
@@ -393,7 +394,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
   // 轨道粒子参数（含各环倾斜四元数，保证粒子沿倾斜轨道运行）
   const orbiters = useMemo(
     () =>
-      Array.from({ length: quality === "high" ? 46 : 26 }, () => {
+      Array.from({ length: quality === "high" ? 92 : 52 }, () => {
         const ring = Math.floor(Math.random() * ringCount);
         const def = ringDefs[ring];
         const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(def.tilt[0], def.tilt[1], def.tilt[2]));
@@ -420,7 +421,7 @@ function ArmillaryLayer({ quality }: { quality: "high" | "medium" }) {
   );
 
   useFrame(({ clock, gl }) => {
-    const t = clock.elapsedTime;
+    const t = clock.elapsedTime * ANIM_SPEED;
     updateInteractionUniforms(bronzeMat);
     orbitMat.uniforms.uTime.value = t;
     orbitMat.uniforms.uPixelRatio.value = gl.getPixelRatio();
