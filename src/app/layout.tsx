@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   },
   description: `${siteConfig.fullName}官方网站。${siteConfig.tagline}。`,
   keywords: ["桂电", "七院创新基地", "数学与计算科学学院", "大学生数学应用及创新基地"],
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({
