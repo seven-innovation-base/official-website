@@ -1,0 +1,34 @@
+{
+  "siteName": "桂电七院创新基地",
+  "fullName": "桂林电子科技大学数学与计算科学学院大学生数学应用及创新基地",
+  "tagline": "真实、专注、卓越、不设限、创新",
+  "foundedYear": 2007,
+  "qqGroup": "685424046",
+  "address": ["花江慧谷 4 号楼 305", "四创中心 4 号楼 303"],
+  "video": {
+    "title": "宣传 & 介绍视频",
+    "platform": "bilibili",
+    "embedUrl": "https://player.bilibili.com/player.html?aid=644252413&bvid=BV1KY4y1A7Qv&cid=798623842&page=1",
+    "description": "可以通过该视频来了解我们基地"
+  },
+  "oj": {
+    "name": "七院创新基地 OJ",
+    "url": "http://10.60.92.17/",
+    "campusOnly": true,
+    "problemCount": 221
+  },
+  "ftp": {
+    "files": 11455,
+    "sizeGb": 132.7,
+    "partitions": 8
+  },
+  "links": {
+    "guet": "https://www.guet.edu.cn/",
+    "college": "https://www.guet.edu.cn/dept7/",
+    "github": "https://github.com/seven-innovation-base/",
+    "friends": [
+      { "name": "三院科协", "url": "https://hello.kexie.space/" },
+      { "name": "校基地软件部", "url": "https://csd.moe/" }
+    ]
+  }
+}
