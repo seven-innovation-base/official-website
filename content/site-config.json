@@ -20,6 +20,9 @@
     "campusOnly": true,
     "problemCount": 221
   },
+  "comments": {
+    "serverUrl": "http://47.99.33.44:8360"
+  },
   "ftp": {
     "files": 11455,
     "sizeGb": 132.7,

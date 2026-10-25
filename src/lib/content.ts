@@ -63,6 +63,9 @@ const SiteConfigSchema = z.object({
     campusOnly: z.boolean(),
     problemCount: z.number(),
   }),
+  comments: z.object({
+    serverUrl: z.string(),
+  }),
   ftp: z.object({
     files: z.number(),
     sizeGb: z.number(),

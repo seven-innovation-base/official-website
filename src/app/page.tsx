@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import VideoSection from "@/components/home/VideoSection";
+import CommentsSection from "@/components/home/CommentsSection";
 import HonorsTable from "@/components/honors/HonorsTable";
 import Hero3DLoader from "@/components/hero3d/Hero3DLoader";
 import Reveal from "@/components/site/Reveal";
@@ -146,14 +147,15 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      {/* ============ 留言板（Phase 4 接入 Waline，历史评论完整保留）============ */}
+      {/* ============ 留言板（Waline，历史评论迁移见方案 §7.2）============ */}
       <section className="mx-auto max-w-4xl px-6 py-24">
         <Reveal>
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-mist/60 px-8 py-16 text-center">
-            <h2 className="text-3xl font-bold text-ink">留言板</h2>
-            <p className="mt-4 text-slate-500">
-              留言板升级迁移中（Waline · 历史评论将完整保留），即将开放。
-            </p>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-center text-3xl font-bold text-ink">留言板</h2>
+            <p className="mt-3 text-center text-sm text-slate-400">留下你想对基地说的话（昵称 + 邮箱即可，无需注册）</p>
+            <div className="mt-8">
+              <CommentsSection serverUrl={siteConfig.comments.serverUrl} />
+            </div>
           </div>
         </Reveal>
       </section>
