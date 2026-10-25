@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import VideoSection from "@/components/home/VideoSection";
+import Hero3DLoader from "@/components/hero3d/Hero3DLoader";
 import { departments, siteConfig } from "@/lib/content";
 
 const heroEntries = [
@@ -13,13 +14,15 @@ const heroEntries = [
 export default function HomePage() {
   return (
     <>
-      {/* ============ Hero（3D 主视觉区，Phase 2 接入 three.js 场景）============ */}
+      {/* ============ Hero（3D 主视觉区：粒子网络/星云，分级质量 + 懒加载）============ */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-deep via-primary-dark to-primary text-white">
-        {/* 装饰光晕：3D 场景接入前的过渡视觉 */}
+        {/* 静态渐变光晕：3D 场景加载前后的兜底视觉 */}
         <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-primary-light/30 blur-3xl" />
 
-        <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
+        <Hero3DLoader />
+
+        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center">
           <h1 className="text-5xl font-bold tracking-wide md:text-7xl">{siteConfig.siteName}</h1>
           <p className="mt-8 text-lg tracking-[0.35em] text-blue-100 md:text-2xl">
             {siteConfig.tagline}
