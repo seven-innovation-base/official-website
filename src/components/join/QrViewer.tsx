@@ -37,38 +37,46 @@ export default function QrViewer() {
         </span>
       </button>
 
-      {/* 灯箱 */}
+      {/* 灯箱（百度图片查看器风格：无边框大图 + 悬浮操作） */}
       {open && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90"
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"
           aria-label="招新群二维码大图"
         >
+          {/* 右上角关闭 */}
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="关闭"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-2xl leading-none text-white backdrop-blur transition hover:bg-white/25"
+          >
+            ×
+          </button>
+
+          {/* 无边框大图 */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/qq-qrcode.jpg"
             alt="2026 招新群二维码"
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[64vh] w-auto rounded-xl bg-white p-3 shadow-2xl"
+            className="max-h-[80vh] w-auto max-w-[92vw] rounded-md shadow-2xl"
           />
-          <div className="mt-6 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+
+          {/* 底部悬浮下载 */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2" onClick={(e) => e.stopPropagation()}>
             <a
               href="/images/qq-qrcode.jpg"
               download="2026招新群二维码.jpg"
-              className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-slate-900 shadow-lg transition hover:scale-105"
+              className="flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-slate-900 shadow-2xl transition hover:scale-105"
             >
-              ⬇ 保存 / 下载
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+              </svg>
+              保存图片
             </a>
-            <button
-              onClick={() => setOpen(false)}
-              className="rounded-xl border border-white/40 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              关闭
-            </button>
           </div>
-          <p className="mt-4 text-xs text-white/50">按 Esc 或点击空白处关闭</p>
         </div>
       )}
     </>
