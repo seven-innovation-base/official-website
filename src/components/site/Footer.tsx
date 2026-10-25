@@ -28,7 +28,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo.png" alt="七院创新基地" className="h-9 w-9 rounded-lg" />
+            <img src="/images/logo.png" alt="七院创新基地" className="h-9 w-9 rounded-full" />
             <span className="text-lg font-bold text-white">{siteConfig.siteName}</span>
           </div>
           <p className="mt-4 text-sm leading-7 text-slate-400">{siteConfig.tagline}</p>
