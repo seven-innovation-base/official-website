@@ -27,6 +27,7 @@ const VARIANTS: Array<{ id: SceneVariant; label: string }> = [
   { id: "network", label: "粒子网络" },
   { id: "nebula", label: "深空星云" },
   { id: "combo", label: "组合" },
+  { id: "halo", label: "光晕" },
 ];
 
 export default function Hero3DLoader() {

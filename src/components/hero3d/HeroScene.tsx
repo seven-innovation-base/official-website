@@ -3,10 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 
-export type SceneVariant = "network" | "nebula" | "combo";
+export type SceneVariant = "network" | "nebula" | "combo" | "halo";
 export type SceneQuality = "high" | "medium";
+
+/**
+ * 性能策略（对齐三院科协"顺滑"标准）：
+ * - 不使用后处理（Bloom 全屏多通道是卡顿主因），辉光感由"大尺寸柔边光晕粒子 + 加色混合"直接渲染；
+ * - DPR 上限 1.5（高配）/ 1.25（中配），控制填充率；
+ * - 滚出视口或标签页隐藏时暂停渲染循环。
+ */
 
 /** 品牌色板（藏青蓝系 + 点缀青，与 Tailwind token 同源） */
 const PALETTE: Array<[string, number]> = [
@@ -53,11 +59,11 @@ const NETWORK_FRAG = /* glsl */ `
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float alpha = smoothstep(0.5, 0.08, d);
-    gl_FragColor = vec4(vColor, alpha * (0.42 + 0.3 * vBoost));
+    gl_FragColor = vec4(vColor, alpha * (0.55 + 0.3 * vBoost));
   }
 `;
 
-const NEBULA_VERT = /* glsl */ `
+const SOFT_VERT = /* glsl */ `
   uniform float uTime;
   uniform float uPixelRatio;
   attribute float aSize;
@@ -74,13 +80,14 @@ const NEBULA_VERT = /* glsl */ `
   }
 `;
 
-const NEBULA_FRAG = /* glsl */ `
+const SOFT_FRAG = /* glsl */ `
+  uniform float uAlpha;
   varying vec3 vColor;
   varying float vTwinkle;
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float alpha = smoothstep(0.5, 0.06, d);
-    gl_FragColor = vec4(vColor, alpha * vTwinkle * 0.5);
+    gl_FragColor = vec4(vColor, alpha * vTwinkle * uAlpha);
   }
 `;
 
@@ -90,7 +97,6 @@ function NetworkLayer({ count }: { count: number }) {
   const groupRef = useRef<THREE.Group>(null);
 
   const { points, lines, material } = useMemo(() => {
-    // 球形分布的节点（z 轴压扁，形成"星系盘"感）
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -109,7 +115,6 @@ function NetworkLayer({ count }: { count: number }) {
       sizes[i] = (Math.random() < 0.06 ? 2.6 : 1.0) + Math.random() * 1.6;
     }
 
-    // 邻近连线：每节点最多 2 条，阈值内
     const linePos: number[] = [];
     const maxDist2 = 3.4 * 3.4;
     for (let i = 0; i < count; i++) {
@@ -152,7 +157,7 @@ function NetworkLayer({ count }: { count: number }) {
     const lineMaterial = new THREE.LineBasicMaterial({
       color: new THREE.Color("#2e7bc4"),
       transparent: true,
-      opacity: 0.13,
+      opacity: 0.16,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -177,7 +182,6 @@ function NetworkLayer({ count }: { count: number }) {
   useFrame(({ clock, pointer, gl }) => {
     material.uniforms.uTime.value = clock.elapsedTime;
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
-    // 指针 NDC → 场景 z≈0 平面的近似世界坐标（视场 55° / 相机 z=16）
     material.uniforms.uMouse.value.set(pointer.x * 13, pointer.y * 8, 0);
     if (groupRef.current) {
       groupRef.current.rotation.y = clock.elapsedTime * 0.032;
@@ -192,9 +196,22 @@ function NetworkLayer({ count }: { count: number }) {
   );
 }
 
-/* ---------------- 深空星云层（背景） ---------------- */
+/* ---------------- 柔边粒子层：星云 & 光晕共用 ---------------- */
 
-function NebulaLayer({ count }: { count: number }) {
+type SoftLayerProps = {
+  count: number;
+  /** 半径范围 [min, max] */
+  radiusRange: [number, number];
+  /** 粒子基础尺寸倍率 */
+  sizeScale: number;
+  /** 附加透明度（光晕用低值） */
+  alpha?: number;
+  /** 缓慢自转速度 */
+  spin?: number;
+  zOffset?: number;
+};
+
+function SoftLayer({ count, radiusRange, sizeScale, alpha = 0.5, spin = -0.013, zOffset = 0 }: SoftLayerProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const { points, material } = useMemo(() => {
@@ -204,18 +221,17 @@ function NebulaLayer({ count }: { count: number }) {
     const phases = new Float32Array(count);
     const color = new THREE.Color();
     for (let i = 0; i < count; i++) {
-      const radius = 11 + Math.pow(Math.random(), 0.6) * 16;
+      const radius = radiusRange[0] + Math.pow(Math.random(), 0.6) * (radiusRange[1] - radiusRange[0]);
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) * 0.62;
-      positions[i * 3 + 2] = radius * Math.cos(phi) * 0.55 - 4;
+      positions[i * 3 + 2] = radius * Math.cos(phi) * 0.55 + zOffset;
       pickColor(color);
-      // 星云整体色调压暗，突出前景
-      colors[i * 3] = color.r * 0.85;
-      colors[i * 3 + 1] = color.g * 0.85;
-      colors[i * 3 + 2] = color.b * 0.9;
-      sizes[i] = 0.8 + Math.random() * 2.4;
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+      sizes[i] = (0.8 + Math.random() * 2.4) * sizeScale;
       phases[i] = Math.random() * Math.PI * 2;
     }
 
@@ -226,19 +242,20 @@ function NebulaLayer({ count }: { count: number }) {
     geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
 
     const mat = new THREE.ShaderMaterial({
-      vertexShader: NEBULA_VERT,
-      fragmentShader: NEBULA_FRAG,
+      vertexShader: SOFT_VERT,
+      fragmentShader: SOFT_FRAG,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
         uPixelRatio: { value: 1 },
+        uAlpha: { value: alpha },
       },
     });
 
     return { points: new THREE.Points(geometry, mat), material: mat };
-  }, [count]);
+  }, [count, radiusRange, sizeScale, alpha, zOffset]);
 
   useEffect(
     () => () => {
@@ -252,7 +269,7 @@ function NebulaLayer({ count }: { count: number }) {
     material.uniforms.uTime.value = clock.elapsedTime;
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (groupRef.current) {
-      groupRef.current.rotation.y = -clock.elapsedTime * 0.013;
+      groupRef.current.rotation.y = clock.elapsedTime * spin;
     }
   });
 
@@ -284,7 +301,7 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
   const wrapRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(true);
 
-  // 滚出视口即暂停渲染循环（省电省 CPU）
+  // 滚出视口 / 标签页隐藏 → 暂停渲染循环
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -292,31 +309,49 @@ export default function HeroScene({ variant, quality }: { variant: SceneVariant;
       threshold: 0.02,
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    const onVisibility = () => setActive(!document.hidden);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
-  const networkCount = quality === "high" ? 3200 : 1700;
-  const nebulaCount = quality === "high" ? 22000 : 9000;
+  const networkCount = quality === "high" ? 2400 : 1300;
+  const nebulaCount = quality === "high" ? 12000 : 6000;
 
   return (
     <div ref={wrapRef} className="absolute inset-0" aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 16], fov: 55 }}
-        dpr={[1, quality === "high" ? 2 : 1.5]}
+        dpr={[1, quality === "high" ? 1.5 : 1.25]}
         frameloop={active ? "always" : "never"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       >
-        {variant !== "nebula" && <NetworkLayer count={networkCount} />}
-        {variant !== "network" && <NebulaLayer count={nebulaCount} />}
+        {variant === "halo" && (
+          /* 光晕：少量大尺寸柔边光斑缓慢漂浮——最接近三院科协 halo 的观感，成本最低 */
+          <>
+            <SoftLayer count={quality === "high" ? 14 : 9} radiusRange={[6, 15]} sizeScale={16} alpha={0.16} spin={0.02} zOffset={-3} />
+            <SoftLayer count={quality === "high" ? 500 : 300} radiusRange={[8, 22]} sizeScale={0.7} alpha={0.4} spin={-0.01} zOffset={-2} />
+          </>
+        )}
+        {variant === "nebula" && (
+          <SoftLayer count={nebulaCount} radiusRange={[11, 27]} sizeScale={1.15} alpha={0.5} spin={-0.013} zOffset={-4} />
+        )}
+        {variant === "combo" && (
+          <>
+            <SoftLayer count={Math.round(nebulaCount * 0.6)} radiusRange={[11, 27]} sizeScale={1.1} alpha={0.45} spin={-0.012} zOffset={-4} />
+            <SoftLayer count={10} radiusRange={[7, 16]} sizeScale={12} alpha={0.14} spin={0.018} zOffset={-3} />
+            <NetworkLayer count={networkCount} />
+          </>
+        )}
+        {variant === "network" && (
+          <>
+            <SoftLayer count={8} radiusRange={[8, 18]} sizeScale={14} alpha={0.12} spin={0.016} zOffset={-5} />
+            <NetworkLayer count={networkCount} />
+          </>
+        )}
         <CameraRig />
-        <EffectComposer>
-          <Bloom
-            mipmapBlur
-            intensity={quality === "high" ? 1.0 : 0.6}
-            luminanceThreshold={0.08}
-            luminanceSmoothing={0.25}
-          />
-        </EffectComposer>
       </Canvas>
     </div>
   );

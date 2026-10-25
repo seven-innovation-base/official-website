@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import Reveal from "@/components/site/Reveal";
 import { honors } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -37,7 +38,8 @@ export default function HonorsPage() {
         </p>
       </header>
 
-      <div className="mt-14 overflow-x-auto rounded-2xl border border-slate-200/90 shadow-sm">
+      <Reveal delay={100}>
+        <div className="mt-14 overflow-x-auto rounded-2xl border border-slate-200/90 shadow-sm">
         <table className="w-full min-w-[680px] border-collapse text-left text-sm">
           <thead>
             <tr className="bg-mist text-slate-500">
@@ -78,7 +80,8 @@ export default function HonorsPage() {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
+      </Reveal>
     </div>
   );
 }

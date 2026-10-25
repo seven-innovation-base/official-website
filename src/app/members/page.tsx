@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import Reveal from "@/components/site/Reveal";
 import { members, siteConfig, type Member } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ function MemberCard({ member }: { member: Member }) {
   const avatar = resolveAvatar(member);
 
   return (
-    <div className="group rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
+    <div className="group h-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
       <div className="flex items-center gap-4">
         {avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -95,16 +96,20 @@ export default function MembersPage() {
 
       {/* 按届时间线 */}
       <div className="relative ml-3 mt-16 border-l-2 border-primary/15 pb-4 sm:ml-6">
-        {members.map((group) => (
+        {members.map((group, groupIndex) => (
           <section key={group.classOf} className="relative pb-14 pl-8 last:pb-0 sm:pl-10">
             <span className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full bg-primary ring-4 ring-white" />
-            <h2 className="text-2xl font-bold text-primary">
-              {group.classOf}
-              <span className="ml-1 text-base font-medium text-slate-400">级</span>
-            </h2>
+            <Reveal>
+              <h2 className="text-2xl font-bold text-primary">
+                {group.classOf}
+                <span className="ml-1 text-base font-medium text-slate-400">级</span>
+              </h2>
+            </Reveal>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {group.memberList.map((member) => (
-                <MemberCard key={`${group.classOf}-${member.name}`} member={member} />
+              {group.memberList.map((member, index) => (
+                <Reveal key={`${group.classOf}-${member.name}`} delay={groupIndex === 0 ? index * 80 : 0}>
+                  <MemberCard member={member} />
+                </Reveal>
               ))}
             </div>
           </section>
