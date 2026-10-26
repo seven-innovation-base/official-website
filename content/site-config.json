@@ -3,6 +3,7 @@
   "fullName": "桂林电子科技大学数学与计算科学学院大学生数学应用及创新基地",
   "tagline": "真实、专注、卓越、不设限、创新",
   "foundedYear": 2007,
+  "siteUrl": "https://xn--7gqr3hs9ecxao51c822e.cn",
   "qqGroup": "685424046",
   "address": ["花江慧谷 4 号楼 305", "四创中心 4 号楼 303"],
   "video": {
@@ -22,6 +23,9 @@
   },
   "comments": {
     "serverUrl": "http://47.99.33.44:8360"
+  },
+  "analytics": {
+    "baiduToken": ""
   },
   "ftp": {
     "files": 11455,

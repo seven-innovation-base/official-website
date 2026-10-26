@@ -46,6 +46,7 @@ const SiteConfigSchema = z.object({
   fullName: z.string(),
   tagline: z.string(),
   foundedYear: z.number(),
+  siteUrl: z.string(),
   qqGroup: z.string(),
   address: z.array(z.string()),
   video: z.object({
@@ -65,6 +66,9 @@ const SiteConfigSchema = z.object({
   }),
   comments: z.object({
     serverUrl: z.string(),
+  }),
+  analytics: z.object({
+    baiduToken: z.string().optional(),
   }),
   ftp: z.object({
     files: z.number(),
