@@ -17,12 +17,28 @@ export default function Footer() {
     { href: "/join/", label: "加入我们" },
   ];
 
-  const resourceLinks = [
+  // 文档入口迁移自旧站（导航栏"文档/博客" + 页脚"Git协作练习/老版本文档"）。
+  // 注：旧站 Git2Github-practice 的 Pages 地址已 404，改指 GitHub 仓库页（内容即协作练习指南，可正常访问）。
+  const resourceLinks: Array<{
+    href: string;
+    label: string;
+    kind?: "direct" | "external";
+  }> = [
     { href: "/ftp/", label: "FTP 资料库" },
     { href: "/oj/", label: "OJ 练习（仅校园网）" },
     // 旧站归档是 public/ 下的纯静态目录：开发服务器不解析目录索引，故直链 index.html
-    // （生产环境 nginx/静态托管同样兼容，/legacy/ 亦可访问）
-    { href: "/legacy/index.html", label: "学习文档", direct: true },
+    { href: "/legacy/docs/index.html", label: "文档（旧站归档）", kind: "direct" },
+    { href: "/legacy/blog/index.html", label: "博客（旧站归档）", kind: "direct" },
+    {
+      href: "https://github.com/seven-innovation-base/Git2Github-practice",
+      label: "Git 协作练习",
+      kind: "external",
+    },
+    {
+      href: "https://seveninnovationbasedoc.readthedocs.io/zh_CN/latest/",
+      label: "老版本文档",
+      kind: "external",
+    },
   ];
 
   return (
@@ -66,7 +82,11 @@ export default function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm">
             {resourceLinks.map((link) => (
               <li key={link.href}>
-                {"direct" in link && link.direct ? (
+                {link.kind === "external" ? (
+                  <a href={link.href} target="_blank" rel="noreferrer" className="hover:text-white">
+                    {link.label} ↗
+                  </a>
+                ) : link.kind === "direct" ? (
                   <a href={link.href} className="hover:text-white">
                     {link.label}
                   </a>
