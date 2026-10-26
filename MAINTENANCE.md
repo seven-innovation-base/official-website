@@ -92,6 +92,8 @@ python scripts/ftp/extract_catalog.py
 
 - **管理后台**：`http://47.99.33.44:8360/ui`（管理员账号登录，可删评论/审核/改配置）
 - **数据备份**：`docker stop 1Panel-waline-tq0C` → `cp /opt/1panel/apps/waline/waline/data/waline.sqlite /备份目录/` → `docker start 1Panel-waline-tq0C`（建议每学期一次）
+- **评论头像**：历史留言的头像由前台脚本按留言者 GitHub 主页链接自动替换为 GitHub 头像（`CommentsSection.tsx` 的 `patchAvatars`）；新留言如填写 GitHub 网址同样生效，否则显示 gravatar 默认头像
+- **IP 显示**：评论的 IP/浏览器信息行已在样式里隐藏（`.site-comments .wl-meta`）；IP 本身仍存于 SQLite 的 `wl_Comment.ip`，Waline 对私有 IP 统一显示"内网IP"
 - **重要纪律**：直接改数据库前**必须先停容器**，改完再启动；所有踩过的坑见文档区 `refactor/WALINE部署踩坑记录.md`（15 条，含定位过程）
 - **换服务器/迁移**：仓库 `scripts/migration/waline_import.py`（v4）可重新导入全部 22 条历史留言，幂等可重跑
 

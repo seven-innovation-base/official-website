@@ -42,6 +42,14 @@
       animation: hero-float 5.5s ease-in-out infinite;
     }
   }
+
+  /*
+   * Waline 评论：隐藏技术性信息行（服务端对私有 IP 固定显示"内网IP"，
+   * 对访客是噪音；同时隐藏浏览器/系统信息）。
+   */
+  .site-comments .wl-meta {
+    display: none;
+  }
 }
 
 @keyframes hero-float {
