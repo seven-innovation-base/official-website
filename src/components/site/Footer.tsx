@@ -20,7 +20,9 @@ export default function Footer() {
   const resourceLinks = [
     { href: "/ftp/", label: "FTP 资料库" },
     { href: "/oj/", label: "OJ 练习（仅校园网）" },
-    { href: "/legacy/", label: "学习文档" },
+    // 旧站归档是 public/ 下的纯静态目录：开发服务器不解析目录索引，故直链 index.html
+    // （生产环境 nginx/静态托管同样兼容，/legacy/ 亦可访问）
+    { href: "/legacy/index.html", label: "学习文档", direct: true },
   ];
 
   return (
@@ -64,9 +66,15 @@ export default function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm">
             {resourceLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="hover:text-white">
-                  {link.label}
-                </Link>
+                {"direct" in link && link.direct ? (
+                  <a href={link.href} className="hover:text-white">
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link href={link.href} className="hover:text-white">
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
