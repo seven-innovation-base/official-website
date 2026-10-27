@@ -65,7 +65,10 @@ const SiteConfigSchema = z.object({
     problemCount: z.number(),
   }),
   comments: z.object({
-    serverUrl: z.string(),
+    /** GitHub API：Issue 评论列表（免认证，60 次/小时/IP，前端有缓存兜底） */
+    apiUrl: z.string(),
+    /** Issue 网页地址：「去 GitHub 留言」的跳转目标 */
+    issueUrl: z.string(),
   }),
   analytics: z.object({
     baiduToken: z.string().optional(),

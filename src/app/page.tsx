@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import VideoSection from "@/components/home/VideoSection";
-import CommentsSection from "@/components/home/CommentsSection";
+import IssueComments from "@/components/home/IssueComments";
 import HonorsTable from "@/components/honors/HonorsTable";
 import Hero3DLoader from "@/components/hero3d/Hero3DLoader";
 import Reveal from "@/components/site/Reveal";
@@ -147,14 +147,16 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      {/* ============ 留言板（Waline，历史评论迁移见方案 §7.2）============ */}
+      {/* ============ 留言板（GitHub Issue 模式：数据存于官方仓库 Issue #86）============ */}
       <section className="mx-auto max-w-4xl px-6 py-24">
         <Reveal>
           <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-center text-3xl font-bold text-ink">留言板</h2>
-            <p className="mt-3 text-center text-sm text-slate-400">留下你想对基地说的话（昵称 + 邮箱即可，无需注册）</p>
+            <p className="mt-3 text-center text-sm text-slate-400">
+              留下你想对基地说的话（需 GitHub 账号，基地成员标配）
+            </p>
             <div className="mt-8">
-              <CommentsSection serverUrl={siteConfig.comments.serverUrl} />
+              <IssueComments apiUrl={siteConfig.comments.apiUrl} issueUrl={siteConfig.comments.issueUrl} />
             </div>
           </div>
         </Reveal>
