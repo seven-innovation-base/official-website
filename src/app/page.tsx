@@ -148,16 +148,14 @@ export default function HomePage() {
       </section>
 
       {/* ============ 留言板（GitHub Issue 模式：数据存于官方仓库 Issue #86）============ */}
-      <section className="mx-auto max-w-4xl px-6 py-24">
+      <section className="mx-auto max-w-5xl px-6 py-24">
         <Reveal>
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-center text-3xl font-bold text-ink">留言板</h2>
-            <p className="mt-3 text-center text-sm text-slate-400">
-              留下你想对基地说的话（需 GitHub 账号，基地成员标配）
-            </p>
-            <div className="mt-8">
-              <IssueComments apiUrl={siteConfig.comments.apiUrl} issueUrl={siteConfig.comments.issueUrl} />
-            </div>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-ink">一些关于基地的评价🥰</h2>
+            <p className="mt-3 text-sm text-slate-500">这个页面是对基地的一些评价，欢迎发言😎</p>
+          </div>
+          <div className="mt-8">
+            <IssueComments apiUrl={siteConfig.comments.apiUrl} issueUrl={siteConfig.comments.issueUrl} />
           </div>
         </Reveal>
       </section>
