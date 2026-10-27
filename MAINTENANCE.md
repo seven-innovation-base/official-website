@@ -4,7 +4,7 @@
 
 ## 一、这个项目是什么
 
-- **技术栈**：Next.js 15（静态导出）+ TypeScript + Tailwind CSS v4 + three.js（Hero 3D「时间算法」场景）+ Waline（自托管评论）
+- **技术栈**：Next.js 15（静态导出）+ TypeScript + Tailwind CSS v4 + three.js（Hero 3D「时间算法」场景）+ GitHub Issue 评论区
 - **代码仓库**：`xiaoxiaoyu-123/official-website-new`（GitHub，main 分支推送即触发 CI 检查）
 - **旧站（2020–2026）**：归档在 `/legacy/` 路径，只读不再更新（`pnpm dev` 下请用 `/legacy/index.html` 访问——开发服务器不解析 public 目录索引，生产环境两种写法都可以）
 - **核心设计**：**内容与代码分离**——成员、荣誉、部门介绍、站点配置全部是 `content/` 下的 JSON 文件，改内容 = 改 JSON + 提交，不用碰任何代码
@@ -88,14 +88,15 @@ python scripts/ftp/extract_catalog.py
 
 全部在 `src/app/page.tsx` 的 Hero 区块和 `content/site-config.json`（`siteName`/`tagline`）。3D 场景的粒子数、速度、配色 → 见 `src/components/hero3d/TUNING.md`（每个参数的位置和效果都列了表）。
 
-### 7. 评论系统（Waline）管理
+### 7. 评论系统（GitHub Issue 模式）
 
-- **管理后台**：`http://47.99.33.44:8360/ui`（管理员账号登录，可删评论/审核/改配置）
-- **数据备份**：`docker stop 1Panel-waline-tq0C` → `cp /opt/1panel/apps/waline/waline/data/waline.sqlite /备份目录/` → `docker start 1Panel-waline-tq0C`（建议每学期一次）
-- **评论头像**：历史留言的头像由前台脚本按留言者 GitHub 主页链接自动替换为 GitHub 头像（`CommentsSection.tsx` 的 `patchAvatars`）；新留言如填写 GitHub 网址同样生效，否则显示 gravatar 默认头像
-- **IP 显示**：评论的 IP/浏览器信息行已在样式里隐藏（`.site-comments .wl-meta`）；IP 本身仍存于 SQLite 的 `wl_Comment.ip`，Waline 对私有 IP 统一显示"内网IP"
-- **重要纪律**：直接改数据库前**必须先停容器**，改完再启动；所有踩过的坑见文档区 `refactor/WALINE部署踩坑记录.md`（15 条，含定位过程）
-- **换服务器/迁移**：仓库 `scripts/migration/waline_import.py`（v4）可重新导入全部 22 条历史留言，幂等可重跑
+- **数据存放**：官方仓库 `seven-innovation-base/official-website` 的 **Issue #86**，前端直接读 GitHub API 展示
+- **新留言**：访客点「去 GitHub 留言」跳到 Issue 页发表，需要 GitHub 账号（基地成员标配，天然防灌水）
+- **管理**：删除/隐藏评论都在 GitHub 的 Issue 页面操作，无需登录任何后台
+- **历史留言**：22 条（2022–2026）一直在 Issue #86 原地保留，重构前后无缝衔接
+- **缓存机制**：前端把评论缓存到浏览器 localStorage（10 分钟 TTL），GitHub API 限流（60 次/小时/IP）时展示缓存不白屏
+- **历史沿革**：2026-10 曾短暂启用过自托管 Waline，后综合考虑维护成本与留言门槛退回 Issue 模式；完整踩坑记录见文档区 `refactor/WALINE部署踩坑记录.md`，迁移数据备份在 `scripts/migration/data/`
+- **服务器侧**：如曾部署过 Waline 容器，确认不再使用后可 `docker stop` 并移除，安全组同时关闭 8360 端口
 
 ### 8. 配置百度统计（可选）
 
@@ -126,13 +127,13 @@ pnpm build          # 构建静态站到 out/
 ## 六、待办与已知问题
 
 - [ ] Phase 5：部署流水线（CI → 阿里云服务器）、域名切换（见 `refactor/REFACTOR_PLAN_2.0.md` §8/§9）
-- [ ] 域名切换后：`site-config.json` 的 `siteUrl`、Waline 的 `SITE_URL`/`SECURE_DOMAINS`、百度统计token 要同步更新
+- [ ] 域名切换后：`site-config.json` 的 `siteUrl`、百度统计 token 要同步更新
 - [ ] logo2.png / qq-qrcode.jpg 图片压缩（Phase 5 前做）
 - [ ] 旧站 301：`/HistoricalHonor/ → /honors/` 等映射在部署层配置（nginx）
 
 ## 求助渠道
 
 - 重构方案与决策记录：`refactor/REFACTOR_PLAN_2.0.md`（含 D1–D9 决策）
-- Waline 排障：`refactor/WALINE部署踩坑记录.md`
+- 历史参考（Waline 时期）：`refactor/WALINE部署踩坑记录.md`
 - 3D 调参：`src/components/hero3d/TUNING.md`
 - 项目历史：git log（中文 commit message，按模块分组）
