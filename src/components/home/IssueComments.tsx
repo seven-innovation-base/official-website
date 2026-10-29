@@ -314,9 +314,6 @@ export default function IssueComments({ apiUrl, issueUrl }: Props) {
         >
           我也来说几句
         </a>
-        <p className="mt-4 text-xs leading-6 text-slate-400">
-          留言需要 GitHub 账号（基地成员标配），数据存放在基地官方仓库的 Issue 中。
-        </p>
       </div>
     </div>
   );
