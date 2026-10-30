@@ -1,11 +1,11 @@
 # 七院创新基地官网 · 维护手册
 
-> 写给下一届维护者：不需要精通编程也能完成日常更新。遇到本手册没覆盖的情况，先看「四、进阶」和文末求助渠道。
+> 写给下一届维护者：不需要精通编程也能完成日常更新。本手册覆盖日常维护的全部操作，照着抄即可。
 
 ## 一、这个项目是什么
 
 - **技术栈**：Next.js 15（静态导出）+ TypeScript + Tailwind CSS v4 + three.js（Hero 3D「时间算法」场景）+ GitHub Issue 评论区
-- **代码仓库**：`xiaoxiaoyu-123/official-website-new`（GitHub，main 分支推送即触发 CI 检查）
+- **代码仓库**：`seven-innovation-base/official-website`（GitHub 官方仓库，推送 / 合并到 main 即触发 CI 检查与发布）
 - **旧站（2020–2026）**：归档在 `/legacy/` 路径，只读不再更新（`pnpm dev` 下请用 `/legacy/index.html` 访问——开发服务器不解析 public 目录索引，生产环境两种写法都可以）
 - **核心设计**：**内容与代码分离**——成员、荣誉、部门介绍、站点配置全部是 `content/` 下的 JSON 文件，改内容 = 改 JSON + 提交，不用碰任何代码
 
