@@ -25,6 +25,9 @@
     "apiUrl": "https://api.github.com/repositories/267360943/issues/86/comments",
     "issueUrl": "https://github.com/seven-innovation-base/official-website/issues/86"
   },
+  "members": {
+    "editBaseUrl": "https://github.com/seven-innovation-base/official-website/edit/main"
+  },
   "analytics": {
     "baiduToken": ""
   },

@@ -70,6 +70,10 @@ const SiteConfigSchema = z.object({
     /** Issue 网页地址：「去 GitHub 留言」的跳转目标 */
     issueUrl: z.string(),
   }),
+  members: z.object({
+    /** 仓库「编辑文件」地址前缀：{editBaseUrl}/content/members.json */
+    editBaseUrl: z.string(),
+  }),
   analytics: z.object({
     baiduToken: z.string().optional(),
   }),

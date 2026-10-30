@@ -119,14 +119,23 @@ export default function MembersPage() {
       <div className="mt-16 text-center">
         <a
           className="inline-block rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition hover:scale-105 hover:bg-primary-dark"
-          href={`https://github.com/xiaoxiaoyu-123/official-website-new/edit/main/content/members.json`}
+          href={`${siteConfig.members.editBaseUrl}/content/members.json`}
           target="_blank"
           rel="noreferrer"
         >
           送我上墙
         </a>
-        <p className="mt-4 text-xs text-slate-400">
-          点击进入 GitHub 编辑 {siteConfig.siteName} 成员数据，提交后自动上线
+        <p className="mt-4 text-xs leading-6 text-slate-400">
+          点击进入 GitHub 编辑 {siteConfig.siteName} 成员数据，提交 PR 后由负责人审核上线
+          <br />
+          <a
+            href={`${siteConfig.members.editBaseUrl.replace("/edit/main", "/blob/main")}/MAINTENANCE.md`}
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2 hover:text-primary"
+          >
+            字段怎么写？看维护手册
+          </a>
         </p>
       </div>
     </div>
