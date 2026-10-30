@@ -49,6 +49,16 @@ scripts/
 }
 ```
 
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `name` | ✅ | 昵称 |
+| `role` | | 职务（如「2026级主席」「软件部部长」） |
+| `description` | | 自我描述 |
+| `avatar` | | 头像链接；**也可写 `github:用户名` 自动取 GitHub 头像** |
+| `github` | | GitHub 主页链接（注意是主页，不是头像地址） |
+| `blog` | | 博客链接或其他媒体链接 |
+| `email` | | 邮箱 |
+
 ### 2. 加一条荣誉
 
 编辑 `content/honors.json`，**加在最上面**（页面按数组顺序展示）：
@@ -88,52 +98,17 @@ python scripts/ftp/extract_catalog.py
 
 全部在 `src/app/page.tsx` 的 Hero 区块和 `content/site-config.json`（`siteName`/`tagline`）。3D 场景的粒子数、速度、配色 → 见 `src/components/hero3d/TUNING.md`（每个参数的位置和效果都列了表）。
 
-### 7. 评论系统（GitHub Issue 模式）
+### 7. 配置百度统计（可选）
 
-- **数据存放**：官方仓库 `seven-innovation-base/official-website` 的 **Issue #86**，前端直接读 GitHub API 展示
-- **新留言**：访客点「去 GitHub 留言」跳到 Issue 页发表，需要 GitHub 账号（基地成员标配，天然防灌水）
-- **管理**：删除/隐藏评论都在 GitHub 的 Issue 页面操作，无需登录任何后台
-- **历史留言**：22 条（2022–2026）一直在 Issue #86 原地保留，重构前后无缝衔接
-- **缓存机制**：前端把评论缓存到浏览器 localStorage（10 分钟 TTL），GitHub API 限流（60 次/小时/IP）时展示缓存不白屏
-- **历史沿革**：2026-10 曾短暂启用过自托管 Waline，后综合考虑维护成本与留言门槛退回 Issue 模式；完整踩坑记录见文档区 `refactor/WALINE部署踩坑记录.md`，迁移数据备份在 `scripts/migration/data/`
-- **服务器侧**：如曾部署过 Waline 容器，确认不再使用后可 `docker stop` 并移除，安全组同时关闭 8360 端口
+1. 到 [百度统计](https://tongji.baidu.com) 注册账号 → 「管理」→「网站列表」→ 新增网站（填站点域名）；
+2. 新建后拿到一段代码，形如 `hm.js?` 后面那串 32 位字符——**这串字符就是 token**（不是整段代码）；
+3. 填入 `content/site-config.json` 的 `analytics.baiduToken`，重新构建部署即生效（留空则完全不加载统计脚本）。
 
-### 8. 配置百度统计（可选）
+**数据在哪看**：网站上不会有任何统计展示。访问数据全部在 `tongji.baidu.com` 登录后的后台里看——「报告」→ 实时访客 / 趋势分析 / 来源分析 / 页面分析 / 访客分析。刚接入时数据有几分钟延迟，第二天起才会有完整报表。
 
-到百度统计注册站点拿到 token → 填入 `site-config.json` → `analytics.baiduToken`，即自动生效（留空则不加载）。
-
-## 四、本地开发与发布流程
-
-```bash
-pnpm install        # 首次
-pnpm dev            # 本地预览 http://localhost:3000
-pnpm lint           # 代码检查
-pnpm build          # 构建静态站到 out/
-```
-
-**发布**：提交并推送到 GitHub main 分支 → CI 自动跑 lint + build，红了会拦住 → （Phase 5 部署流水线接入后：自动发布到服务器）。
-
-**提交纪律**：
-- 改完先 `pnpm lint && pnpm build` 双绿再提交；
-- 内容类改动（JSON）commit message 用 `docs:` 前缀，功能用 `feat:`，修 bug 用 `fix:`。
-
-## 五、性能红线（改 3D / 加内容前看一眼）
+## 四、性能红线（改 3D / 加内容前看一眼）
 
 - Hero 3D 独立懒加载 chunk ≤ 250KB（gzip），主包不含 three.js；
 - 首页 First Load JS 约 108KB，别引入大型 UI 库；
-- 图片进 `public/` 前压一压（logo2.png 282KB、二维码 147KB 已偏大，后续可优化为 WebP）；
-- 部署验收标准：Lighthouse 移动端 ≥ 90、LCP < 2.5s。
-
-## 六、待办与已知问题
-
-- [ ] Phase 5：部署流水线（CI → 阿里云服务器）、域名切换（见 `refactor/REFACTOR_PLAN_2.0.md` §8/§9）
-- [ ] 域名切换后：`site-config.json` 的 `siteUrl`、百度统计 token 要同步更新
-- [ ] logo2.png / qq-qrcode.jpg 图片压缩（Phase 5 前做）
-- [ ] 旧站 301：`/HistoricalHonor/ → /honors/` 等映射在部署层配置（nginx）
-
-## 求助渠道
-
-- 重构方案与决策记录：`refactor/REFACTOR_PLAN_2.0.md`（含 D1–D9 决策）
-- 历史参考（Waline 时期）：`refactor/WALINE部署踩坑记录.md`
-- 3D 调参：`src/components/hero3d/TUNING.md`
-- 项目历史：git log（中文 commit message，按模块分组）
+- 图片进 `public/` 前压一压（当前 logo 71KB、Hero 徽章 119KB、二维码 80KB、视频封面 127KB）；
+- 验收标准：Lighthouse 移动端 ≥ 90、LCP < 2.5s。
