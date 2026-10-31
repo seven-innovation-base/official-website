@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/*
+ * 设计 token（方案 D4：藏青蓝系）
+ * 品牌色沿用 FTP 编目页一脉相承的藏青蓝，点缀青用于 3D 粒子/辉光/链接。
+ */
+@theme {
+  --color-primary: #15509c;
+  --color-primary-dark: #0f3d7c;
+  --color-primary-deep: #0a2d5e;
+  --color-primary-light: #2e7bc4;
+  --color-accent: #13c2c2;
+  --color-ink: #22303c;
+  --color-mist: #f5f9fd;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, "Courier New", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent/30;
+  }
+
+  /* 锚点跳转平滑滚动（尊重"减弱动态效果"设置） */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+@layer utilities {
+  /* Hero Logo 轻浮动（尊重系统"减弱动态效果"设置） */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-hero-float {
+      animation: hero-float 5.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
