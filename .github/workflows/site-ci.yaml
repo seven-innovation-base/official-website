@@ -7,63 +7,44 @@ on:
     branches: [main]
 
 jobs:
-  lint-build:
+  check-pull-request:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: 10
+          node-version: 18
+          cache: npm
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build (static export to out/)
-        run: pnpm build
+      - run: npm ci
+      - run: npm run build
 
   github-pages-release:
-    # 仅在官方仓库的 main 分支推送时发布（个人 fork/镜像仓库自动跳过）
-    if: github.event_name == 'push' && github.repository == 'seven-innovation-base/official-website'
-    needs: lint-build
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: 10
+          node-version: 18
+          cache: npm
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      - name: Install Dependencies
+        run: npm ci
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build (static export to out/)
-        run: pnpm build
+      - name: Build Site
+        run: npm run build
 
       - name: Deploy to seven-innovation-base.github.io
         run: |
           git clone https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/seven-innovation-base/seven-innovation-base.github.io.git target
           rm -rf target/*
-          cp -r out/* target/
+          cp -r build/* target/
           cd target
           git config user.email "actions@github.com"
           git config user.name "github-actions"
