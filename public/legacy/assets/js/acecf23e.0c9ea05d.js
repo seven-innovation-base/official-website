@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkseven_innovation_base_website=self.webpackChunkseven_innovation_base_website||[]).push([[1903],{1912:e=>{e.exports=JSON.parse('{"blogBasePath":"/legacy/blog","blogTitle":"Blog","authorsListPath":"/legacy/blog/authors"}')}}]);
