@@ -105,7 +105,7 @@ function parseComments(list: Array<Record<string, unknown>>): IssueComment[] {
     if (parent) parent.replies.push(o);
     else top.push(o); // 引用找不到主评论时按顶层兜底，不丢数据
   }
-  return top.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  return top.sort((a, b) => b.createdAt.localeCompare(a.createdAt)); // 最新的在前
 }
 
 type Status = "loading" | "ok" | "stale" | "error";
