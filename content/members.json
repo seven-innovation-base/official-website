@@ -3,6 +3,14 @@
     "classOf": "2024",
     "memberList": [
       {
+        "name": "西东温",
+        "role": "2024级主席",
+        "description": "泥嚎人类",
+        "avatar": "https://xidongwe.github.io/%E5%9B%BE%E7%89%87/07618237eb8bb8651fee9b3db77ce636492309796.jpg@1192w.jpg",
+        "github": "https://github.com/XiDongWe/XiDongWe.github.io",
+        "blog": "https://XiDongWe.github.io/"
+      },
+      {
         "name": "xiaoxiaoyu123",
         "role": "2024级软件部部长",
         "description": "每天都很困😴",
@@ -24,6 +32,27 @@
         "github": "https://github.com/xinshoujiajia",
         "blog": "https://xinshoujiajia.github.io/",
         "email": "xinshoujiajia@mails.guet.edu.cn"
+      },
+      {
+        "name": "池溟昌胤",
+        "role": "软件部副部长",
+        "description": "一个想学王安的縩鞲罢了",
+        "avatar": "https://img1.baidu.com/it/u=4155685643,781819570&fm=253&fmt=auto&app=138&f=JPEG?w=509&h=500",
+        "github": "https://github.com/8cmcy8",
+        "blog": "https://xiao-shou-bing-liang.github.io/docs/"
+      }
+    ]
+  },
+  {
+    "classOf": "2022",
+    "memberList": [
+      {
+        "name": "xunyue",
+        "role": "2022级副主席",
+        "description": "人海山川，不过尔尔",
+        "avatar": "https://avatars.githubusercontent.com/dsylxt?s=256",
+        "github": "https://github.com/dsylxt/dsylxt.github.io",
+        "blog": "https://dsylxt.github.io/"
       }
     ]
   },
@@ -38,7 +67,30 @@
         "github": "https://github.com/zqqqqqqj1110",
         "blog": "https://zqqqqqqj1110.github.io",
         "email": "zhouqijia1110@gmail.com"
-      }
+      },
+      {
+        "name": "lucky_dog",
+        "role": "软件部部长",
+        "description": "你我终会在山巅相遇",
+        "avatar": "https://avatars.githubusercontent.com/LuckyLXS?s=256",
+        "github": "https://github.com/LuckyLXS",
+        "blog": "https://LuckyLXS.github.io"
+      },
+      {
+        "name": "KIKO",
+        "role": "成员",
+        "description": "每天多努力一点点",
+        "avatar": "https://avatars.githubusercontent.com/GaleBird?s=256",
+        "github": "https://github.com/GaleBird"
+      },
+      {
+        "name": "jj123t",
+        "role": "成员",
+        "description": "Zzz",
+        "avatar": "https://avatars.githubusercontent.com/jj123t?s=256",
+        "github": "https://github.com/jj123t",
+        "blog": "https://jj123t.github.io"
+      },
     ]
   },
   {
@@ -89,6 +141,14 @@
         "avatar": "https://avatars.githubusercontent.com/u/58203118?v=4",
         "github": "https://github.com/suze233",
         "blog": "https://suze666.top"
+      },
+      {
+        "name": "liang",
+        "role": "算法部部长",
+        "description": "从菜鸟到大神",
+        "avatar": "https://avatars.githubusercontent.com/010505?s=256",
+        "github": "https://github.com/010505",
+        "blog": "https://github.com/010505/official-website"
       },
       {
         "name": "Higgins",
