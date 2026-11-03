@@ -143,10 +143,26 @@
         "blog": "https://suze666.top"
       },
       {
+        "name": "THEO1126（李冰冰）",
+        "role": "软件部部长",
+        "description": "今天认真学习了吗",
+        "avatar": "https://avatars.githubusercontent.com/u/67111580?v=4",
+        "github": "https://github.com/THEO1126",
+        "blog": "https://theo1126.github.io/"
+      },
+      {
+        "name": "FIVE9523（覃昌伟）",
+        "role": "软件部副部长",
+        "description": "打卡留念",
+        "avatar": "https://github.com/redhat123456/pohots/blob/master/FIVE9523.jpg?raw=true",
+        "github": "https://github.com/FIVE9523",
+        "blog": "https://five9523.github.io/"
+      },
+      {
         "name": "liang（梁樱兰）",
         "role": "算法部部长",
         "description": "从菜鸟到大神",
-        "avatar": "https://avatars.githubusercontent.com/010505?s=256",
+        "avatar": "https://github.com/redhat123456/pohots/blob/master/liang.jpg?raw=true",
         "github": "https://github.com/010505",
         "blog": "https://github.com/010505/official-website"
       },
@@ -157,6 +173,14 @@
         "avatar": "https://i.loli.net/2020/07/31/QLmPF47aCS8sYGf.jpg",
         "github": "https://github.com/higgins995",
         "blog": "https://higgins995.top/"
+      },
+      {
+        "name": "Aaron（卢凯彬）",
+        "role": "信安部部长",
+        "description": "无",
+        "avatar": "https://github.com/redhat123456/pohots/blob/master/1900710128.jpg?raw=true",
+        "github": "https://github.com/1900710128",
+        "blog": "https://aaronkb.home.blog/"
       }
     ]
   },
