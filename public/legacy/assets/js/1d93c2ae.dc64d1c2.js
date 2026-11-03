@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkseven_innovation_base_website=self.webpackChunkseven_innovation_base_website||[]).push([[2285],{52828:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/legacy/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":8,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
