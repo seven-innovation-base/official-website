@@ -113,13 +113,29 @@
         "blog": "https://ss-ysy.github.io/"
       },
       {
-        "name": "ZXY39（周心宇）",
-        "role": "大数据部部长",
+        "name": "刘浩",
+        "role": "软件部部长",
         "description": "愿存初心",
         "avatar": "https://avatars.githubusercontent.com/u/79792676?v=4",
         "github": "https://github.com/ZXY39",
         "blog": "https://zxy39.gitee.io/"
-      }
+      },
+      {
+        "name": "ZXY39（周心宇）",
+        "role": "软件部副部长",
+        "description": "愿存初心",
+        "avatar": "https://avatars.githubusercontent.com/u/79792676?v=4",
+        "github": "https://github.com/ZXY39",
+        "blog": "https://zxy39.gitee.io/"
+      },
+      {
+        "name": "杨再冀",
+        "role": "算法部部长",
+        "description": "愿存初心",
+        "avatar": "https://avatars.githubusercontent.com/u/79792676?v=4",
+        "github": "https://github.com/ZXY39",
+        "blog": "https://zxy39.gitee.io/"
+      },
     ]
   },
   {
