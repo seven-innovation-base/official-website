@@ -1,0 +1,20 @@
+[
+  {
+    "title": "贪吃蛇 · GUET 版",
+    "type": "游戏",
+    "description": "经典贪吃蛇游戏的现代化重制——支持双人联机对战、实时排行榜、自定义皮肤系统。纯前端实现无需安装，打开即玩。",
+    "tags": ["JavaScript", "Canvas", "PeerJS"],
+    "author": "xiaoxiaoyu123",
+    "cover": "/images/works/snake-cover.jpg",
+    "link": "/works/snake"
+  },
+  {
+    "title": "手写模拟",
+    "type": "网站",
+    "description": "输入作业文本，自动生成手写风格页面——多种纸张与字体、潦草度可调，支持分数、根号、积分、矩阵等数学记号与 AI 解题，一键导出 PDF/PNG。",
+    "tags": ["Vue", "FastAPI", "KaTeX"],
+    "author": "xiaoxiaoyu123",
+    "cover": "/images/works/handwriting-cover.jpg",
+    "link": "https://math.xiaoxiaoyu123.xyz"
+  }
+]

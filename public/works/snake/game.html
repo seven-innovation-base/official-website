@@ -1,0 +1,3267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>贪吃蛇GUET版</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js'"></script>
+    <style>
+        /* ===== 联机控制区 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body { background: #080a14; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', 'PingFang SC', Roboto, sans-serif; color: #e0e8f0; overflow: hidden; }
+        #app { width: 1300px; max-width: 98vw; max-height: 98vh; background: radial-gradient(ellipse at 50% 30%, #141c30, #090d1a); border-radius: 40px; padding: 20px 28px 28px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,120,255,0.03); border: 1px solid rgba(60,160,255,0.08); position: relative; transition: all 0.3s; }
+        .hidden { display: none !important; }
+        #titleBar { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 14px 6px; border-bottom: 1px solid rgba(60,160,255,0.08); margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        #titleBar .left { display: flex; align-items: center; gap: 12px; }
+        #logoImg { height: 50px; width: auto; border-radius: 8px; object-fit: contain; }
+        #titleBar h1 { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #f0d070, #f5b830); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 40px rgba(245,166,35,0.15); letter-spacing: 2px; }
+        #titleBar .sub { font-size: 14px; color: #7a9aba; background: rgba(20,50,80,0.3); padding: 5px 20px; border-radius: 30px; border: 1px solid rgba(60,160,255,0.08); }
+        #titleBar .sub.online { color: #5cdba0; border-color: rgba(92,219,160,0.2); }
+        #gameLayout { display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap; justify-content: center; }
+        #canvasWrap { flex: 0 0 auto; background: #0b111e; border-radius: 22px; padding: 10px; box-shadow: inset 0 0 60px rgba(0,0,0,0.7), 0 12px 48px rgba(0,0,0,0.6); border: 1px solid rgba(60,160,255,0.08); position: relative; }
+        #gameCanvas { display: block; width: 800px; height: 640px; border-radius: 14px; image-rendering: pixelated; background: #0d1422; cursor: pointer; }
+        .sidePanel { flex: 0 0 250px; min-width: 210px; background: rgba(12,22,44,0.65); border-radius: 22px; padding: 16px 14px; border: 1px solid rgba(60,160,255,0.06); backdrop-filter: blur(8px); box-shadow: inset 0 0 40px rgba(0,20,40,0.2); display: flex; flex-direction: column; gap: 3px; }
+        .sidePanel .label { font-size: 11px; color: #5a7a9a; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 600; margin-top: 2px; }
+        .sidePanel .value { font-size: 24px; font-weight: 700; color: #d0e4ff; line-height: 1.2; }
+        .sidePanel .value.high { color: #f7d06a; }
+        .sidePanel .value.green { color: #5cdba0; }
+        .sidePanel .value.purple { color: #c9a0ff; }
+        .sidePanel .value.pink { color: #f5a8c8; }
+        .sidePanel .value.orange { color: #f5b060; }
+        .sidePanel .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(60,160,255,0.10), transparent); margin: 4px 0; }
+        .sidePanel .tip { font-size: 12px; color: #5a7a9a; line-height: 1.6; }
+        .sidePanel .tip kbd { display: inline-block; background: rgba(40,80,120,0.20); padding: 0 8px; border-radius: 4px; font-size: 11px; color: #8ab4e0; border: 1px solid rgba(60,160,255,0.06); }
+        .btnGroup { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+        .btn { background: rgba(30,70,120,0.20); border: 1px solid rgba(60,160,255,0.08); color: #8ab4e0; padding: 6px 14px; border-radius: 30px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-weight: 500; flex: 1 0 auto; text-align: center; backdrop-filter: blur(4px); }
+        .btn:hover { background: rgba(40,100,180,0.30); border-color: rgba(60,160,255,0.20); color: #c8e2ff; transform: translateY(-2px); }
+        .btn:active { transform: scale(0.96); }
+        .btn.primary { background: rgba(60,160,255,0.15); border-color: rgba(60,160,255,0.12); color: #7ab8f0; }
+        .btn.primary:hover { background: rgba(60,160,255,0.25); }
+        .btn.gold { background: rgba(245,166,35,0.12); border-color: rgba(245,166,35,0.12); color: #f5c542; }
+        .btn.gold:hover { background: rgba(245,166,35,0.22); }
+        .btn.danger { background: rgba(255,80,80,0.10); border-color: rgba(255,80,80,0.10); color: #ff7a8a; }
+        .btn.danger:hover { background: rgba(255,80,80,0.20); }
+        .btn.pink { background: rgba(240,140,200,0.10); border-color: rgba(240,140,200,0.10); color: #f5b0d0; }
+        .btn.pink:hover { background: rgba(240,140,200,0.20); }
+        .btn.small { font-size: 11px; padding: 4px 10px; }
+        .btn.success { background: rgba(92,219,160,0.12); border-color: rgba(92,219,160,0.12); color: #5cdba0; }
+        .btn.success:hover { background: rgba(92,219,160,0.22); }
+        .colorPicker { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 0; justify-content: center; }
+        .colorPicker .cbtn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.25s; flex-shrink: 0; }
+        .colorPicker .cbtn:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.5); }
+        .colorPicker .cbtn.active { border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.25); transform: scale(1.08); }
+        .snake-preview { display: flex; align-items: center; gap: 8px; background: rgba(20,50,90,0.15); border-radius: 12px; padding: 4px 12px 4px 8px; border: 1px solid rgba(60,160,255,0.05); }
+        .snake-preview canvas { display: block; width: 60px; height: 30px; border-radius: 6px; background: rgba(0,0,0,0.2); }
+        .snake-preview .label { font-size: 11px; color: #7a9aba; }
+        .snakeColorPicker { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:5px 0 2px; }
+        .snakeColorPicker .snake-cbtn { width:24px; height:24px; padding:0; border-radius:50%; border:2px solid rgba(255,255,255,0.16); cursor:pointer; transition:transform .2s,border-color .2s,box-shadow .2s; }
+        .snakeColorPicker .snake-cbtn:hover { transform:scale(1.14); border-color:rgba(255,255,255,.55); }
+        .snakeColorPicker .snake-cbtn.active { transform:scale(1.08); border-color:#fff; box-shadow:0 0 14px rgba(255,255,255,.32); }
+        #mpLevelPassNotice { position:absolute; left:50%; top:88px; z-index:70; min-width:320px; max-width:80%; padding:16px 26px; border-radius:18px; text-align:center; pointer-events:none; opacity:0; transform:translate(-50%,-18px) scale(.96); transition:opacity .28s ease,transform .28s ease; background:rgba(8,18,34,.94); border:1px solid rgba(92,219,160,.34); box-shadow:0 18px 55px rgba(0,0,0,.65),0 0 30px rgba(92,219,160,.12); }
+        #mpLevelPassNotice.active { opacity:1; transform:translate(-50%,0) scale(1); }
+        #mpLevelPassNotice .notice-title { color:#5cdba0; font-size:24px; font-weight:700; }
+        #mpLevelPassNotice .notice-detail { color:#c8e2ff; font-size:14px; margin-top:5px; }
+        #onlineStatus { font-size: 12px; color: #5a7a9a; text-align: center; min-height: 18px; }
+        #onlineStatus .connected { color: #5cdba0; }
+        #onlineStatus .disconnected { color: #ff6b7a; }
+        #playerList { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; color: #7a9aba; padding: 2px 0; min-height: 22px; }
+        #playerList .pl-item { display: flex; align-items: center; gap: 4px; background: rgba(20,50,90,0.15); padding: 2px 8px 2px 6px; border-radius: 12px; border: 1px solid rgba(60,160,255,0.04); }
+        #playerList .pl-item .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        #playerList .pl-item .dot.host { background: #f7d06a; }
+        #playerList .pl-item .dot.player { background: #5cdba0; }
+        #playerList .pl-item .dot.spectator { background: #7a9aba; }
+        #playerList .pl-item .name { color: #b0cce0; }
+        #chatArea { margin-top: 4px; border-top: 1px solid rgba(60,160,255,0.06); padding-top: 6px; max-height: 150px; display: flex; flex-direction: column; }
+        #chatArea .chat-messages { flex: 1; overflow-y: auto; max-height: 100px; font-size: 12px; color: #8ab4e0; line-height: 1.5; padding: 2px 4px; background: rgba(0,0,0,0.2); border-radius: 8px; min-height: 40px; scrollbar-width: thin; }
+        #chatArea .chat-messages::-webkit-scrollbar { width: 3px; }
+        #chatArea .chat-messages::-webkit-scrollbar-thumb { background: rgba(60,160,255,0.2); border-radius: 4px; }
+        #chatArea .chat-messages .msg { padding: 1px 0; border-bottom: 1px solid rgba(60,160,255,0.03); }
+        #chatArea .chat-messages .msg .name { color: #f7d06a; font-weight: 600; }
+        #chatArea .chat-messages .msg .text { color: #b0cce0; }
+        #chatArea .chat-messages .msg.system { color: #5a7a9a; font-style: italic; }
+        #chatArea .chat-input-row { display: flex; gap: 4px; margin-top: 4px; }
+        #chatArea .chat-input-row input { flex: 1; background: rgba(20,50,90,0.20); border: 1px solid rgba(60,160,255,0.08); border-radius: 16px; padding: 4px 12px; color: #c8e2ff; font-size: 12px; outline: none; }
+        #chatArea .chat-input-row input:focus { border-color: rgba(60,160,255,0.25); }
+        #chatArea .chat-input-row button { background: rgba(60,160,255,0.12); border: 1px solid rgba(60,160,255,0.08); border-radius: 16px; color: #8ab4e0; padding: 4px 14px; font-size: 12px; cursor: pointer; }
+        #chatArea .chat-input-row button:hover { background: rgba(60,160,255,0.22); }
+        .mp-only { display:none !important; }
+        #app.multiplayer-active #playerList.mp-only { display:flex !important; }
+        #app.multiplayer-active #onlineStatus.mp-only { display:block !important; }
+        #app.multiplayer-active #mpControl.mp-only { display:block !important; }
+        #app.multiplayer-active #chatArea.mp-only { display:flex !important; }
+        #chatArea.disabled { opacity:.55; pointer-events:none; }
+        .overlay { position: absolute; inset: 0; background: rgba(6,12,24,0.85); backdrop-filter: blur(10px); border-radius: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; padding: 30px 20px; transition: opacity 0.3s; }
+        .overlay .menuBox { background: rgba(12,22,44,0.80); border-radius: 32px; padding: 40px 48px 44px; max-width: 760px; width: 100%; border: 1px solid rgba(60,160,255,0.08); box-shadow: 0 30px 80px rgba(0,0,0,0.7); max-height: 90vh; overflow-y: auto; }
+        .overlay .menuBox h2 { text-align: center; font-size: 42px; font-weight: 700; color: #e8f0ff; margin-bottom: 24px; background: linear-gradient(135deg, #f0d070, #f5a623); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .overlay .menuBox .menuItem { display: flex; align-items: center; padding: 18px 28px; margin: 8px 0; border-radius: 18px; background: rgba(20,50,90,0.10); border: 1px solid transparent; cursor: pointer; transition: all 0.25s; color: #b0cce0; font-size: 24px; font-weight: 500; }
+        .overlay .menuBox .menuItem:hover { background: rgba(40,100,180,0.18); border-color: rgba(60,160,255,0.10); color: #e0ecff; transform: translateX(10px); }
+        .overlay .menuBox .menuItem .idx { display: inline-block; width: 40px; color: #5a7a9a; font-weight: 400; }
+        .overlay .menuBox .menuItem .arrow { margin-left: auto; color: #5a7a9a; }
+        .overlay .menuBox .menuItem.selected { background: rgba(60,160,255,0.15); border-color: rgba(60,160,255,0.12); color: #c8e2ff; }
+        .overlay .menuBox .menuTip { text-align: center; font-size: 18px; color: #5a7a9a; margin-top: 24px; border-top: 1px solid rgba(60,160,255,0.05); padding-top: 18px; letter-spacing: 0.5px; }
+        .overlay .menuBox .menuTip kbd { background: rgba(40,80,120,0.15); padding: 2px 14px; border-radius: 6px; font-size: 15px; color: #7a9aba; }
+        .rankList { list-style: none; padding: 0; margin: 6px 0 12px; }
+        .rankList li { display: flex; justify-content: space-between; padding: 8px 18px; border-radius: 12px; background: rgba(20,50,90,0.06); margin: 4px 0; font-size: 17px; border-left: 3px solid transparent; }
+        .rankList li:nth-child(1) { border-left-color: #f7d06a; background: rgba(245,166,35,0.06); }
+        .rankList li:nth-child(2) { border-left-color: #b0cce0; background: rgba(160,180,200,0.04); }
+        .rankList li:nth-child(3) { border-left-color: #cd7f4a; background: rgba(205,127,74,0.04); }
+        .rankList .rank { color: #5a7a9a; }
+        .rankList .rscore { font-weight: 600; color: #c8e2ff; }
+        #dirPad { display: grid; grid-template-columns: 48px 48px 48px; grid-template-rows: 48px 48px 48px; gap: 3px; margin-top: 8px; justify-content: center; }
+        #dirPad .dirBtn { background: rgba(20,50,90,0.30); border: 1px solid rgba(60,160,255,0.08); border-radius: 12px; color: #8ab4e0; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; touch-action: none; }
+        #dirPad .dirBtn:active { background: rgba(40,100,180,0.40); transform: scale(0.90); }
+        #dirPad .dirBtn.empty { background: transparent; border: none; cursor: default; }
+        #formulaOverlay { position: absolute; inset: 0; pointer-events: none; z-index: 60; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.5s ease; border-radius: 40px; overflow: hidden; }
+        #formulaOverlay.active { opacity: 1; pointer-events: none; }
+        #formulaOverlay .formula-card { background: rgba(8,14,30,0.92); backdrop-filter: blur(16px); border: 1px solid rgba(60,160,255,0.08); border-radius: 28px; padding: 28px 40px 32px; max-width: 600px; width: 90%; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.92) translateY(10px); transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        #formulaOverlay.active .formula-card { transform: scale(1) translateY(0); }
+        #formulaOverlay .formula-label { font-size: 14px; color: #5a7a9a; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid rgba(60,160,255,0.04); padding-bottom: 10px; }
+        #formulaOverlay .formula-content { font-size: 24px; color: #f0e8ff; line-height: 1.6; padding: 6px 0; font-family: 'Times New Roman', 'Georgia', serif; min-height: 50px; }
+        #formulaOverlay .formula-content .math { font-size: 28px; font-weight: 500; color: #f7e8a0; }
+        @media (max-width: 1100px) { /* 响应式略 */ }
+        @media (max-width: 540px) { /* 响应式略 */ }
+        .overlay .menuBox::-webkit-scrollbar { width: 4px; }
+        .overlay .menuBox::-webkit-scrollbar-track { background: rgba(20,50,90,0.06); border-radius: 4px; }
+        .overlay .menuBox::-webkit-scrollbar-thumb { background: rgba(60,160,255,0.12); border-radius: 4px; }
+        /* 联机控制区样式 */
+        .multiplayer-control {
+            background: rgba(20,50,90,0.15);
+            border-radius: 12px;
+            padding: 8px 10px;
+            margin-top: 4px;
+            border: 1px solid rgba(60,160,255,0.05);
+        }
+        .multiplayer-control .row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px 0;
+        }
+        .multiplayer-control .row input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(60,160,255,0.1);
+            border-radius: 8px;
+            padding: 4px 8px;
+            color: #c8e2ff;
+            font-size: 12px;
+            outline: none;
+            min-width: 60px;
+        }
+        .multiplayer-control .row input:focus { border-color: rgba(60,160,255,0.3); }
+        .multiplayer-control .row .copy-btn {
+            background: rgba(92,219,160,0.15);
+            border: 1px solid rgba(92,219,160,0.2);
+            color: #5cdba0;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .multiplayer-control .row .copy-btn:hover { background: rgba(92,219,160,0.25); }
+        .multiplayer-control .row .copy-btn:active { transform: scale(0.95); }
+        .multiplayer-control .status-text { font-size: 11px; color: #7a9aba; text-align: center; }
+        .multiplayer-control .status-text.connected { color: #5cdba0; }
+        .multiplayer-control .status-text.disconnected { color: #ff6b7a; }
+        .multiplayer-control .btn-group { gap: 4px; }
+        .multiplayer-control .btn-group .btn { font-size: 11px; padding: 3px 10px; flex: 1; }
+        .room-id-display { color: #c8e2ff; font-size: 13px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* ===== 稳定联机与同步状态 ===== */
+        .mp-input, .mp-select {
+            flex: 1; min-width: 0; background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(60,160,255,0.12); border-radius: 9px;
+            padding: 5px 8px; color: #c8e2ff; font-size: 12px; outline: none;
+        }
+        .mp-input:focus, .mp-select:focus { border-color: rgba(92,219,160,0.45); }
+        .mp-select option { background: #10182a; color: #dceaff; }
+        .mp-action-row { display: flex; gap: 5px; margin-top: 5px; }
+        .mp-action-row .btn { padding: 5px 8px; font-size: 11px; }
+        .mp-health-line { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:10px; color:#5a7a9a; margin-top:4px; }
+        #mpPingText.good { color:#5cdba0; }
+        #mpPingText.warn { color:#f7d06a; }
+        #mpPingText.bad { color:#ff6b7a; }
+        .sync-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:10px; background:rgba(92,219,160,.08); border:1px solid rgba(92,219,160,.12); }
+        .sync-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:#5cdba0; box-shadow:0 0 9px rgba(92,219,160,.7); }
+        .role-hint { font-size:10px; color:#4f6f8f; text-align:center; line-height:1.4; }
+        .pl-item .score { color:#f7d06a; font-size:10px; }
+        /* 游戏结束 / 过关 覆盖层样式 */
+        .gameover-box { text-align:center; padding:10px 0; }
+        .gameover-box .big-score { font-size:72px; font-weight:700; color:#f7d06a; }
+        .gameover-box .sub-text { font-size:20px; color:#8ab4e0; margin:8px 0; }
+        .gameover-box .btn-group { justify-content:center; margin-top:16px; }
+        .gameover-box .btn-group .btn { flex:0 1 auto; padding:8px 28px; font-size:16px; }
+        .levelpass-box { text-align:center; padding:10px 0; }
+        .levelpass-box .big-icon { font-size:64px; }
+        .levelpass-box .big-score { font-size:48px; font-weight:700; color:#5cdba0; }
+        /* 词库管理样式 */
+        .vocab-list { max-height:200px; overflow-y:auto; margin:8px 0; }
+        .vocab-item { display:flex; justify-content:space-between; padding:4px 8px; border-bottom:1px solid rgba(60,160,255,0.05); font-size:15px; color:#b0cce0; }
+        .vocab-item .del-btn { color:#ff6b7a; cursor:pointer; font-size:14px; }
+        .vocab-input-row { display:flex; gap:6px; margin:6px 0; }
+        .vocab-input-row input { flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(60,160,255,0.1); border-radius:8px; padding:4px 8px; color:#c8e2ff; }
+        .vocab-input-row button { background:rgba(92,219,160,0.15); border:1px solid rgba(92,219,160,0.2); color:#5cdba0; padding:4px 12px; border-radius:8px; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="titleBar">
+            <div class="left">
+                <img id="logoImg" src="" alt="LOGO" style="display:none;">
+                <h1>贪吃蛇GUET版</h1>
+            </div>
+            <span class="sub" id="gameStatus">● 游戏中</span>
+        </div>
+        <div id="gameLayout">
+            <div class="sidePanel" id="leftPanel">
+                <div><span class="label">🏆 最高分</span><div class="value high" id="highScoreDisplay">0</div></div>
+                <div class="divider"></div>
+                <div><span class="label">⭐ 当前得分</span><div class="value" id="scoreDisplay">0</div></div>
+                <div><span class="label">🎯 通关目标</span><div class="value green" id="targetDisplay">50</div></div>
+                <div class="divider"></div>
+                <div><span class="label">📊 关卡</span><div class="value purple" id="levelDisplay">1</div></div>
+                <div><span class="label">⚡ 难度</span><div class="value" id="diffDisplay" style="font-size:16px;">简单</div></div>
+                <div><span class="label">🚀 速度加成</span><div class="value pink" id="addDisplay" style="font-size:18px;">+1</div></div>
+                <div id="healthDisplayWrap" class="hidden"><span class="label">❤️ 血量</span><div class="value orange" id="healthDisplay">3</div></div>
+                <div id="dualScoreWrap" class="hidden"><span class="label">👥 双人总分</span><div class="value" id="dualScoreDisplay">0</div></div>
+                <div class="divider"></div>
+                <div class="snake-preview">
+                    <canvas id="previewCanvas" width="60" height="30"></canvas>
+                    <span class="label" id="snakeColorName">蓝色</span>
+                </div>
+                <div style="font-size:11px; color:#4a6a8a; text-align:center;">蛇身颜色 · 点击选择</div>
+                <div class="snakeColorPicker" id="snakeColorPicker" aria-label="蛇身颜色选择">
+                    <button class="snake-cbtn" type="button" style="background:#3498db;" data-snake-color="#3498db" aria-label="蓝色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#ff6b8a;" data-snake-color="#ff6b8a" aria-label="粉色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#2ecc71;" data-snake-color="#2ecc71" aria-label="绿色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#f1c40f;" data-snake-color="#f1c40f" aria-label="金色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#9b59b6;" data-snake-color="#9b59b6" aria-label="紫色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#1abc9c;" data-snake-color="#1abc9c" aria-label="青色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#e67e22;" data-snake-color="#e67e22" aria-label="橙色"></button>
+                    <button class="snake-cbtn" type="button" style="background:#f5a8c8;" data-snake-color="#f5a8c8" aria-label="玫红"></button>
+                </div>
+                <div class="divider"></div>
+                <!-- 玩家列表 -->
+                <div id="playerList" class="mp-only"><span style="color:#5a7a9a;font-size:11px;">👥 等待连接...</span></div>
+                <div id="onlineStatus" class="mp-only"><span class="disconnected">⚪ 未连接</span></div>
+                <!-- ★★★ 稳定联机控制区 ★★★ -->
+                <div class="multiplayer-control mp-only" id="mpControl">
+                    <div class="row">
+                        <input class="mp-input" type="text" id="mpNameInput" maxlength="16" placeholder="你的昵称">
+                        <select class="mp-select" id="mpRoleSelect" title="加入身份">
+                            <option value="player">🐍 玩家</option>
+                            <option value="spectator">👁 观战</option>
+                        </select>
+                    </div>
+                    <div class="row" id="mpJoinRow">
+                        <input class="mp-input" type="text" id="mpJoinInput" placeholder="房间号或邀请链接">
+                        <button class="btn primary" id="mpJoinBtn" style="flex:0 0 auto;">加入</button>
+                    </div>
+                    <div class="mp-action-row" id="mpCreateRow">
+                        <button class="btn success" id="mpCreateBtn">👑 一键建房</button>
+                        <button class="btn" id="mpPasteBtn">📋 粘贴加入</button>
+                    </div>
+                    <div class="row" id="mpRoomRow" style="display:none;">
+                        <span style="color:#7a9aba;font-size:11px;">🏷️ 房间</span>
+                        <span class="room-id-display" id="mpRoomDisplay">未连接</span>
+                        <button class="copy-btn" id="mpCopyBtn">复制号</button>
+                        <button class="copy-btn" id="mpCopyLinkBtn">邀请链接</button>
+                    </div>
+                    <div class="row" style="justify-content:center; margin-top:3px;">
+                        <span id="mpStatusText" class="status-text disconnected">未连接</span>
+                    </div>
+                    <div class="mp-health-line">
+                        <span id="mpSyncText">帧同步：--</span>
+                        <span id="mpPingText">延迟：--</span>
+                    </div>
+                    <div class="mp-action-row" id="mpActionRow" style="display:none;">
+                        <button class="btn small" id="mpReconnectBtn">↻ 重连</button>
+                        <button class="btn danger small" id="mpLeaveBtn">离开</button>
+                    </div>
+                    <div class="role-hint">主机统一计算所有蛇；玩家只发送方向，观战者只接收画面。</div>
+                </div>
+                <!-- 聊天 -->
+                <div id="chatArea" class="mp-only disabled">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chatInput" placeholder="输入消息..." maxlength="60">
+                        <button id="chatSendBtn">发送</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="canvasWrap">
+                <canvas id="gameCanvas" width="800" height="640" tabindex="0" aria-label="贪吃蛇游戏区域"></canvas>
+                <div id="dirPad">
+                    <div class="dirBtn empty"></div>
+                    <div class="dirBtn" data-dir="up">▲</div>
+                    <div class="dirBtn empty"></div>
+                    <div class="dirBtn" data-dir="left">◀</div>
+                    <div class="dirBtn" data-dir="down">▼</div>
+                    <div class="dirBtn" data-dir="right">▶</div>
+                </div>
+            </div>
+
+            <div class="sidePanel" id="rightPanel">
+                <div class="tip">
+                    <kbd>↑↓←→</kbd> 玩家1 · <kbd>WASD</kbd> 玩家2<br>                    <kbd>F1</kbd>加速 <kbd>F2</kbd>减速<br>
+                    <kbd>空格</kbd>暂停 <kbd>ESC</kbd>退出<br>
+                    <kbd>1-9</kbd> 切换背景颜色
+                </div>
+                <div class="divider"></div>
+                <div class="btnGroup">
+                    <button class="btn gold" id="btnSpeedUp">⚡加速</button>
+                    <button class="btn" id="btnSpeedDown">🐢减速</button>
+                    <button class="btn primary" id="btnPause">⏸</button>
+                    <button class="btn danger" id="btnQuit">✕</button>
+                </div>
+                <div class="divider"></div>
+                <div style="font-size:11px; color:#5a7a9a; text-align:center;">🎨 背景颜色 (也可按1-9)</div>
+                <div class="colorPicker" id="colorPicker">
+                    <div class="cbtn" style="background:#e74c3c;" data-color="#e74c3c"></div>
+                    <div class="cbtn" style="background:#e67e22;" data-color="#e67e22"></div>
+                    <div class="cbtn" style="background:#ff6b8a;" data-color="#ff6b8a"></div>
+                    <div class="cbtn" style="background:#f1c40f;" data-color="#f1c40f"></div>
+                    <div class="cbtn" style="background:#2ecc71;" data-color="#2ecc71"></div>
+                    <div class="cbtn" style="background:#3498db;" data-color="#3498db"></div>
+                    <div class="cbtn" style="background:#9b59b6;" data-color="#9b59b6"></div>
+                    <div class="cbtn" style="background:#1a1a2e;" data-color="#1a1a2e"></div>
+                    <div class="cbtn" style="background:#f5f5f5; border-color:rgba(0,0,0,0.15);" data-color="#f5f5f5"></div>
+                </div>
+                <div class="divider"></div>
+                <div class="btnGroup">
+                    <button class="btn small music-btn pink" id="btnMusicToggle">🎵 小星星</button>
+                    <button class="btn small" id="btnResetBg">↺ 重置背景</button>
+                </div>
+                <div style="font-size:12px;color:#4a6a8a;text-align:center;margin-top:2px;">🍎 ●10 ◆20 ★50 ■100</div>
+                <div style="font-size:10px;color:#3a5a7a;text-align:center;">✨ 粒子动态 · 10首音乐</div>
+            </div>
+        </div>
+
+        <div id="mpLevelPassNotice" role="status" aria-live="polite">
+            <div class="notice-title" id="mpLevelPassTitle">🎉 联机通关！</div>
+            <div class="notice-detail" id="mpLevelPassDetail"></div>
+        </div>
+
+        <div id="formulaOverlay">
+            <div class="formula-card">
+                <div class="formula-label" id="formulaLabel">✦ 知识 ✦</div>
+                <div class="formula-content" id="formulaContent"><span class="math">∫ₐᵇ f(x)dx</span></div>
+                <div class="formula-name" id="formulaName">公式</div>
+                <div class="formula-close-hint">◆ 继续 ◆</div>
+            </div>
+        </div>
+
+        <div class="overlay hidden" id="overlay"><div class="menuBox" id="menuBox"></div></div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  贪吃蛇 · P2P联机 (游戏内复制房间号 + 客户端输入加入)
+        //  保留所有单机功能，联机控制集成在左侧面板
+        //  修复：标题、蛇颜色、词库管理、学术模式
+        // ================================================================
+
+        // ---------- 常量 ----------
+        const UP = 1, DOWN = 2, LEFT = 3, RIGHT = 4;
+        const EASY = 1, NORMAL = 2, HARD = 3;
+        const MAX_OBSTACLES = 40;
+        const RANK_COUNT = 10;
+        const FOOD_MAX_COUNT = 6;
+        const DIR_QUEUE_MAX = 3;
+        const FOOD_BASE_SCORE = [10, 20, 50, 100];
+        const LEVEL_TARGET = [];
+        (function() {
+            let base = 50;
+            for (let i = 0; i < 50; i++) {
+                if (i < 10) base = 50 + i * 50;
+                else if (i < 20) base = 550 + (i - 10) * 80;
+                else if (i < 30) base = 1350 + (i - 20) * 130;
+                else if (i < 40) base = 2650 + (i - 30) * 200;
+                else base = 4650 + (i - 40) * 300;
+                LEVEL_TARGET.push(base);
+            }
+        })();
+
+        // ---------- DOM ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const pctx = previewCanvas.getContext('2d');
+        const overlay = document.getElementById('overlay');
+        const menuBox = document.getElementById('menuBox');
+        const statusEl = document.getElementById('gameStatus');
+        const formulaOverlay = document.getElementById('formulaOverlay');
+        const formulaContent = document.getElementById('formulaContent');
+        const formulaName = document.getElementById('formulaName');
+        const formulaLabel = document.getElementById('formulaLabel');
+        const mpLevelPassNotice = document.getElementById('mpLevelPassNotice');
+        const mpLevelPassTitle = document.getElementById('mpLevelPassTitle');
+        const mpLevelPassDetail = document.getElementById('mpLevelPassDetail');
+
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const highScoreDisplay = document.getElementById('highScoreDisplay');
+        const targetDisplay = document.getElementById('targetDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const diffDisplay = document.getElementById('diffDisplay');
+        const addDisplay = document.getElementById('addDisplay');
+        const healthDisplay = document.getElementById('healthDisplay');
+        const healthWrap = document.getElementById('healthDisplayWrap');
+        const dualScoreDisplay = document.getElementById('dualScoreDisplay');
+        const dualWrap = document.getElementById('dualScoreWrap');
+        const snakeColorName = document.getElementById('snakeColorName');
+        const logoImg = document.getElementById('logoImg');
+
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const playerListEl = document.getElementById('playerList');
+        const onlineStatusEl = document.getElementById('onlineStatus');
+
+        // 联机控制元素
+        const mpRoomDisplay = document.getElementById('mpRoomDisplay');
+        const mpCopyBtn = document.getElementById('mpCopyBtn');
+        const mpJoinRow = document.getElementById('mpJoinRow');
+        const mpJoinInput = document.getElementById('mpJoinInput');
+        const mpJoinBtn = document.getElementById('mpJoinBtn');
+        const mpStatusText = document.getElementById('mpStatusText');
+        const mpActionRow = document.getElementById('mpActionRow');
+        const mpLeaveBtn = document.getElementById('mpLeaveBtn');
+        const mpRoomRow = document.getElementById('mpRoomRow');
+        const mpNameInput = document.getElementById('mpNameInput');
+        const mpRoleSelect = document.getElementById('mpRoleSelect');
+        const mpCopySpectatorLinkBtn = document.getElementById('mpCopySpectatorLinkBtn'); // 兼容旧版，当前界面不再显示观战链接
+        const appEl = document.getElementById('app');
+        const mpCreateBtn = document.getElementById('mpCreateBtn');
+        const mpCreateRow = document.getElementById('mpCreateRow');
+        const mpPasteBtn = document.getElementById('mpPasteBtn');
+        const mpCopyLinkBtn = document.getElementById('mpCopyLinkBtn');
+        const mpReconnectBtn = document.getElementById('mpReconnectBtn');
+        const mpPingText = document.getElementById('mpPingText');
+        const mpSyncText = document.getElementById('mpSyncText');
+
+        // ---------- 地图 ----------
+        const COLS = 40, ROWS = 32, CELL = 20;
+        const CANVAS_W = COLS * CELL, CANVAS_H = ROWS * CELL;
+
+        // ---------- 游戏状态 ----------
+        let score = 0, level = 1, add = 1, direction = RIGHT, sleepTime = 320, endStatus = 0, difficulty = EASY;
+        let head = null, head2 = null;
+        let foodList = [], foodType = [], foodCount = 3;
+        let obstacles = [], obstacleCount = 0;
+        let foodMoveCounter = 0;
+        let dirQueue = [], dirQueueCount = 0;
+        let dirQueue2 = [], dirQueueCount2 = 0, direction2 = LEFT;
+        let player1Score = 0, player2Score = 0;
+        let gameRunning = false, gamePaused = false, gameLoopTimer = null, gameOverFlag = false, levelPassFlag = false;
+        let mpLevelPassNoticeTimer = null;
+        let gameMode = 'normal';
+        let health = 3, maxHealth = 3;
+        let snakeColor1 = '#3498db';
+        let snakeColor2 = '#1a8bc0';
+
+        // ---------- 背景颜色 ----------
+        const BG_COLOR_MAP = {
+            '1': '#e74c3c', '2': '#e67e22', '3': '#ff6b8a',
+            '4': '#f1c40f', '5': '#2ecc71', '6': '#3498db',
+            '7': '#9b59b6', '8': '#1a1a2e', '9': '#f5f5f5'
+        };
+        const BG_COLOR_NAMES = {
+            '#e74c3c':'红','#e67e22':'橙','#ff6b8a':'粉','#f1c40f':'黄',
+            '#2ecc71':'绿','#3498db':'蓝','#9b59b6':'紫','#1a1a2e':'黑','#f5f5f5':'白'
+        };
+        let bgColor = '#1a1a2e';
+
+        // ---------- 图片 ----------
+        let imgLogo = new Image();
+        let imgBg = new Image();
+        let imgFood = new Image();
+        let imgObstacle = new Image();
+        const IMG_PATHS = {
+            logo: 'logo.png',
+            bg: 'background.jpg',
+            food: 'food.png',
+            obstacle: 'obstacle.png'
+        };
+        let imagesLoaded = false;
+        let imagesLoading = false;
+        function loadImages(callback) {
+            if (imagesLoading) return;
+            imagesLoading = true;
+            let loadedCount = 0;
+            const total = 4;
+            function onImageLoad() {
+                loadedCount++;
+                if (loadedCount >= total) {
+                    imagesLoaded = true;
+                    imagesLoading = false;
+                    if (imgLogo.complete && imgLogo.naturalWidth > 0) {
+                        logoImg.src = imgLogo.src;
+                        logoImg.style.display = 'inline-block';
+                    } else {
+                        logoImg.style.display = 'none';
+                    }
+                    if (callback) callback();
+                }
+            }
+            imgLogo.src = IMG_PATHS.logo;
+            imgLogo.onload = onImageLoad;
+            imgLogo.onerror = function() { console.warn('LOGO加载失败'); onImageLoad(); };
+            imgBg.src = IMG_PATHS.bg;
+            imgBg.onload = onImageLoad;
+            imgBg.onerror = function() { console.warn('背景图加载失败'); onImageLoad(); };
+            imgFood.src = IMG_PATHS.food;
+            imgFood.onload = onImageLoad;
+            imgFood.onerror = function() { console.warn('食物图加载失败'); onImageLoad(); };
+            imgObstacle.src = IMG_PATHS.obstacle;
+            imgObstacle.onload = onImageLoad;
+            imgObstacle.onerror = function() { console.warn('障碍物图加载失败'); onImageLoad(); };
+        }
+
+        // ---------- 音乐 ----------
+        const C4 = 261.63, D4 = 293.66, E4 = 329.63, F4 = 349.23, G4 = 392.00, A4 = 440.00, B4 = 493.88;
+        const C5 = 523.25, D5 = 587.33, E5 = 659.25, F5 = 698.46, G5 = 783.99, A5 = 880.00, B5 = 987.77;
+        const C6 = 1046.50;
+        function extendMelody(original, repeat = 2) {
+            let extended = [];
+            for (let r = 0; r < repeat; r++) {
+                for (let n of original) {
+                    let [freq, dur] = n;
+                    if (r === 1) { freq = freq * 1.02; dur = dur * 1.0; }
+                    extended.push([freq, dur]);
+                }
+            }
+            return extended;
+        }
+        const MELODIES = [
+            [[C4,0.25],[C4,0.25],[G4,0.25],[G4,0.25],[A4,0.25],[A4,0.25],[G4,0.5],[F4,0.25],[F4,0.25],[E4,0.25],[E4,0.25],[D4,0.25],[D4,0.25],[C4,0.5],[G4,0.25],[G4,0.25],[F4,0.25],[F4,0.25],[E4,0.25],[E4,0.25],[D4,0.5]],
+            [[E4,0.3],[E4,0.3],[F4,0.3],[G4,0.3],[G4,0.3],[F4,0.3],[E4,0.3],[D4,0.3],[C4,0.3],[C4,0.3],[D4,0.3],[E4,0.3],[E4,0.3],[D4,0.3],[D4,0.6],[E4,0.3],[E4,0.3],[F4,0.3],[G4,0.3],[G4,0.3],[F4,0.3],[E4,0.3],[D4,0.3]],
+            [[C5,0.25],[B4,0.25],[A4,0.25],[G4,0.25],[F4,0.25],[E4,0.25],[D4,0.25],[C4,0.25],[C4,0.25],[D4,0.25],[E4,0.25],[F4,0.25],[G4,0.25],[A4,0.25],[B4,0.25],[C5,0.25],[C5,0.25],[B4,0.25],[A4,0.25],[G4,0.25],[F4,0.25],[E4,0.25],[D4,0.25],[C4,0.25]],
+            [[C5,0.3],[D5,0.3],[E5,0.3],[G5,0.3],[A5,0.3],[B5,0.3],[A5,0.3],[G5,0.3],[E5,0.3],[D5,0.3],[C5,0.3],[A4,0.3],[G4,0.3],[F4,0.3],[D4,0.3],[C4,0.3],[C5,0.3],[D5,0.3],[E5,0.3],[G5,0.3],[A5,0.3],[B5,0.3],[A5,0.3],[G5,0.3]],
+            [[C4,0.4],[D4,0.4],[E4,0.4],[F4,0.4],[G4,0.4],[A4,0.4],[C5,0.4],[D5,0.4],[E5,0.4],[G5,0.4],[A5,0.4],[B5,0.4],[C6,0.4],[A5,0.4],[B5,0.4],[A5,0.4],[G5,0.4],[E5,0.4],[D5,0.4],[C5,0.4],[A4,0.4],[G4,0.4],[F4,0.4],[E4,0.4]],
+            [[E4,0.3],[E4,0.3],[E4,0.6],[E4,0.3],[E4,0.3],[E4,0.6],[E4,0.3],[G4,0.3],[C4,0.3],[D4,0.3],[E4,0.6],[F4,0.3],[F4,0.3],[F4,0.3],[F4,0.3],[F4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[D4,0.3],[D4,0.3],[E4,0.3],[D4,0.6],[G4,0.6]],
+            [[C4,0.35],[G4,0.35],[C5,0.35],[G4,0.35],[C5,0.35],[E5,0.35],[C5,0.35],[G4,0.35],[C4,0.35],[G4,0.35],[C5,0.35],[G4,0.35],[C5,0.35],[E5,0.35],[C5,0.35],[G4,0.35],[F4,0.35],[C5,0.35],[F5,0.35],[C5,0.35],[F5,0.35],[A5,0.35],[F5,0.35],[C5,0.35],[F4,0.35],[C5,0.35],[F5,0.35],[C5,0.35],[F5,0.35],[A5,0.35],[F5,0.35],[C5,0.35]],
+            [[C5,0.3],[E5,0.3],[G5,0.3],[E5,0.3],[C5,0.3],[E5,0.3],[G5,0.3],[E5,0.3],[D5,0.3],[F5,0.3],[A5,0.3],[F5,0.3],[D5,0.3],[F5,0.3],[A5,0.3],[F5,0.3],[E5,0.3],[G5,0.3],[B5,0.3],[G5,0.3],[E5,0.3],[G5,0.3],[B5,0.3],[G5,0.3],[C6,0.3],[A5,0.3],[G5,0.3],[E5,0.3],[C5,0.3],[A4,0.3],[G4,0.3],[E4,0.3]],
+            [[C5,0.25],[D5,0.25],[E5,0.25],[F5,0.25],[G5,0.25],[A5,0.25],[B5,0.25],[C6,0.5],[C5,0.25],[D5,0.25],[E5,0.25],[F5,0.25],[G5,0.25],[A5,0.25],[B5,0.25],[C6,0.5],[G4,0.25],[A4,0.25],[B4,0.25],[C5,0.25],[D5,0.25],[E5,0.25],[F5,0.25],[G5,0.5],[G4,0.25],[A4,0.25],[B4,0.25],[C5,0.25],[D5,0.25],[E5,0.25],[F5,0.25],[G5,0.5]],
+            [[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[E4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[D4,0.3],[C4,0.3],[C4,0.3],[C4,0.3],[C4,0.3],[C4,0.3],[C4,0.3],[C4,0.3],[C4,0.3]]
+        ];
+        const MUSIC_LIST = MELODIES.map((melody, idx) => {
+            const extended = extendMelody(melody, 2);
+            return { name: ['小星星','欢乐颂','卡农','天空之城','月光','圣诞歌','婚礼进行曲','蓝色多瑙河','土耳其进行曲','致爱丽丝'][idx], notes: extended };
+        });
+        let currentMusicIndex = 0;
+        let audioCtx = null;
+        let musicPlaying = false;
+        let musicInterval = null;
+        let musicStep = 0;
+
+        function playEatSound() {
+            if (!audioCtx) return;
+            try {
+                const now = audioCtx.currentTime;
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(523, now);
+                osc1.frequency.exponentialRampToValueAtTime(659, now + 0.12);
+                gain1.gain.setValueAtTime(0.12, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.15);
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(784, now + 0.08);
+                osc2.frequency.exponentialRampToValueAtTime(988, now + 0.20);
+                gain2.gain.setValueAtTime(0.10, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.23);
+            } catch(e) {}
+        }
+        function playWinSound() {
+            if (!audioCtx) return;
+            try {
+                const now = audioCtx.currentTime;
+                const notes = [523, 659, 784];
+                const dur = 0.15;
+                notes.forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.15);
+                    gain.gain.setValueAtTime(0.10, now + i * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + dur);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.15);
+                    osc.stop(now + i * 0.15 + dur);
+                });
+            } catch(e) {}
+        }
+        function playDeathSound() {
+            if (!audioCtx) return;
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.35);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.40);
+            } catch(e) {}
+        }
+        function initAudio() { try { audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+        function playNote(freq, duration, type = 'sine', vol = 0.055) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+        function startMusic() {
+            if (!gameRunning || gamePaused || gameOverFlag) return;
+            if (musicPlaying) return;
+            if (!audioCtx) initAudio();
+            if (!audioCtx) return;
+            musicPlaying = true;
+            musicStep = 0;
+            if (musicInterval) clearInterval(musicInterval);
+            const notes = MUSIC_LIST[currentMusicIndex].notes;
+            let counter = 0;
+            let totalDur = 0;
+            for (let n of notes) totalDur += n[1];
+            const avgDur = totalDur / notes.length;
+            const interval = avgDur * 1000 + 25;
+            musicInterval = setInterval(() => {
+                if (!musicPlaying || gamePaused || gameOverFlag) return;
+                const idx = counter % notes.length;
+                const [freq, dur] = notes[idx];
+                playNote(freq, dur, 'sine', 0.055);
+                if (idx % 2 === 0) playNote(freq * 0.5, dur * 0.6, 'sine', 0.015);
+                counter++;
+                musicStep = counter;
+            }, interval);
+            document.getElementById('btnMusicToggle').textContent = '🎵 ' + MUSIC_LIST[currentMusicIndex].name;
+        }
+        function stopMusic() {
+            musicPlaying = false;
+            if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+            document.getElementById('btnMusicToggle').textContent = '🎵 ' + MUSIC_LIST[currentMusicIndex].name;
+        }
+        function nextMusic() {
+            stopMusic();
+            currentMusicIndex = (currentMusicIndex + 1) % MUSIC_LIST.length;
+            document.getElementById('btnMusicToggle').textContent = '🎵 ' + MUSIC_LIST[currentMusicIndex].name;
+            if (gameRunning && !gamePaused) startMusic();
+        }
+
+        // ---------- 粒子 ----------
+        let particles = [];
+        function initParticles(count = 80) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * CANVAS_W,
+                    y: Math.random() * CANVAS_H,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: (Math.random() - 0.5) * 0.8,
+                    r: Math.random() * 2.5 + 1,
+                    life: Math.random() * 120 + 40,
+                    maxLife: 160
+                });
+            }
+        }
+        initParticles();
+        function updateParticles() {
+            for (let p of particles) {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > CANVAS_W) p.vx *= -1;
+                if (p.y < 0 || p.y > CANVAS_H) p.vy *= -1;
+                p.life -= 0.3;
+                if (p.life < 0) { p.life = p.maxLife; p.x = Math.random() * CANVAS_W; p.y = Math.random() * CANVAS_H; p.vx = (Math.random() - 0.5) * 0.8; p.vy = (Math.random() - 0.5) * 0.8; }
+            }
+        }
+        function getParticleColor() {
+            const dark = ['#1a1a2e','#3498db','#9b59b6','#e74c3c','#2ecc71','#ff6b8a','#e67e22'];
+            const light = ['#f5f5f5','#f1c40f'];
+            if (dark.includes(bgColor)) {
+                const colors = ['rgba(255,255,255,', 'rgba(200,230,255,', 'rgba(255,220,180,', 'rgba(180,255,220,'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            } else if (light.includes(bgColor)) {
+                const colors = ['rgba(40,40,60,', 'rgba(80,60,100,', 'rgba(30,50,80,'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            return 'rgba(200,220,255,';
+        }
+
+        // ---------- 绘制 ----------
+        function drawDynamicBg() {
+            if (imgBg && imgBg.complete && imgBg.naturalWidth > 0) {
+                const supportsFilter = ('filter' in ctx);
+                if (supportsFilter) {
+                    ctx.save();
+                    ctx.filter = 'blur(6px)';
+                    ctx.drawImage(imgBg, 0, 0, CANVAS_W, CANVAS_H);
+                    ctx.restore();
+                } else {
+                    ctx.drawImage(imgBg, 0, 0, CANVAS_W, CANVAS_H);
+                }
+                ctx.fillStyle = bgColor;
+                ctx.globalAlpha = 0.45;
+                ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+                ctx.globalAlpha = 1.0;
+            } else {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            }
+            for (let p of particles) {
+                const alpha = 0.25 + 0.55 * (p.life / p.maxLife);
+                const baseColor = getParticleColor();
+                ctx.fillStyle = baseColor + alpha * 0.6 + ')';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * (0.6 + 0.4 * (p.life / p.maxLife)), 0, Math.PI * 2);
+                ctx.fill();
+            }
+            const t = Date.now() / 4000;
+            const grad = ctx.createRadialGradient(
+                CANVAS_W * 0.3 + Math.sin(t) * 120, CANVAS_H * 0.4 + Math.cos(t * 0.7) * 100, 30,
+                CANVAS_W * 0.5 + Math.sin(t * 0.5) * 60, CANVAS_H * 0.5 + Math.cos(t * 0.3) * 60, 380
+            );
+            const isDark = ['#1a1a2e','#3498db','#9b59b6','#e74c3c','#2ecc71','#ff6b8a','#e67e22'].includes(bgColor);
+            if (isDark) {
+                grad.addColorStop(0, 'rgba(60,160,255,0.04)');
+                grad.addColorStop(1, 'rgba(60,160,255,0)');
+            } else {
+                grad.addColorStop(0, 'rgba(0,0,0,0.03)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+            }
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            const gridColor = isDark ? 'rgba(60,130,200,0.04)' : 'rgba(0,0,0,0.05)';
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, CANVAS_H); ctx.stroke();
+            }
+            for (let i = 0; i <= ROWS; i++) {
+                ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(CANVAS_W, i * CELL); ctx.stroke();
+            }
+        }
+        function drawSnake(headRef, dir, color1, color2) {
+            let cur = headRef, idx = 0;
+            while (cur) {
+                const sx = cur.x / 2 * CELL + CELL / 2;
+                const sy = cur.y * CELL + CELL / 2;
+                const headFlag = (idx === 0);
+                const r = headFlag ? 10 : 8;
+                if (headFlag) {
+                    const grad2 = ctx.createRadialGradient(sx - 2, sy - 4, 2, sx, sy, r + 3);
+                    grad2.addColorStop(0, color1);
+                    grad2.addColorStop(1, color2);
+                    ctx.shadowColor = 'rgba(60,200,255,0.3)';
+                    ctx.shadowBlur = 28;
+                    ctx.fillStyle = grad2;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#0a0e17';
+                    let ex1 = sx - 5, ey1 = sy - 5, ex2 = sx + 5, ey2 = sy - 5;
+                    if (dir === UP) { ey1 = sy - 6; ey2 = sy - 6; ex1 = sx - 5; ex2 = sx + 5; }
+                    else if (dir === DOWN) { ey1 = sy + 6; ey2 = sy + 6; ex1 = sx - 5; ex2 = sx + 5; }
+                    else if (dir === LEFT) { ex1 = sx - 6; ex2 = sx - 6; ey1 = sy - 5; ey2 = sy + 5; }
+                    else if (dir === RIGHT) { ex1 = sx + 6; ex2 = sx + 6; ey1 = sy - 5; ey2 = sy + 5; }
+                    ctx.beginPath(); ctx.arc(ex1, ey1, 3.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(ex2, ey2, 3.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(ex1 + 1.2, ey1 - 1.2, 1.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(ex2 + 1.2, ey2 - 1.2, 1.5, 0, Math.PI * 2); ctx.fill();
+                } else {
+                    const bright = 0.6 + 0.4 * (1 - idx / 25);
+                    const rBase = Math.round(parseInt(color1.slice(1,3),16) * bright);
+                    const gBase = Math.round(parseInt(color1.slice(3,5),16) * bright);
+                    const bBase = Math.round(parseInt(color1.slice(5,7),16) * bright);
+                    ctx.shadowColor = 'rgba(60,200,255,0.10)';
+                    ctx.shadowBlur = 14;
+                    ctx.fillStyle = `rgb(${rBase},${gBase},${bBase})`;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                cur = cur.next;
+                idx++;
+                ctx.shadowBlur = 0;
+            }
+        }
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = -Math.PI / 2, step = Math.PI / spikes;
+            ctx.beginPath();
+            for (let i = 0; i < spikes * 2; i++) {
+                const r = i % 2 === 0 ? outerRadius : innerRadius;
+                const x = cx + Math.cos(rot + i * step) * r, y = cy + Math.sin(rot + i * step) * r;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+        }
+        function updatePreview() {
+            const w = 60, h = 30;
+            pctx.clearRect(0, 0, w, h);
+            pctx.fillStyle = 'rgba(0,0,0,0.2)';
+            pctx.fillRect(0, 0, w, h);
+            const grad = pctx.createRadialGradient(10, 15, 2, 10, 15, 8);
+            grad.addColorStop(0, snakeColor1);
+            grad.addColorStop(1, snakeColor2);
+            pctx.shadowColor = 'rgba(60,200,255,0.2)';
+            pctx.shadowBlur = 6;
+            pctx.fillStyle = grad;
+            pctx.beginPath();
+            pctx.arc(10, 15, 8, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.fillStyle = snakeColor1;
+            pctx.shadowBlur = 0;
+            pctx.beginPath();
+            pctx.arc(25, 15, 6, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.beginPath();
+            pctx.arc(38, 15, 6, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.fillStyle = '#0a0e17';
+            pctx.beginPath();
+            pctx.arc(7, 12, 2, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.beginPath();
+            pctx.arc(13, 12, 2, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.fillStyle = 'white';
+            pctx.beginPath();
+            pctx.arc(8, 11, 0.8, 0, Math.PI * 2);
+            pctx.fill();
+            pctx.beginPath();
+            pctx.arc(14, 11, 0.8, 0, Math.PI * 2);
+            pctx.fill();
+            const name = SNAKE_COLOR_NAMES[snakeColor1] || '蓝色';
+            snakeColorName.textContent = name;
+        }
+        const SNAKE_COLOR_NAMES = {
+            '#3498db':'蓝色','#ff6b8a':'粉色','#2ecc71':'绿色','#f1c40f':'金色',
+            '#9b59b6':'紫色','#1abc9c':'青色','#e67e22':'橙色','#f5a8c8':'玫红'
+        };
+        function setSnakeColor(colorHex) {
+            if (SNAKE_COLOR_NAMES[colorHex]) {
+                snakeColor1 = colorHex;
+                const r = parseInt(colorHex.slice(1,3),16);
+                const g = parseInt(colorHex.slice(3,5),16);
+                const b = parseInt(colorHex.slice(5,7),16);
+                const darkR = Math.max(0, r - 60);
+                const darkG = Math.max(0, g - 60);
+                const darkB = Math.max(0, b - 60);
+                snakeColor2 = `#${darkR.toString(16).padStart(2,'0')}${darkG.toString(16).padStart(2,'0')}${darkB.toString(16).padStart(2,'0')}`;
+                updatePreview();
+                localStorage.setItem('snake_body_color', snakeColor1);
+                document.querySelectorAll('[data-snake-color]').forEach(el => {
+                    el.classList.toggle('active', el.dataset.snakeColor === snakeColor1);
+                    el.setAttribute('aria-pressed', el.dataset.snakeColor === snakeColor1 ? 'true' : 'false');
+                });
+                // 如果是联机且是主机，更新自己的世界状态并广播
+                if (gameMode === 'multiplayer') {
+                    if (isPeerHost && peerId) {
+                        if (players[peerId]) {
+                            players[peerId].colors = [snakeColor1, snakeColor2];
+                        }
+                        if (worldSnakes[peerId]) {
+                            worldSnakes[peerId].color = snakeColor1;
+                            worldSnakes[peerId].color2 = snakeColor2;
+                        }
+                        broadcastWorldSnapshot(true);
+                    } else if (!isPeerHost && peer && peerId) {
+                        // 客户端发送颜色更新给主机
+                        sendToHost({ type:'color_change', color:snakeColor1, color2:snakeColor2 });
+                    }
+                }
+                if (gameRunning && !gamePaused) render();
+            }
+        }
+        function setBgColor(colorHex) {
+            if (BG_COLOR_NAMES[colorHex]) {
+                bgColor = colorHex;
+                document.querySelectorAll('.cbtn').forEach(el => {
+                    el.classList.toggle('active', el.dataset.color === colorHex);
+                });
+                if (gameRunning && !gamePaused) render();
+                else render();
+                const name = BG_COLOR_NAMES[colorHex];
+                const statusEl = document.getElementById('attackStatus');
+                if (statusEl) {
+                    statusEl.textContent = '🎨 背景: ' + name;
+                    statusEl.style.display = 'block';
+                    setTimeout(() => { statusEl.style.display = 'none'; }, 1500);
+                }
+            }
+        }
+
+        function render() {
+            updateParticles();
+            drawDynamicBg();
+            const isDark = ['#1a1a2e','#3498db','#9b59b6','#e74c3c','#2ecc71','#ff6b8a','#e67e22'].includes(bgColor);
+            ctx.strokeStyle = isDark ? 'rgba(60,160,255,0.15)' : 'rgba(0,0,0,0.15)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, CANVAS_W, CANVAS_H);
+            ctx.shadowColor = isDark ? 'rgba(60,160,255,0.03)' : 'rgba(0,0,0,0.02)';
+            ctx.shadowBlur = 30;
+            ctx.strokeRect(2, 2, CANVAS_W - 4, CANVAS_H - 4);
+            ctx.shadowBlur = 0;
+            // 障碍物
+            for (let i = 0; i < obstacleCount; i++) {
+                const ox = obstacles[i].x / 2 * CELL, oy = obstacles[i].y * CELL;
+                if (imgObstacle && imgObstacle.complete && imgObstacle.naturalWidth > 0) {
+                    ctx.drawImage(imgObstacle, ox, oy, CELL, CELL);
+                } else {
+                    ctx.fillStyle = '#ff4a6a';
+                    ctx.shadowColor = 'rgba(255,60,80,0.25)';
+                    ctx.shadowBlur = 14;
+                    ctx.fillRect(ox + 2, oy + 2, CELL - 4, CELL - 4);
+                    ctx.fillStyle = 'rgba(255,120,140,0.10)';
+                    ctx.fillRect(ox + 5, oy + 5, CELL - 10, CELL - 10);
+                    ctx.shadowBlur = 0;
+                }
+            }
+            // 食物
+            for (let i = 0; i < foodList.length; i++) {
+                const fx = foodList[i].x / 2 * CELL + CELL / 2, fy = foodList[i].y * CELL + CELL / 2;
+                const ft = foodType[i];
+                if (imgFood && imgFood.complete && imgFood.naturalWidth > 0) {
+                    const size = 18;
+                    ctx.drawImage(imgFood, fx - size/2, fy - size/2, size, size);
+                } else {
+                    const colors = ['#ff6b8a','#b388ff','#f7d06a','#4fc3f7'];
+                    const glows = ['rgba(255,80,120,0.4)','rgba(180,130,255,0.4)','rgba(247,208,106,0.4)','rgba(79,195,247,0.4)'];
+                    ctx.shadowColor = glows[ft];
+                    ctx.shadowBlur = 20;
+                    ctx.fillStyle = colors[ft];
+                    ctx.beginPath();
+                    if (ft === 0) { ctx.arc(fx, fy, 7, 0, Math.PI * 2); ctx.fill(); }
+                    else if (ft === 1) { ctx.moveTo(fx, fy - 8); ctx.lineTo(fx + 8, fy); ctx.lineTo(fx, fy + 8); ctx.lineTo(fx - 8, fy); ctx.closePath(); ctx.fill(); }
+                    else if (ft === 2) { ctx.fillStyle = '#f7d06a'; ctx.shadowColor = 'rgba(247,208,106,0.5)'; ctx.shadowBlur = 24; drawStar(ctx, fx, fy, 5, 9, 4); ctx.fill(); }
+                    else { ctx.fillRect(fx - 7, fy - 7, 14, 14); }
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(255,255,255,0.10)';
+                    ctx.beginPath(); ctx.arc(fx - 2, fy - 3, 2.5, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+            // 蛇：联机时统一绘制主机快照中的全部蛇；单机时绘制本地蛇
+            if (gameMode === 'multiplayer' && typeof drawMultiplayerSnakes === 'function') {
+                drawMultiplayerSnakes();
+            } else if (head) {
+                drawSnake(head, direction, snakeColor1, snakeColor2);
+                if (gameMode === 'dual_local' && head2) {
+                    drawSnake(head2, direction2, '#ff6b8a', '#a91f50');
+                }
+            }
+            if (gameMode === 'challenge') {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(10, 10, 120, 18);
+                ctx.fillStyle = '#ff4a6a';
+                ctx.fillRect(12, 12, Math.max(0, (health / maxHealth) * 116), 14);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.strokeRect(10, 10, 120, 18);
+                ctx.fillStyle = '#f0e8ff';
+                ctx.font = '12px sans-serif';
+                ctx.fillText('❤️ ' + health + '/' + maxHealth, 16, 25);
+            }
+        }
+
+        // ---------- 工具 ----------
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function createSnakeNode(x, y) { return { x, y, next: null }; }
+        function isOppositeDirection(a, b) {
+            return (a === UP && b === DOWN) || (a === DOWN && b === UP) ||
+                   (a === LEFT && b === RIGHT) || (a === RIGHT && b === LEFT);
+        }
+        function clearDirectionQueue() { dirQueue = []; dirQueueCount = 0; }
+        function clearDirectionQueue2() { dirQueue2 = []; dirQueueCount2 = 0; }
+        function pushDirection(newDir) {
+            if (newDir < UP || newDir > RIGHT) return;
+            if (gameMode === 'multiplayer' && typeof sendMultiplayerInput === 'function' && multiplayerSessionActive()) {
+                sendMultiplayerInput(newDir);
+                return;
+            }
+            let base = dirQueueCount > 0 ? dirQueue[dirQueueCount - 1] : direction;
+            if (newDir === base) return;
+            if (isOppositeDirection(newDir, base)) return;
+            if (dirQueueCount < DIR_QUEUE_MAX) { dirQueue.push(newDir); dirQueueCount++; }
+            else { dirQueue.shift(); dirQueue.push(newDir); }
+        }
+        function applyDirectionQueue() {
+            if (dirQueueCount <= 0) return;
+            const newDir = dirQueue.shift();
+            direction = newDir;
+            dirQueueCount--;
+        }
+        function pushDirection2(newDir) {
+            if (gameMode !== 'dual_local' || newDir < UP || newDir > RIGHT) return;
+            let base = dirQueueCount2 > 0 ? dirQueue2[dirQueueCount2 - 1] : direction2;
+            if (newDir === base || isOppositeDirection(newDir, base)) return;
+            if (dirQueueCount2 < DIR_QUEUE_MAX) { dirQueue2.push(newDir); dirQueueCount2++; }
+            else { dirQueue2.shift(); dirQueue2.push(newDir); }
+        }
+        function applyDirectionQueue2() {
+            if (dirQueueCount2 <= 0) return;
+            direction2 = dirQueue2.shift();
+            dirQueueCount2--;
+        }
+
+        // ---------- 蛇操作 ----------
+        function initSnake() {
+            destroySnake();
+            head = null;
+            for (let i = 0; i < 4; i++) { const node = createSnakeNode(10 + i * 2, 10); node.next = head; head = node; }
+            direction = RIGHT;
+        }
+        function destroySnake() {
+            while (head) { const n = head.next; head = n; }
+            head = null;
+            while (head2) { const n = head2.next; head2 = n; }
+            head2 = null;
+        }
+        function initDualSnakes() {
+            destroySnake();
+            head = null; head2 = null;
+            for (let i = 0; i < 4; i++) { const node = createSnakeNode(10 + i * 2, 8); node.next = head; head = node; }
+            for (let i = 0; i < 4; i++) { const node = createSnakeNode(68 - i * 2, 23); node.next = head2; head2 = node; }
+            direction = RIGHT; direction2 = LEFT;
+            clearDirectionQueue(); clearDirectionQueue2();
+            player1Score = 0; player2Score = 0;
+        }
+        function isSnakePosition(x, y, excludeHead = false) {
+            const check = (start) => {
+                let cur = start, first = true;
+                while (cur) {
+                    if (excludeHead && first) { first = false; cur = cur.next; continue; }
+                    if (cur.x === x && cur.y === y) return true;
+                    first = false; cur = cur.next;
+                }
+                return false;
+            };
+            return check(head) || (gameMode === 'dual_local' && check(head2));
+        }
+        function isObstaclePosition(x, y) {
+            for (let i = 0; i < obstacleCount; i++) {
+                if (obstacles[i].x === x && obstacles[i].y === y) return true;
+            }
+            return false;
+        }
+
+        // ---------- 食物 ----------
+        function randFood() {
+            foodList = []; foodType = [];
+            for (let i = 0; i < foodCount; i++) {
+                let placed = false, attempts = 0;
+                while (!placed && attempts < 600) {
+                    attempts++;
+                    const x = rand(1, COLS - 2) * 2, y = rand(1, ROWS - 2);
+                    if (x >= (COLS - 1) * 2) continue;
+                    if (isSnakePosition(x, y)) continue;
+                    if (isObstaclePosition(x, y)) continue;
+                    let overlap = false;
+                    for (let j = 0; j < foodList.length; j++) { if (foodList[j].x === x && foodList[j].y === y) { overlap = true; break; } }
+                    if (overlap) continue;
+                    foodList.push({ x, y }); foodType.push(rand(0, 3));
+                    placed = true;
+                }
+                if (!placed) {
+                    for (let ty = 1; ty < ROWS - 1; ty++) {
+                        for (let tx = 2; tx < (COLS - 1) * 2; tx += 2) {
+                            if (isSnakePosition(tx, ty)) continue;
+                            if (isObstaclePosition(tx, ty)) continue;
+                            let overlap = false;
+                            for (let j = 0; j < foodList.length; j++) { if (foodList[j].x === tx && foodList[j].y === ty) { overlap = true; break; } }
+                            if (overlap) continue;
+                            foodList.push({ x: tx, y: ty }); foodType.push(rand(0, 3));
+                            placed = true; break;
+                        }
+                        if (placed) break;
+                    }
+                }
+                if (!placed) { foodList.push({ x: 2 + i * 2, y: 1 + i }); foodType.push(0); }
+            }
+        }
+
+        // ---------- 障碍物 ----------
+        function createObstacles() {
+            obstacles = [];
+            if (difficulty === EASY) { obstacleCount = 0; return; }
+            obstacleCount = (difficulty === NORMAL) ? 14 : 22;
+            obstacleCount += (level - 1) * 3;
+            obstacleCount = Math.min(obstacleCount, MAX_OBSTACLES);
+            for (let i = 0; i < obstacleCount; i++) {
+                let placed = false, attempts = 0;
+                while (!placed && attempts < 400) {
+                    attempts++;
+                    const x = rand(1, COLS - 2) * 2, y = rand(1, ROWS - 2);
+                    if (x >= (COLS - 1) * 2) continue;
+                    if (isSnakePosition(x, y)) continue;
+                    if (x >= 20 && x <= 40 && y >= 4 && y <= 12) continue;
+                    let dup = false;
+                    for (let j = 0; j < obstacles.length; j++) { if (obstacles[j].x === x && obstacles[j].y === y) { dup = true; break; } }
+                    if (dup) continue;
+                    obstacles.push({ x, y });
+                    placed = true;
+                }
+                if (!placed) { obstacles.push({ x: 4 + i * 2, y: 16 + i % 12 }); }
+            }
+        }
+
+        // ---------- 关卡 ----------
+        function getLevelTarget() {
+            const idx = Math.min(level - 1, LEVEL_TARGET.length - 1);
+            return LEVEL_TARGET[idx];
+        }
+        function checkLevelPass() {
+            return score >= getLevelTarget();
+        }
+
+        // ---------- 碰撞 ----------
+        function isHitWall(x, y) { return x <= 0 || x >= (COLS - 1) * 2 || y <= 0 || y >= ROWS - 1; }
+        function isBitSelf() {
+            let cur = head.next;
+            while (cur) { if (head.x === cur.x && head.y === cur.y) return true; cur = cur.next; }
+            return false;
+        }
+        function isHitObstacle(x, y) {
+            if (difficulty === EASY) return false;
+            return isObstaclePosition(x, y);
+        }
+
+        // ---------- 第十三版词库管理：文件导入 + 吃食物直接弹出内容 ----------
+        let loadedMathFormulas = [];
+        let loadedEnglishWords = [];
+        let loadedFiles = [];
+        let formulaTimer = null;
+        let formulaShowing = false;
+        let dictionaryFileInput = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+                '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+            })[ch]);
+        }
+
+        function saveDictionaryFiles() {
+            try { localStorage.setItem('snake_dictionary_files_v13', JSON.stringify(loadedFiles)); } catch (e) {}
+        }
+
+        function restoreDictionaryFiles() {
+            try {
+                const raw = localStorage.getItem('snake_dictionary_files_v13');
+                const parsed = raw ? JSON.parse(raw) : [];
+                if (Array.isArray(parsed)) loadedFiles = parsed.filter(f => f && f.name);
+            } catch (e) { loadedFiles = []; }
+            mergeDictionary();
+        }
+
+        function mergeDictionary() {
+            loadedMathFormulas = [];
+            loadedEnglishWords = [];
+            for (const file of loadedFiles) {
+                if (Array.isArray(file.mathItems)) loadedMathFormulas.push(...file.mathItems);
+                if (Array.isArray(file.englishItems)) loadedEnglishWords.push(...file.englishItems);
+            }
+        }
+
+        function decodeDictionaryBuffer(buffer) {
+            const decoders = ['utf-8', 'gb18030'];
+            let best = '';
+            let bestBad = Infinity;
+            for (const encoding of decoders) {
+                try {
+                    const text = new TextDecoder(encoding, { fatal: false }).decode(buffer);
+                    const bad = (text.match(/ /g) || []).length;
+                    if (bad < bestBad) { best = text; bestBad = bad; }
+                } catch (e) {}
+            }
+            return best.replace(/^﻿/, '');
+        }
+
+        function looksLikeMath(text) {
+            return /[∫∑√∞πθμσρφψωΔ∇≠≈≤≥±×÷∂]|\\(?:frac|lim|sum|int|sqrt|partial|infty|pi|alpha|beta|gamma|theta|sigma|omega)|[=^{}]/i.test(text);
+        }
+
+        function parseDictionaryText(content) {
+            const mathItems = [];
+            const englishItems = [];
+            const seen = new Set();
+            for (let rawLine of String(content).split(/\r?\n/)) {
+                let line = rawLine.trim();
+                if (!line || line.startsWith('#') || line.startsWith('//')) continue;
+                let left = '', right = '';
+                if (line.includes('|')) {
+                    const parts = line.split('|'); left = parts.shift().trim(); right = parts.join('|').trim();
+                } else if (line.includes('	')) {
+                    const parts = line.split(/	+/); left = parts.shift().trim(); right = parts.join(' ').trim();
+                } else {
+                    const m = line.match(/^(.+?)\s{2,}(.+)$/);
+                    if (m) { left = m[1].trim(); right = m[2].trim(); }
+                    else {
+                        const comma = line.match(/^([^,，]+)[,，](.+)$/);
+                        if (comma) { left = comma[1].trim(); right = comma[2].trim(); }
+                    }
+                }
+                if (!left || !right) continue;
+                const key = left.toLowerCase() + '\u0000' + right;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                if (looksLikeMath(left)) mathItems.push({ latex: left, name: right });
+                else englishItems.push({ word: left, meaning: right });
+            }
+            return { mathItems, englishItems };
+        }
+
+        async function importDictionaryFiles(fileList) {
+            const files = Array.from(fileList || []);
+            if (!files.length) return;
+            let imported = 0, rejected = [];
+            for (const file of files) {
+                try {
+                    const buffer = await file.arrayBuffer();
+                    const content = decodeDictionaryBuffer(buffer);
+                    const parsed = parseDictionaryText(content);
+                    if (!parsed.mathItems.length && !parsed.englishItems.length) {
+                        rejected.push(file.name); continue;
+                    }
+                    const entry = { name: file.name, mathItems: parsed.mathItems, englishItems: parsed.englishItems };
+                    const index = loadedFiles.findIndex(f => f.name === file.name);
+                    if (index >= 0) loadedFiles[index] = entry; else loadedFiles.push(entry);
+                    imported++;
+                } catch (e) { rejected.push(file.name); }
+            }
+            mergeDictionary();
+            saveDictionaryFiles();
+            if (currentMenu === 'sub' && !overlay.classList.contains('hidden')) showDictionaryManager();
+            const total = loadedMathFormulas.length + loadedEnglishWords.length;
+            const rejectedText = rejected.length ? `\n未识别：${rejected.join('、')}` : '';
+            alert(imported ? `成功插入 ${imported} 个文件，共 ${total} 条内容。${rejectedText}` : '没有读取到有效词条。\n格式示例：apple|苹果');
+        }
+
+        function ensureDictionaryFileInput() {
+            if (dictionaryFileInput && document.body.contains(dictionaryFileInput)) return dictionaryFileInput;
+            dictionaryFileInput = document.createElement('input');
+            dictionaryFileInput.type = 'file';
+            dictionaryFileInput.accept = '.txt,.dat,text/plain';
+            dictionaryFileInput.multiple = true;
+            dictionaryFileInput.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+            dictionaryFileInput.addEventListener('change', async () => {
+                const selected = Array.from(dictionaryFileInput.files || []);
+                dictionaryFileInput.value = '';
+                await importDictionaryFiles(selected);
+            });
+            document.body.appendChild(dictionaryFileInput);
+            return dictionaryFileInput;
+        }
+
+        function loadDictionary() {
+            const input = ensureDictionaryFileInput();
+            input.value = '';
+            input.click();
+        }
+
+        function removeFile(fileName) {
+            loadedFiles = loadedFiles.filter(f => f.name !== fileName);
+            mergeDictionary(); saveDictionaryFiles(); showDictionaryManager();
+        }
+
+        function clearAllFiles() {
+            if (!loadedFiles.length || confirm('确定清空全部词库文件？')) {
+                loadedFiles = []; mergeDictionary(); saveDictionaryFiles(); showDictionaryManager();
+            }
+        }
+
+        function renderMathText(latex) {
+            return escapeHtml(latex)
+                .replace(/\\int/g, '∫').replace(/\\sum/g, '∑').replace(/\\sqrt/g, '√')
+                .replace(/\\infty/g, '∞').replace(/\\pi/g, 'π').replace(/\\times/g, '×')
+                .replace(/\\cdot/g, '·').replace(/\\le/g, '≤').replace(/\\ge/g, '≥');
+        }
+
+        function showAcademicContent() {
+            if (formulaShowing || gamePaused || gameOverFlag) return;
+            let content, name, label;
+            if (gameMode === 'academic_math') {
+                if (!loadedMathFormulas.length) {
+                    content = '<span style="font-size:22px;color:#ffcf70;">请先在词库管理中插入数学 TXT 文件</span>';
+                    name = '格式：公式|名称'; label = '✦ 数学知识 ✦';
+                } else {
+                    const item = loadedMathFormulas[rand(0, loadedMathFormulas.length - 1)];
+                    content = `<span class="math">${renderMathText(item.latex)}</span>`;
+                    name = item.name || '数学公式'; label = '✦ 数学知识 ✦';
+                }
+            } else if (gameMode === 'academic_english') {
+                if (!loadedEnglishWords.length) {
+                    content = '<span style="font-size:22px;color:#ffcf70;">请先在词库管理中插入英语 TXT 文件</span>';
+                    name = '格式：word|中文意思'; label = '✦ 英语词汇 ✦';
+                } else {
+                    const item = loadedEnglishWords[rand(0, loadedEnglishWords.length - 1)];
+                    content = `<span style="font-size:36px;font-weight:700;color:#f7e8a0;">${escapeHtml(item.word)}</span><br><span style="font-size:28px;color:#7ae0b0;">${escapeHtml(item.meaning)}</span>`;
+                    name = `单词 · ${item.word}`; label = '✦ 英语词汇 ✦';
+                }
+            } else return;
+            formulaContent.innerHTML = content;
+            formulaName.textContent = name;
+            formulaLabel.textContent = label;
+            formulaOverlay.classList.add('active');
+            formulaShowing = true;
+            if (formulaTimer) clearTimeout(formulaTimer);
+            formulaTimer = setTimeout(() => {
+                formulaOverlay.classList.remove('active'); formulaShowing = false; formulaTimer = null;
+            }, 2600);
+        }
+
+        restoreDictionaryFiles();
+
+        // ---------- 蛇 移动----------
+        function moveSnakeSingle() {
+            if (!head) return { died: false, ate: false, pass: false, ateIndex: -1 };
+            let newX = head.x, newY = head.y;
+            switch (direction) {
+                case UP: newY = head.y - 1; break;
+                case DOWN: newY = head.y + 1; break;
+                case LEFT: newX = head.x - 2; break;
+                case RIGHT: newX = head.x + 2; break;
+            }
+            const newNode = createSnakeNode(newX, newY);
+            newNode.next = head;
+            head = newNode;
+
+            let ate = false, died = false, pass = false;
+            let ateIndex = -1;
+            let academicHandled = false;
+
+            // 检测是否吃到食物
+            for (let i = 0; i < foodList.length; i++) {
+                if (head.x === foodList[i].x && head.y === foodList[i].y) {
+                    ate = true;
+                    ateIndex = i;
+                    break;
+                }
+            }
+
+            // 非学术模式或学术模式但未吃到食物（或已处理）则执行普通逻辑
+            if (!academicHandled && ate) {
+                // 普通加分
+                score += FOOD_BASE_SCORE[foodType[ateIndex]] + add;
+                playEatSound();
+                // 删除食物
+                foodList.splice(ateIndex, 1);
+                foodType.splice(ateIndex, 1);
+                replaceFood(-1);
+            }
+
+            if (!ate) {
+                let cur = head, prev = null;
+                while (cur && cur.next) { prev = cur; cur = cur.next; }
+                if (prev && cur) { prev.next = null; }
+            }
+
+            // 碰撞检测（仅当非学术处理时执行，学术处理中已经做了移动，但碰撞检测仍需）
+            // 但学术处理中可能已经死亡？我们暂不处理学术死亡，只扣分
+            if (!academicHandled) {
+                if (isHitWall(head.x, head.y)) died = true;
+                if (isBitSelf()) died = true;
+                if (isHitObstacle(head.x, head.y)) {
+                    if (gameMode === 'challenge') {
+                        health--;
+                        if (health <= 0) died = true;
+                        for (let j = 0; j < obstacleCount; j++) {
+                            if (obstacles[j].x === head.x && obstacles[j].y === head.y) {
+                                obstacles.splice(j, 1);
+                                obstacleCount--;
+                                break;
+                            }
+                        }
+                    } else {
+                        died = true;
+                    }
+                }
+            }
+
+            if (died) playDeathSound();
+            pass = checkLevelPass();
+
+            return { died, ate, pass, ateIndex, academicHandled };
+        }
+
+        function snakeContains(start, x, y, skipHead = false) {
+            let cur = start, first = true;
+            while (cur) {
+                if (!(skipHead && first) && cur.x === x && cur.y === y) return true;
+                first = false; cur = cur.next;
+            }
+            return false;
+        }
+        function moveDualSnake(which) {
+            let snakeHead = which === 1 ? head : head2;
+            let dir = which === 1 ? direction : direction2;
+            if (!snakeHead) return { died:true, ate:false };
+            let newX = snakeHead.x, newY = snakeHead.y;
+            if (dir === UP) newY--; else if (dir === DOWN) newY++;
+            else if (dir === LEFT) newX -= 2; else if (dir === RIGHT) newX += 2;
+            const newNode = createSnakeNode(newX, newY); newNode.next = snakeHead; snakeHead = newNode;
+            if (which === 1) head = snakeHead; else head2 = snakeHead;
+            let ateIndex = -1;
+            for (let i = 0; i < foodList.length; i++) if (newX === foodList[i].x && newY === foodList[i].y) { ateIndex = i; break; }
+            const ate = ateIndex >= 0;
+            if (ate) {
+                const gained = FOOD_BASE_SCORE[foodType[ateIndex]] + add;
+                if (which === 1) player1Score += gained; else player2Score += gained;
+                score = player1Score + player2Score;
+                foodList.splice(ateIndex,1); foodType.splice(ateIndex,1); replaceFood(-1); playEatSound();
+            } else {
+                let cur = snakeHead, prev = null;
+                while (cur && cur.next) { prev = cur; cur = cur.next; }
+                if (prev) prev.next = null;
+            }
+            const own = which === 1 ? head : head2;
+            const other = which === 1 ? head2 : head;
+            const died = isHitWall(newX,newY) || isHitObstacle(newX,newY) || snakeContains(own.next,newX,newY) || snakeContains(other,newX,newY);
+            return { died, ate };
+        }
+
+        // ---------- 加速/减速 ----------
+        function speedUp() {
+            if (gameMode === 'multiplayer' && !isPeerHost) { setMPStatus('只有主机可以调速', 'warn'); return; }
+            if (sleepTime > 60) { sleepTime -= 20; add += 1; }
+            updateUI(); resetGameLoop();
+            if (gameMode === 'multiplayer' && isPeerHost) broadcastWorldSnapshot(true);
+        }
+        function speedDown() {
+            if (gameMode === 'multiplayer' && !isPeerHost) { setMPStatus('只有主机可以调速', 'warn'); return; }
+            if (sleepTime < 350) { sleepTime += 20; add -= 1; }
+            if (add < 1) add = 1;
+            updateUI(); resetGameLoop();
+            if (gameMode === 'multiplayer' && isPeerHost) broadcastWorldSnapshot(true);
+        }
+        function resetGameLoop() {
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            if (gameRunning && !gamePaused && !gameOverFlag) {
+                gameLoopTimer = setInterval(gameTick, sleepTime);
+            }
+        }
+
+        // ---------- 游戏循环 ----------
+        function gameTick() {
+            if (gamePaused || gameOverFlag) return;
+
+            if (gameMode === 'multiplayer') {
+                if (isPeerHost) hostWorldTick();
+                render();
+                updateUI();
+                return;
+            }
+
+            if (gameMode === 'dual_local') {
+                applyDirectionQueue(); applyDirectionQueue2();
+                const r1 = moveDualSnake(1);
+                const r2 = moveDualSnake(2);
+                if (r1.died || r2.died) {
+                    endStatus = 3; playDeathSound(); endGame(); return;
+                }
+                if (checkLevelPass()) {
+                    playWinSound(); levelPassFlag = true; gameOverFlag = true;
+                    if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+                    render(); updateUI(); showLevelPassUI(); return;
+                }
+                if (difficulty === HARD) { foodMoveCounter++; if (foodMoveCounter >= 10) { randFood(); foodMoveCounter = 0; } }
+                render(); updateUI(); return;
+            }
+
+            // 单机模式
+            applyDirectionQueue();
+            const result = moveSnakeSingle();
+            if (result.died) {
+                endStatus = (isHitWall(head.x, head.y)) ? 1 : (isBitSelf() ? 2 : (isHitObstacle(head.x, head.y) ? 4 : 3));
+                endGame();
+                return;
+            }
+            if (result.ate && (gameMode === 'academic_math' || gameMode === 'academic_english')) {
+                showAcademicContent();
+            }
+            if (result.pass) {
+                playWinSound();
+                levelPassFlag = true;
+                gameOverFlag = true;
+                if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+                render(); updateUI();
+                showLevelPassUI();
+                return;
+            }
+            if (difficulty === HARD) { foodMoveCounter++; if (foodMoveCounter >= 10) { randFood(); foodMoveCounter = 0; } }
+            render(); updateUI();
+        }
+
+        // ---------- UI ----------
+        function updateUI() {
+            scoreDisplay.textContent = score;
+            targetDisplay.textContent = getLevelTarget();
+            highScoreDisplay.textContent = readFile();
+            levelDisplay.textContent = level;
+            const diffNames = ['', '简单', '中等', '困难'];
+            diffDisplay.textContent = diffNames[difficulty] || '简单';
+            addDisplay.textContent = '+' + add;
+            if (gameMode === 'multiplayer') {
+                statusEl.textContent = gamePaused ? '⏸ 联机暂停中' : '🌐 多蛇同步中';
+                statusEl.className = 'sub online';
+            } else {
+                statusEl.textContent = gamePaused ? '⏸ 暂停中' : (gameOverFlag ? '■ 已结束' : '● 游戏中');
+                if (gameOverFlag) statusEl.textContent = '■ 已结束';
+            }
+            if (gameMode === 'challenge') { healthWrap.classList.remove('hidden'); healthDisplay.textContent = health; }
+            else { healthWrap.classList.add('hidden'); }
+            if (gameMode === 'dual_local') {
+                dualWrap.classList.remove('hidden');
+                dualScoreDisplay.textContent = `P1 ${player1Score} · P2 ${player2Score}`;
+                statusEl.textContent = gamePaused ? '⏸ 双人暂停中' : '👥 单机双人中';
+            } else { dualWrap.classList.add('hidden'); }
+        }
+
+        // ---------- 排行榜 ----------
+        function readFile() {
+            try { const data = localStorage.getItem('snake_rank_universal'); if (!data) return 0; const arr = JSON.parse(data); return arr.length > 0 ? arr[0] : 0; } catch(e) { return 0; }
+        }
+        function saveScore(newScore) {
+            if (newScore <= 0) return;
+            let scores = [];
+            try { const data = localStorage.getItem('snake_rank_universal'); if (data) scores = JSON.parse(data); } catch(e) { scores = []; }
+            if (!Array.isArray(scores)) scores = [];
+            scores.push(newScore);
+            scores.sort((a,b) => b - a);
+            if (scores.length > RANK_COUNT) scores = scores.slice(0, RANK_COUNT);
+            localStorage.setItem('snake_rank_universal', JSON.stringify(scores));
+        }
+        function getRanking() {
+            try { const data = localStorage.getItem('snake_rank_universal'); if (!data) return []; return JSON.parse(data); } catch(e) { return []; }
+        }
+
+        // ---------- 菜单状态 ----------
+        let currentMenu = 'main';
+        let menuCleanup = null;
+
+        // ---------- 游戏控制 ----------
+        function startGame(keepScore = 0) {
+            gameOverFlag = false; levelPassFlag = false; gamePaused = false; endStatus = 0;
+            direction = RIGHT; direction2 = LEFT;
+            clearDirectionQueue(); clearDirectionQueue2();
+            if (formulaTimer) { clearTimeout(formulaTimer); formulaTimer = null; }
+            formulaOverlay.classList.remove('active'); formulaShowing = false;
+
+            if (!keepScore) { score = 0; health = maxHealth; player1Score = 0; player2Score = 0; }
+            if (gameMode === 'dual_local') initDualSnakes(); else { destroySnake(); initSnake(); }
+
+            foodCount = Math.min(3 + (level - 1), FOOD_MAX_COUNT);
+            randFood(); createObstacles();
+
+            sleepTime = Math.max(70, 320 - (level - 1) * 20);
+            add = 1 + (level - 1) * 2;
+            if (add < 1) add = 1;
+
+            gameRunning = true; gameOverFlag = false; gamePaused = false;
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            gameLoopTimer = setInterval(gameTick, sleepTime);
+
+            overlay.classList.add('hidden');
+            if (!imagesLoaded && !imagesLoading) {
+                loadImages(function() { render(); });
+            }
+            render(); updateUI();
+            if (!musicPlaying) startMusic();
+
+            if (gameMode === 'multiplayer' && window._isPeerHost) {
+                setTimeout(() => { if (typeof broadcastWorldSnapshot === 'function') broadcastWorldSnapshot(true); }, 300);
+            }
+        }
+
+        function endGame() {
+            gameOverFlag = true;
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            if (formulaTimer) { clearTimeout(formulaTimer); formulaTimer = null; }
+            formulaOverlay.classList.remove('active');
+            saveScore(score);
+            render(); updateUI();
+            showGameOverUI();
+            if (gameMode === 'multiplayer' && window._peer) {
+                if (isPeerHost) broadcastWorldSnapshot(true);
+            }
+        }
+
+        function pauseGame() {
+            if (gameOverFlag && gameMode !== 'multiplayer') return;
+            if (gameMode === 'multiplayer') {
+                if (!isPeerHost) { setMPStatus('只有主机可以暂停', 'warn'); return; }
+                gamePaused = !gamePaused;
+                if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+                if (!gamePaused) gameLoopTimer = setInterval(gameTick, sleepTime);
+                statusEl.textContent = gamePaused ? '⏸ 联机暂停中' : '🌐 联机同步中';
+                broadcastWorldSnapshot(true);
+                render(); updateUI();
+                return;
+            }
+            gamePaused = !gamePaused;
+            if (gamePaused) {
+                if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+                if (formulaTimer) { clearTimeout(formulaTimer); formulaTimer = null; }
+                formulaOverlay.classList.remove('active'); formulaShowing = false;
+                statusEl.textContent = '⏸ 暂停中';
+                if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+            } else {
+                gameLoopTimer = setInterval(gameTick, sleepTime);
+                statusEl.textContent = '● 游戏中';
+                if (musicPlaying) startMusic();
+            }
+            render(); updateUI();
+        }
+
+        function quitGame() {
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            if (formulaTimer) { clearTimeout(formulaTimer); formulaTimer = null; }
+            formulaOverlay.classList.remove('active');
+            gameRunning = false; gameOverFlag = true; gamePaused = false;
+            saveScore(score);
+            // 如果是在联机模式，先离开房间
+            if (gameMode === 'multiplayer' && typeof leaveRoom === 'function') {
+                leaveRoom();
+            }
+            // 重置为单机模式
+            gameMode = 'normal';
+            destroySnake(); initSnake();
+            score = 0; level = 1; difficulty = EASY; add = 1; sleepTime = 320;
+            foodList = []; foodType = []; obstacles = []; obstacleCount = 0;
+            stopMusic();
+            updateMultiplayerFeatureVisibility();
+        showMainMenu();
+        }
+
+        function resetGame() {
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            if (formulaTimer) { clearTimeout(formulaTimer); formulaTimer = null; }
+            formulaOverlay.classList.remove('active');
+            gameRunning = false; gameOverFlag = true; gamePaused = false;
+            destroySnake(); foodList = []; obstacles = []; obstacleCount = 0;
+            health = maxHealth;
+            score = 0; player1Score = 0; player2Score = 0; clearDirectionQueue2();
+        }
+
+        // ---------- 覆盖层 ----------
+        function showOverlay(html) { menuBox.innerHTML = html; overlay.classList.remove('hidden'); }
+        function hideOverlay() { overlay.classList.add('hidden'); }
+
+        // ================================================================
+        //  🖥️ 实现所有占位UI函数
+        // ================================================================
+
+        function showGameOverUI() {
+            const ranking = getRanking();
+            let rankHtml = '<ul class="rankList">';
+            if (ranking.length === 0) rankHtml += '<li style="color:#5a7a9a;text-align:center;border-left-color:transparent;">暂无记录</li>';
+            else {
+                ranking.slice(0, 10).forEach((s, i) => {
+                    rankHtml += `<li><span class="rank">#${i+1}</span><span class="rscore">${s}</span></li>`;
+                });
+            }
+            rankHtml += '</ul>';
+            const html = `
+                <div class="gameover-box">
+                    <h2 style="font-size:48px;color:#ff6b7a;">💀 游戏结束</h2>
+                    <div class="big-score">${score}</div>
+                    <div class="sub-text">得分</div>
+                    <div style="margin:12px 0;font-size:16px;color:#8ab4e0;">关卡 ${level} · 难度 ${['','简单','中等','困难'][difficulty]}</div>
+                    ${gameMode === 'dual_local' ? `<div style="font-size:18px;color:#f7d06a;margin:8px 0;">玩家1：${player1Score}　玩家2：${player2Score}</div>` : ''}
+                    <div style="max-height:160px;overflow-y:auto;">${rankHtml}</div>
+                    <div class="btn-group">
+                        <button class="btn success" id="goRetryBtn">🔄 重新开始</button>
+                        <button class="btn primary" id="goMenuBtn">🏠 主菜单</button>
+                    </div>
+                </div>
+            `;
+            showOverlay(html);
+            document.getElementById('goRetryBtn')?.addEventListener('click', () => {
+                hideOverlay();
+                if (gameMode === 'multiplayer' && isPeerHost) {
+                    // 联机模式下主机重置
+                    level = 1; difficulty = EASY; add = 1; sleepTime = 320;
+                    score = 0; destroySnake(); initSnake();
+                    foodCount = 3; randFood(); createObstacles();
+                    gameRunning = true; gameOverFlag = false; gamePaused = false;
+                    if (gameLoopTimer) clearInterval(gameLoopTimer);
+                    gameLoopTimer = setInterval(gameTick, sleepTime);
+                    broadcastWorldSnapshot(true);
+                    render(); updateUI();
+                } else {
+                    startGame(0);
+                }
+            });
+            document.getElementById('goMenuBtn')?.addEventListener('click', () => {
+                quitGame();
+            });
+        }
+
+        function showLevelPassUI() {
+            const nextTarget = getLevelTarget() + 50;
+            const html = `
+                <div class="levelpass-box">
+                    <div class="big-icon">🎉</div>
+                    <h2 style="font-size:42px;color:#5cdba0;">关卡 ${level} 通过！</h2>
+                    <div class="big-score">${score}</div>
+                    <div class="sub-text">得分 · 下一关目标 ${nextTarget}</div>
+                    <div style="margin:12px 0;font-size:18px;color:#f7d06a;">⚡ 速度提升 + 障碍增加</div>
+                    <div class="btn-group">
+                        <button class="btn success" id="lpNextBtn">🚀 下一关</button>
+                        <button class="btn primary" id="lpMenuBtn">🏠 主菜单</button>
+                    </div>
+                </div>
+            `;
+            showOverlay(html);
+            document.getElementById('lpNextBtn')?.addEventListener('click', () => {
+                hideOverlay();
+                level++;
+                gameOverFlag = false; levelPassFlag = false;
+                if (gameMode === 'multiplayer' && isPeerHost) {
+                    // 联机主机推进关卡
+                    score = 0;
+                    foodCount = Math.min(3 + (level - 1), FOOD_MAX_COUNT);
+                    destroySnake(); initSnake();
+                    randFood(); createObstacles();
+                    sleepTime = Math.max(70, 320 - (level - 1) * 20);
+                    add = 1 + (level - 1) * 2;
+                    if (add < 1) add = 1;
+                    gameRunning = true; gamePaused = false;
+                    if (gameLoopTimer) clearInterval(gameLoopTimer);
+                    gameLoopTimer = setInterval(gameTick, sleepTime);
+                    broadcastWorldSnapshot(true);
+                    render(); updateUI();
+                } else {
+                    startGame(0);
+                }
+            });
+            document.getElementById('lpMenuBtn')?.addEventListener('click', () => {
+                quitGame();
+            });
+        }
+
+        // ---------- 子菜单实现 ----------
+        function showModeSelect() {
+            currentMenu = 'sub';
+            const modes = [
+                ['normal', '🐍 经典模式', '标准贪吃蛇，吃食物长大'],
+                ['dual_local', '👥 单机双人模式', '玩家1方向键，玩家2使用WASD，共享通关目标'],
+                ['challenge', '⚔️ 挑战模式', '撞障碍扣血，血量归零结束'],
+                ['academic_math', '📐 数学模式', '吃到食物弹出公式和名称'],
+                ['academic_english', '📚 英语模式', '吃到食物弹出单词和中文意思']
+            ];
+            let html = `<h2>🎮 模式选择</h2><div style="display:flex;flex-direction:column;gap:6px;">`;
+            modes.forEach(([id, name, desc]) => {
+                const active = gameMode === id ? 'selected' : '';
+                html += `<div class="menuItem ${active}" data-mode="${id}"><span class="idx">${name}</span><span style="font-size:14px;color:#5a7a9a;margin-left:12px;">${desc}</span><span class="arrow">›</span></div>`;
+            });
+            html += `<div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            html += `<div class="menuTip">当前模式：${gameMode}</div>`;
+            showOverlay(html);
+            document.querySelectorAll('.menuItem[data-mode]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const mode = el.dataset.mode;
+                    gameMode = mode;
+                    hideOverlay();
+                    showMainMenu();
+                });
+            });
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showSnakeColorSelect() {
+            currentMenu = 'sub';
+            const colors = ['#3498db','#ff6b8a','#2ecc71','#f1c40f','#9b59b6','#1abc9c','#e67e22','#f5a8c8'];
+            let html = `<h2>🎨 蛇身颜色</h2><div class="snakeColorPicker" style="gap:12px;padding:14px 0;">`;
+            colors.forEach((c) => {
+                const active = c === snakeColor1 ? 'active' : '';
+                const name = SNAKE_COLOR_NAMES[c] || c;
+                html += `<button type="button" class="snake-cbtn ${active}" style="background:${c};width:48px;height:48px;" data-snake-color="${c}" aria-label="${name}" aria-pressed="${c === snakeColor1}"></button>`;
+            });
+            html += `</div><div id="snakeColorCurrentText" style="text-align:center;color:#8ab4e0;font-size:16px;">当前：${snakeColorName.textContent}</div>`;
+            html += `<div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            showOverlay(html);
+            menuBox.querySelectorAll('[data-snake-color]').forEach(el => {
+                el.addEventListener('click', () => {
+                    setSnakeColor(el.dataset.snakeColor);
+                    const currentText = document.getElementById('snakeColorCurrentText');
+                    if (currentText) currentText.textContent = `当前：${snakeColorName.textContent}`;
+                });
+            });
+            menuBox.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showLevelSelect() {
+            currentMenu = 'sub';
+            let html = `<h2>📊 关卡选择</h2><div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto;">`;
+            for (let i = 1; i <= 10; i++) {
+                const active = i === level ? 'selected' : '';
+                const target = LEVEL_TARGET[Math.min(i-1, LEVEL_TARGET.length-1)];
+                html += `<div class="menuItem ${active}" data-level="${i}"><span class="idx">第 ${i} 关</span><span style="font-size:14px;color:#5a7a9a;">目标 ${target}</span><span class="arrow">›</span></div>`;
+            }
+            html += `</div><div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            html += `<div class="menuTip">当前关卡 ${level}</div>`;
+            showOverlay(html);
+            document.querySelectorAll('.menuItem[data-level]').forEach(el => {
+                el.addEventListener('click', () => {
+                    level = parseInt(el.dataset.level);
+                    hideOverlay();
+                    showMainMenu();
+                });
+            });
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showDifficultySelect() {
+            currentMenu = 'sub';
+            const diffs = [['1','简单','EASY'], ['2','中等','NORMAL'], ['3','困难','HARD']];
+            let html = `<h2>⚡ 难度选择</h2><div style="display:flex;flex-direction:column;gap:6px;">`;
+            diffs.forEach(([id, name, eng]) => {
+                const active = difficulty === parseInt(id) ? 'selected' : '';
+                html += `<div class="menuItem ${active}" data-diff="${id}"><span class="idx">${name}</span><span style="font-size:14px;color:#5a7a9a;">${eng}</span><span class="arrow">›</span></div>`;
+            });
+            html += `<div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            html += `<div class="menuTip">当前难度：${['','简单','中等','困难'][difficulty]}</div>`;
+            showOverlay(html);
+            document.querySelectorAll('.menuItem[data-diff]').forEach(el => {
+                el.addEventListener('click', () => {
+                    difficulty = parseInt(el.dataset.diff);
+                    hideOverlay();
+                    showMainMenu();
+                });
+            });
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showAbout() {
+            currentMenu = 'sub';
+            const html = `
+                <h2>📖 游戏说明</h2>
+                <div style="color:#8ab4e0;line-height:2;font-size:16px;padding:8px 0;">
+                    <p>🐍 贪吃蛇 · 完整版，支持单机 & P2P联机</p>
+                    <p>🎯 每关有目标分数，达到后进入下一关</p>
+                    <p>⚡ 难度影响障碍物数量：简单0个，中等14+，困难22+</p>
+                    <p>📚 学术模式：吃食物需回答单词翻译，答对双倍加分</p>
+                    <p>🔗 联机模式：主机建房，玩家加入，所有蛇同步运动</p>
+                    <p>⌨️ 方向键控制，空格暂停，F1/F2调速</p>
+                    <p>🎨 按1-9切换背景，主菜单可换蛇身颜色</p>
+                </div>
+                <div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>
+            `;
+            showOverlay(html);
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showRankingUI() {
+            currentMenu = 'sub';
+            const ranking = getRanking();
+            let rankHtml = '<ul class="rankList">';
+            if (ranking.length === 0) rankHtml += '<li style="color:#5a7a9a;text-align:center;border-left-color:transparent;">暂无记录，快去挑战吧！</li>';
+            else {
+                ranking.slice(0, 10).forEach((s, i) => {
+                    rankHtml += `<li><span class="rank">#${i+1}</span><span class="rscore">${s}</span></li>`;
+                });
+            }
+            rankHtml += '</ul>';
+            const html = `
+                <h2>🏆 历史排行</h2>
+                ${rankHtml}
+                <div style="text-align:center;color:#5a7a9a;font-size:14px;">最高分：${ranking[0] || 0}</div>
+                <div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>
+            `;
+            showOverlay(html);
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        // ---------- 第十三版词库管理界面 ----------
+        function showDictionaryManager() {
+            currentMenu = 'sub';
+            let html = `<h2>📚 词库管理</h2>`;
+            html += `<div style="margin:8px 0 12px;text-align:center;color:#7a9aba;font-size:14px;">已加载 ${loadedFiles.length} 个文件 · 英语 ${loadedEnglishWords.length} 条 · 数学 ${loadedMathFormulas.length} 条</div>`;
+            if (!loadedFiles.length) {
+                html += `<div style="text-align:center;color:#5a7a9a;padding:18px 0;">暂无词库文件<br><span style="font-size:12px;">点击下方按钮插入 TXT</span></div>`;
+            } else {
+                html += `<ul style="list-style:none;padding:0;max-height:260px;overflow:auto;">`;
+                loadedFiles.forEach((f, index) => {
+                    html += `<li style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;background:rgba(20,50,90,.10);border-radius:8px;margin:4px 0;">
+                        <span style="color:#b0cce0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📄 ${escapeHtml(f.name)}</span>
+                        <span style="color:#7a9aba;font-size:12px;white-space:nowrap;">数 ${f.mathItems?.length || 0} · 英 ${f.englishItems?.length || 0}</span>
+                        <button class="btn small danger dict-delete" data-index="${index}" style="flex:0 0 auto;">删除</button>
+                    </li>`;
+                });
+                html += `</ul>`;
+            }
+            html += `<div class="btnGroup" style="margin-top:12px;">
+                <button class="btn primary" id="dictImportBtn">📂 插入 TXT 文件</button>
+                <button class="btn danger" id="dictClearBtn">清空全部</button>
+            </div>`;
+            html += `<div style="margin:10px 0;color:#7a9aba;font-size:13px;line-height:1.7;text-align:center;">每行写：<b style="color:#c8e2ff;">单词|中文意思</b><br>例如：apple|苹果<br>支持 UTF-8、ANSI/GBK、多个 TXT 同时插入</div>`;
+            html += `<div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            showOverlay(html);
+            document.getElementById('dictImportBtn')?.addEventListener('click', loadDictionary);
+            document.getElementById('dictClearBtn')?.addEventListener('click', clearAllFiles);
+            document.querySelectorAll('.dict-delete').forEach(btn => btn.addEventListener('click', () => {
+                const file = loadedFiles[Number(btn.dataset.index)]; if (file) removeFile(file.name);
+            }));
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        function showMusicSelect() {
+            currentMenu = 'sub';
+            let html = `<h2>🎵 音乐选择</h2><div style="display:flex;flex-direction:column;gap:4px;">`;
+            MUSIC_LIST.forEach((m, i) => {
+                const active = i === currentMusicIndex ? 'selected' : '';
+                html += `<div class="menuItem ${active}" data-music="${i}"><span class="idx">${m.name}</span><span class="arrow">›</span></div>`;
+            });
+            html += `<div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>`;
+            html += `<div class="menuTip">当前：${MUSIC_LIST[currentMusicIndex].name}</div>`;
+            showOverlay(html);
+            document.querySelectorAll('.menuItem[data-music]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = parseInt(el.dataset.music);
+                    currentMusicIndex = idx;
+                    if (musicPlaying) { stopMusic(); startMusic(); }
+                    hideOverlay();
+                    showMainMenu();
+                });
+            });
+            document.querySelector('.menuItem[data-action="back"]')?.addEventListener('click', () => { hideOverlay(); showMainMenu(); });
+        }
+
+        // ---------- 主菜单 ----------
+        function showMainMenu() {
+            resetGame();
+            updateMultiplayerFeatureVisibility();
+            currentMenu = 'main';
+            const items = [
+                '开始游戏 (使用当前设置)',
+                '模式选择',
+                '蛇身颜色 (点击选择)',
+                '音乐选择',
+                '关卡选择',
+                '难度选择',
+                '词库管理',
+                '游戏说明',
+                '历史排行',
+                '🌐 P2P多人联机 (无需服务器)',
+                '退出游戏'
+            ];
+            let html = `<h2>贪吃蛇GUET版</h2>`;
+            items.forEach((item, i) => {
+                html += `<div class="menuItem" data-idx="${i+1}"><span class="idx">${i+1}.</span> ${item}<span class="arrow">›</span></div>`;
+            });
+            html += `<div class="menuTip">方向键上下 · 回车确认 · <kbd>1-9</kbd> 切换背景</div>`;
+            showOverlay(html);
+            document.querySelectorAll('.menuItem').forEach(el => {
+                el.addEventListener('click', () => { const idx = parseInt(el.dataset.idx); handleMainMenu(idx); });
+                el.addEventListener('mouseenter', () => { document.querySelectorAll('.menuItem').forEach(e => e.classList.remove('selected')); el.classList.add('selected'); });
+            });
+            let selectedIdx = 0;
+            const itemsEl = document.querySelectorAll('.menuItem');
+            const keyHandler = (e) => {
+                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIdx = (selectedIdx + 1) % itemsEl.length; itemsEl.forEach((el, i) => el.classList.toggle('selected', i === selectedIdx)); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIdx = (selectedIdx - 1 + itemsEl.length) % itemsEl.length; itemsEl.forEach((el, i) => el.classList.toggle('selected', i === selectedIdx)); }
+                else if (e.key === 'Enter') { e.preventDefault(); const idx = parseInt(itemsEl[selectedIdx].dataset.idx); handleMainMenu(idx); }
+            };
+            document.addEventListener('keydown', keyHandler);
+            window._menuCleanup = () => { document.removeEventListener('keydown', keyHandler); };
+            if (itemsEl.length) itemsEl[0].classList.add('selected');
+        }
+
+        function handleMainMenu(opt) {
+            if (window._menuCleanup) { window._menuCleanup(); window._menuCleanup = null; }
+            if (opt === 1) { hideOverlay(); startGame(0); }
+            else if (opt === 2) { showModeSelect(); }
+            else if (opt === 3) { showSnakeColorSelect(); }
+            else if (opt === 4) { showMusicSelect(); }
+            else if (opt === 5) { showLevelSelect(); }
+            else if (opt === 6) { showDifficultySelect(); }
+            else if (opt === 7) { showDictionaryManager(); }
+            else if (opt === 8) { showAbout(); }
+            else if (opt === 9) { showRankingUI(); }
+            else if (opt === 10) { showP2PMenu(); }
+            else if (opt === 11 || opt === 0) {
+                if (confirm('确定退出游戏吗？')) {
+                    document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#080a14;color:#5a7a9a;font-size:20px;">感谢游玩 🐍 贪吃蛇 · 完整版</div>';
+                }
+            }
+        }
+
+        // ================================================================
+        //  🌐 稳定多人联机模块：主机权威世界 + 全量帧快照 + 自动重连
+        // ================================================================
+
+        let peer = null;
+        let peerId = null;
+        let isPeerHost = false;
+        let roomId = '';
+        let hostPeerId = '';
+        let playerRole = 'player';
+        let playerName = localStorage.getItem('snake_player_name') || ('玩家' + Math.floor(Math.random() * 1000));
+        let peerConnections = {};
+        let connectionMeta = {};
+        let players = {};
+        let worldSnakes = {};
+        let syncedSnakes = {};
+        let worldFrame = 0;
+        let lastSnapshotFrame = -1;
+        let inputSequence = 0;
+        let lastAckInputSequence = 0;
+        let lastRequestedDirection = RIGHT;
+        let pendingClientInputs = []; // 尚未被主机快照确认的方向输入
+        let lastHostMessageAt = 0;
+        let lastPingSentAt = 0;
+        let lastPingMs = null;
+        let reconnectAttempts = 0;
+        let reconnectTimer = null;
+        let heartbeatTimer = null;
+        let healthTimer = null;
+        let renderLoopStarted = false;
+        let intentionalLeave = false;
+        const seenChatIds = new Set();
+        const MAX_PLAYERS = 8;
+        const ROOM_PREFIX = 'snake-sync-';
+        const PLAYER_COLORS = [
+            ['#3498db','#1a5d9a'], ['#ff6b8a','#b83255'], ['#2ecc71','#168f4d'],
+            ['#f1c40f','#b88900'], ['#9b59b6','#63327a'], ['#1abc9c','#0d7766'],
+            ['#e67e22','#9c4308'], ['#f5a8c8','#aa5278']
+        ];
+        const PEER_OPTIONS = {
+            debug: 1,
+            pingInterval: 5000,
+            config: {
+                iceCandidatePoolSize: 10,
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun.cloudflare.com:3478' }
+                ]
+            }
+        };
+
+        window._peer = null;
+        window._myPeerId = null;
+        window._isPeerHost = false;
+        window._remoteSnakes = syncedSnakes;
+
+        function updateMultiplayerFeatureVisibility() {
+            const active = gameMode === 'multiplayer';
+            appEl.classList.toggle('multiplayer-active', active);
+            chatArea.classList.toggle('disabled', !active || !multiplayerSessionActive());
+            chatInput.placeholder = active
+                ? (multiplayerSessionActive() ? '输入房间消息...' : '连接房间后可聊天')
+                : '输入消息...';
+        }
+
+        function multiplayerSessionActive() {
+            return gameMode === 'multiplayer' && !!peer && !!peerId;
+        }
+
+        function safeText(value, max = 60) {
+            return String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
+        }
+
+        function normalizeRoomId(value) {
+            let raw = safeText(value, 300);
+            try {
+                if (/^https?:|^file:/i.test(raw)) {
+                    const u = new URL(raw);
+                    raw = u.hash || u.searchParams.get('room') || '';
+                }
+            } catch (_) {}
+            const hashMatch = raw.match(/(?:^|[#?&])room=([a-z0-9-]{4,80})/i) || raw.match(/^#([a-z0-9-]{4,80})/i);
+            if (hashMatch) raw = hashMatch[1];
+            raw = raw.replace(/^#/, '').replace(/^room=/i, '').trim().toLowerCase();
+            if (!raw) return '';
+            return raw.startsWith(ROOM_PREFIX) ? raw : ROOM_PREFIX + raw.replace(/[^a-z0-9-]/g, '');
+        }
+
+        function shortRoomCode(fullId) {
+            return String(fullId || '').replace(new RegExp('^' + ROOM_PREFIX), '').toUpperCase();
+        }
+
+        function generateRoomCode() {
+            const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
+            return code;
+        }
+
+        function setMPStatus(text, kind = '') {
+            mpStatusText.textContent = text;
+            mpStatusText.className = 'status-text ' + (kind === 'ok' ? 'connected' : kind === 'bad' ? 'disconnected' : '');
+        }
+
+        function updatePingUI(ms = lastPingMs) {
+            if (ms == null) {
+                mpPingText.textContent = '延迟：--';
+                mpPingText.className = '';
+                return;
+            }
+            const rounded = Math.round(ms);
+            mpPingText.textContent = `延迟：${rounded}ms`;
+            mpPingText.className = rounded < 100 ? 'good' : rounded < 220 ? 'warn' : 'bad';
+        }
+
+        function updateMPControl() {
+            updateMultiplayerFeatureVisibility();
+            const peerOpen = !!(peer && peer.open && peerId);
+            const dataConnected = isPeerHost ? peerOpen : Object.values(peerConnections).some(c => c && c.open);
+            if (peerOpen) {
+                mpNameInput.value = playerName;
+                mpNameInput.disabled = true;
+                mpRoleSelect.value = playerRole;
+                mpRoleSelect.disabled = true;
+                mpJoinRow.style.display = 'none';
+                mpCreateRow.style.display = 'none';
+                mpRoomRow.style.display = 'flex';
+                mpActionRow.style.display = 'flex';
+                mpRoomDisplay.textContent = shortRoomCode(roomId || hostPeerId || peerId);
+                mpCopyBtn.style.display = 'inline-block';
+                mpCopyLinkBtn.style.display = 'inline-block';
+                const roleText = isPeerHost ? '👑 主机' : playerRole === 'spectator' ? '👁 观战中' : '🐍 已加入';
+                setMPStatus(dataConnected ? roleText : '⏳ 正在建立数据通道', dataConnected ? 'ok' : '');
+                onlineStatusEl.innerHTML = `<span class="connected">🟢 ${roleText}</span>`;
+                statusEl.textContent = gamePaused ? '⏸ 联机暂停中' : '🌐 多蛇同步中';
+                statusEl.className = 'sub online';
+            } else {
+                mpNameInput.disabled = false;
+                mpRoleSelect.disabled = false;
+                mpJoinRow.style.display = 'flex';
+                mpCreateRow.style.display = 'flex';
+                mpRoomRow.style.display = 'none';
+                mpActionRow.style.display = 'none';
+                mpRoomDisplay.textContent = '未连接';
+                setMPStatus('未连接', 'bad');
+                onlineStatusEl.innerHTML = '<span class="disconnected">⚪ 未连接</span>';
+                mpSyncText.textContent = '帧同步：--';
+                updatePingUI(null);
+                statusEl.className = 'sub';
+            }
+        }
+
+        function addChatMessage(name, text, isSystem = false) {
+            const div = document.createElement('div');
+            div.className = 'msg' + (isSystem ? ' system' : '');
+            if (isSystem) {
+                div.textContent = '💬 ' + safeText(text, 160);
+            } else {
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.textContent = safeText(name, 20) + ': ';
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text';
+                textSpan.textContent = safeText(text, 120);
+                div.append(nameSpan, textSpan);
+            }
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            while (chatMessages.children.length > 100) chatMessages.removeChild(chatMessages.firstChild);
+        }
+
+        function chatId() {
+            return `${peerId || 'local'}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+        }
+
+        function displayChatPacket(packet) {
+            if (!packet || !packet.id || seenChatIds.has(packet.id)) return;
+            seenChatIds.add(packet.id);
+            if (seenChatIds.size > 300) seenChatIds.delete(seenChatIds.values().next().value);
+            addChatMessage(packet.name || '玩家', packet.text || '');
+        }
+
+        function sendChatMessage() {
+            const textValue = safeText(chatInput.value, 80);
+            if (!textValue) return;
+            if (!multiplayerSessionActive()) { setMPStatus('请先创建或加入房间后再聊天', 'warn'); return; }
+            const packet = { type: 'chat', id: chatId(), name: playerName, text: textValue, senderId: peerId };
+            if (isPeerHost) {
+                displayChatPacket(packet);
+                broadcastPacket(packet);
+            } else {
+                sendToHost(packet);
+            }
+            chatInput.value = '';
+        }
+
+        function updatePlayerList(list = Object.values(players)) {
+            playerListEl.innerHTML = '';
+            if (!list || list.length === 0) {
+                playerListEl.innerHTML = '<span style="color:#5a7a9a;font-size:11px;">👥 等待玩家...</span>';
+                return;
+            }
+            list.slice().sort((a,b) => Number(b.isHost)-Number(a.isHost) || String(a.name).localeCompare(String(b.name))).forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'pl-item';
+                const dot = document.createElement('span');
+                dot.className = 'dot ' + (p.isHost ? 'host' : p.role === 'spectator' ? 'spectator' : 'player');
+                const name = document.createElement('span');
+                name.className = 'name';
+                const roleIcon = p.isHost ? '👑' : p.role === 'spectator' ? '👁' : '🐍';
+                name.textContent = `${roleIcon} ${p.name}${p.id === peerId ? ' (你)' : ''}`;
+                item.append(dot, name);
+                if (p.role !== 'spectator') {
+                    const scoreEl = document.createElement('span');
+                    scoreEl.className = 'score';
+                    scoreEl.textContent = String(p.score || 0);
+                    item.appendChild(scoreEl);
+                }
+                playerListEl.appendChild(item);
+            });
+        }
+
+        function encodePacket(packet) { return packet; }
+        function decodePacket(data) {
+            if (typeof data === 'string') {
+                try { return JSON.parse(data); } catch (_) { return null; }
+            }
+            return data && typeof data === 'object' ? data : null;
+        }
+
+        function sendPacket(conn, packet) {
+            if (!conn || !conn.open) return false;
+            try {
+                const channel = conn.dataChannel;
+                if (packet?.type === 'snapshot' && channel && channel.bufferedAmount > 131072) return false;
+                conn.send(encodePacket(packet));
+                return true;
+            } catch (_) { return false; }
+        }
+
+        function broadcastPacket(packet, exceptId = '') {
+            Object.entries(peerConnections).forEach(([id, conn]) => {
+                if (id !== exceptId) sendPacket(conn, packet);
+            });
+        }
+
+        function sendToHost(packet) {
+            const conn = peerConnections[hostPeerId];
+            return sendPacket(conn, packet);
+        }
+
+        function playerListPayload() {
+            return Object.values(players).map(p => ({
+                id: p.id, name: p.name, role: p.role, isHost: !!p.isHost,
+                score: worldSnakes[p.id]?.score || p.score || 0
+            }));
+        }
+
+        function broadcastPlayerList() {
+            const list = playerListPayload();
+            updatePlayerList(list);
+            broadcastPacket({ type: 'player_list', players: list });
+        }
+
+        function buildLinkedHead(nodes) {
+            let linked = null;
+            for (let i = nodes.length - 1; i >= 0; i--) {
+                const node = createSnakeNode(nodes[i].x, nodes[i].y);
+                node.next = linked;
+                linked = node;
+            }
+            return linked;
+        }
+
+        function linkedToNodes(headRef) {
+            const nodes = [];
+            let cur = headRef;
+            while (cur) { nodes.push({ x: cur.x, y: cur.y }); cur = cur.next; }
+            return nodes;
+        }
+
+        function spawnTemplate(index) {
+            const points = [
+                [12,8,RIGHT], [66,23,LEFT], [12,23,RIGHT], [66,8,LEFT],
+                [38,5,DOWN], [40,26,UP], [22,15,RIGHT], [56,17,LEFT]
+            ];
+            const p = points[index % points.length];
+            return { x:p[0], y:p[1], dir:p[2] };
+        }
+
+        function nodesForSpawn(spawn) {
+            const dx = spawn.dir === RIGHT ? -2 : spawn.dir === LEFT ? 2 : 0;
+            const dy = spawn.dir === DOWN ? -1 : spawn.dir === UP ? 1 : 0;
+            return Array.from({length:4}, (_,i) => ({ x:spawn.x + dx*i, y:spawn.y + dy*i }));
+        }
+
+        function canonicalOccupied(x, y, ignoreId = '') {
+            if (obstacles.some(o => o.x === x && o.y === y)) return true;
+            for (const [id, snake] of Object.entries(worldSnakes)) {
+                if (id === ignoreId || !snake.alive) continue;
+                if (snake.nodes.some(n => n.x === x && n.y === y)) return true;
+            }
+            return false;
+        }
+
+        function createCanonicalSnake(id, index = Object.keys(worldSnakes).length) {
+            const p = players[id] || { name:id.slice(0,6), role:'player' };
+            const colors = p.colors || PLAYER_COLORS[index % PLAYER_COLORS.length];
+            for (let offset = 0; offset < 8; offset++) {
+                const spawn = spawnTemplate(index + offset);
+                const nodes = nodesForSpawn(spawn);
+                if (nodes.every(n => !canonicalOccupied(n.x,n.y,id))) {
+                    return {
+                        id, name:p.name, nodes, previousNodes:nodes.map(n=>({...n})), dir:spawn.dir,
+                        pendingDir:spawn.dir, inputQueue:[], lastInputSeq:0, score:0,
+                        alive:true, respawnAt:0, color:colors[0], color2:colors[1], lastMoveAt:performance.now()
+                    };
+                }
+            }
+            const fallback = spawnTemplate(index);
+            const nodes = nodesForSpawn(fallback);
+            return { id, name:p.name, nodes, previousNodes:nodes.map(n=>({...n})), dir:fallback.dir,
+                pendingDir:fallback.dir, inputQueue:[], lastInputSeq:0, score:0, alive:true,
+                respawnAt:0, color:colors[0], color2:colors[1], lastMoveAt:performance.now() };
+        }
+
+        function addCanonicalPlayer(id) {
+            if (!players[id] || players[id].role === 'spectator') return;
+            if (!worldSnakes[id]) worldSnakes[id] = createCanonicalSnake(id);
+        }
+
+        function replaceFood(index) {
+            if (index >= 0 && index < foodList.length) {
+                foodList.splice(index, 1);
+                foodType.splice(index, 1);
+            }
+            for (let attempt = 0; attempt < 800; attempt++) {
+                const x = rand(1, COLS-2)*2, y = rand(1, ROWS-2);
+                if (x <= 0 || x >= (COLS-1)*2 || y <= 0 || y >= ROWS-1) continue;
+                if (canonicalOccupied(x,y)) continue;
+                if (foodList.some(f => f.x === x && f.y === y)) continue;
+                foodList.push({x,y}); foodType.push(rand(0,3)); return;
+            }
+        }
+
+        function ensureFoodCount() {
+            while (foodList.length < foodCount) replaceFood(-1);
+            if (foodList.length > foodCount) {
+                foodList.length = foodCount; foodType.length = foodCount;
+            }
+        }
+
+        function queueCanonicalDirection(id, dir, seq = 0) {
+            const snake = worldSnakes[id];
+            if (!snake || !snake.alive || dir < UP || dir > RIGHT) return;
+            if (seq && seq <= snake.lastInputSeq) return;
+            if (seq) snake.lastInputSeq = seq;
+            const base = snake.inputQueue.length ? snake.inputQueue[snake.inputQueue.length-1] : snake.dir;
+            if (dir === base || isOppositeDirection(dir, base)) return;
+            if (snake.inputQueue.length >= DIR_QUEUE_MAX) snake.inputQueue.shift();
+            snake.inputQueue.push(dir);
+        }
+
+        function sendMultiplayerInput(newDir) {
+            if (playerRole === 'spectator') { setMPStatus('观战者不能控制蛇', 'warn'); return; }
+            if (!multiplayerSessionActive() || newDir < UP || newDir > RIGHT) return;
+
+            // 以“主机已确认方向 + 本地未确认队列”判断，避免网络延迟时误杀合法的连续转向。
+            const localSnake = isPeerHost ? worldSnakes[peerId] : syncedSnakes[peerId];
+            const confirmedDir = (localSnake && localSnake.dir) || direction || RIGHT;
+            const baseDir = pendingClientInputs.length
+                ? pendingClientInputs[pendingClientInputs.length - 1].dir
+                : confirmedDir;
+            if (newDir === baseDir || isOppositeDirection(newDir, baseDir)) return;
+
+            inputSequence++;
+            const packet = { type:'input', dir:newDir, seq:inputSequence, sentAt:Date.now() };
+            pendingClientInputs.push({ seq:inputSequence, dir:newDir });
+            if (pendingClientInputs.length > 8) pendingClientInputs.shift();
+            lastRequestedDirection = newDir;
+
+            if (isPeerHost) {
+                queueCanonicalDirection(peerId, newDir, inputSequence);
+            } else {
+                // PeerJS 数据通道通常可靠；补发同一序号可覆盖极少数连接抖动，主机会按 seq 去重。
+                sendToHost(packet);
+                setTimeout(() => {
+                    if (multiplayerSessionActive() && !isPeerHost && inputSequence >= packet.seq && lastAckInputSequence < packet.seq) sendToHost(packet);
+                }, 45);
+                setTimeout(() => {
+                    if (multiplayerSessionActive() && !isPeerHost && inputSequence >= packet.seq && lastAckInputSequence < packet.seq) sendToHost(packet);
+                }, 120);
+            }
+        }
+
+        function proposedStep(snake) {
+            if (snake.inputQueue.length) snake.dir = snake.inputQueue.shift();
+            const headNode = snake.nodes[0];
+            let x = headNode.x, y = headNode.y;
+            if (snake.dir === UP) y -= 1;
+            else if (snake.dir === DOWN) y += 1;
+            else if (snake.dir === LEFT) x -= 2;
+            else if (snake.dir === RIGHT) x += 2;
+            return {x,y};
+        }
+
+        function showMultiplayerLevelPassNotice(oldLevel, newLevel, winnerName, winnerScore) {
+            if (!mpLevelPassNotice) return;
+            const safeOldLevel = Math.max(1, Number(oldLevel) || 1);
+            const safeNewLevel = Math.max(safeOldLevel + 1, Number(newLevel) || safeOldLevel + 1);
+            const safeWinner = safeText(winnerName || '玩家', 16) || '玩家';
+            const safeScore = Math.max(0, Number(winnerScore) || 0);
+            mpLevelPassTitle.textContent = `🎉 联机第 ${safeOldLevel} 关通关！`;
+            mpLevelPassDetail.textContent = `${safeWinner} 达到 ${safeScore} 分，已进入第 ${safeNewLevel} 关`;
+            mpLevelPassNotice.classList.remove('active');
+            void mpLevelPassNotice.offsetWidth;
+            mpLevelPassNotice.classList.add('active');
+            if (mpLevelPassNoticeTimer) clearTimeout(mpLevelPassNoticeTimer);
+            mpLevelPassNoticeTimer = setTimeout(() => mpLevelPassNotice.classList.remove('active'), 3600);
+        }
+
+        // ---------- 主机关卡推进逻辑 ----------
+        function checkHostLevelPass() {
+            // 返回率先达到目标分数的存活玩家，未通关时返回 null
+            for (const snake of Object.values(worldSnakes)) {
+                if (snake.alive && snake.score >= getLevelTarget()) return snake;
+            }
+            return null;
+        }
+
+        function hostWorldTick() {
+            if (!isPeerHost || gamePaused) return;
+            const now = Date.now();
+            // 重生
+            Object.entries(worldSnakes).forEach(([id, snake]) => {
+                if (!snake.alive && snake.respawnAt && now >= snake.respawnAt && players[id]?.role === 'player') {
+                    worldSnakes[id] = createCanonicalSnake(id, Object.keys(worldSnakes).indexOf(id));
+                }
+            });
+
+            const aliveIds = Object.keys(worldSnakes).filter(id => worldSnakes[id].alive).sort();
+            const proposals = {};
+            aliveIds.forEach(id => {
+                const snake = worldSnakes[id];
+                const next = proposedStep(snake);
+                const foodIndex = foodList.findIndex(f => f.x === next.x && f.y === next.y);
+                const willGrow = foodIndex >= 0;
+                const candidate = [{x:next.x,y:next.y}, ...snake.nodes.map(n=>({...n}))];
+                if (!willGrow) candidate.pop();
+                proposals[id] = { next, foodIndex, candidate, dead:false };
+            });
+
+            // 碰撞检测
+            aliveIds.forEach(id => {
+                const snake = worldSnakes[id];
+                const p = proposals[id];
+                if (p.next.x <= 0 || p.next.x >= (COLS-1)*2 || p.next.y <= 0 || p.next.y >= ROWS-1) p.dead = true;
+                if (obstacles.some(o => o.x === p.next.x && o.y === p.next.y)) p.dead = true;
+                if (p.candidate.slice(1).some(n => n.x === p.next.x && n.y === p.next.y)) p.dead = true;
+                for (const otherId of aliveIds) {
+                    if (otherId === id) continue;
+                    const otherCandidate = proposals[otherId].candidate;
+                    if (otherCandidate.some(n => n.x === p.next.x && n.y === p.next.y)) { p.dead = true; break; }
+                }
+            });
+
+            const claimedFood = new Set();
+            aliveIds.forEach(id => {
+                const snake = worldSnakes[id];
+                const p = proposals[id];
+                snake.previousNodes = snake.nodes.map(n=>({...n}));
+                snake.lastMoveAt = performance.now();
+                if (p.dead) {
+                    snake.alive = false;
+                    snake.nodes = [];
+                    snake.respawnAt = now + 3000;
+                    broadcastPacket({ type:'system', text:`💀 ${snake.name} 撞毁，3秒后重生` });
+                    addChatMessage('系统', `💀 ${snake.name} 撞毁，3秒后重生`, true);
+                    return;
+                }
+                snake.nodes = p.candidate;
+                if (p.foodIndex >= 0 && !claimedFood.has(p.foodIndex)) {
+                    claimedFood.add(p.foodIndex);
+                    // 联机学术模式暂不实现，保持普通加分
+                    snake.score += FOOD_BASE_SCORE[foodType[p.foodIndex] || 0] + add;
+                }
+            });
+            [...claimedFood].sort((a,b)=>b-a).forEach(index => replaceFood(index));
+            ensureFoodCount();
+
+            // ★★★ 关卡推进（主机检测） ★★★
+            const passedSnake = checkHostLevelPass();
+            if (passedSnake) {
+                const oldLevel = level;
+                level++;
+                const levelPassPacket = {
+                    type:'level_pass', oldLevel, newLevel:level,
+                    winnerName:passedSnake.name, winnerScore:passedSnake.score
+                };
+                broadcastPacket(levelPassPacket);
+                showMultiplayerLevelPassNotice(oldLevel, level, passedSnake.name, passedSnake.score);
+                foodCount = Math.min(3 + (level - 1), FOOD_MAX_COUNT);
+                // 重置所有蛇的位置（保留分数）
+                for (const [id, snake] of Object.entries(worldSnakes)) {
+                    if (snake.alive) {
+                        const idx = Object.keys(worldSnakes).indexOf(id);
+                        const newSnake = createCanonicalSnake(id, idx);
+                        newSnake.score = snake.score; // 保留分数
+                        worldSnakes[id] = newSnake;
+                    }
+                }
+                randFood();
+                createObstacles();
+                sleepTime = Math.max(70, 320 - (level - 1) * 20);
+                add = 1 + (level - 1) * 2;
+                if (add < 1) add = 1;
+                broadcastPacket({ type:'system', text:`🎉 关卡 ${oldLevel} 通过！进入第 ${level} 关！` });
+                addChatMessage('系统', `🎉 关卡 ${oldLevel} 通过！进入第 ${level} 关！`, true);
+                syncLocalLegacyFromCanonical();
+                if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+                gameLoopTimer = setInterval(gameTick, sleepTime);
+                broadcastWorldSnapshot(true);
+                render(); updateUI();
+                return;
+            }
+
+            worldFrame++;
+            syncLocalLegacyFromCanonical();
+            broadcastWorldSnapshot(false);
+        }
+
+        function canonicalSnapshot() {
+            return {
+                type:'snapshot', frame:worldFrame, sentAt:Date.now(), tickMs:sleepTime,
+                paused:gamePaused, level, difficulty, add,
+                food:foodList.map((f,i)=>({x:f.x,y:f.y,type:foodType[i]||0})),
+                obstacles:obstacles.map(o=>({x:o.x,y:o.y})),
+                snakes:Object.values(worldSnakes).map(s=>({
+                    id:s.id, name:s.name, nodes:s.nodes, dir:s.dir, score:s.score, alive:s.alive,
+                    respawnAt:s.respawnAt, color:s.color, color2:s.color2, ackSeq:s.lastInputSeq || 0
+                })),
+                players:playerListPayload()
+            };
+        }
+
+        function broadcastWorldSnapshot(force = false) {
+            if (!isPeerHost) return;
+            const packet = canonicalSnapshot();
+            broadcastPacket(packet);
+            applySnapshot(packet, true);
+        }
+
+        function applySnapshot(packet, localHost = false) {
+            if (!packet || packet.type !== 'snapshot') return;
+            if (!localHost && packet.frame <= lastSnapshotFrame) return;
+            if (!localHost) {
+                lastSnapshotFrame = packet.frame;
+                lastHostMessageAt = Date.now();
+            }
+            const receivedAt = performance.now();
+            const next = {};
+            (packet.snakes || []).forEach(s => {
+                const old = syncedSnakes[s.id];
+                next[s.id] = {
+                    ...s,
+                    previousNodes: old?.nodes?.length ? old.nodes.map(n=>({...n})) : (s.nodes||[]).map(n=>({...n})),
+                    nodes:(s.nodes||[]).map(n=>({...n})),
+                    receivedAt,
+                    tickMs:packet.tickMs || sleepTime
+                };
+            });
+            syncedSnakes = next;
+            window._remoteSnakes = syncedSnakes;
+            if (!localHost) {
+                foodList = (packet.food || []).map(f=>({x:f.x,y:f.y}));
+                foodType = (packet.food || []).map(f=>f.type||0);
+                obstacles = (packet.obstacles || []).map(o=>({x:o.x,y:o.y}));
+                obstacleCount = obstacles.length;
+                if (Number.isFinite(packet.level)) level = packet.level;
+                if (Number.isFinite(packet.difficulty)) difficulty = packet.difficulty;
+                if (Number.isFinite(packet.add)) add = packet.add;
+                if (Number.isFinite(packet.tickMs) && packet.tickMs !== sleepTime) sleepTime = packet.tickMs;
+                gamePaused = !!packet.paused;
+                players = {};
+                (packet.players || []).forEach(p => players[p.id] = {...p});
+            }
+            mpSyncText.textContent = `帧同步：#${packet.frame} · ${packet.snakes?.length || 0}蛇`;
+            syncLocalLegacyFromSnapshot();
+            updatePlayerList(packet.players || playerListPayload());
+            updateUI();
+        }
+
+        function syncLocalLegacyFromCanonical() {
+            const s = worldSnakes[peerId];
+            if (!s) { head = null; score = 0; return; }
+            head = buildLinkedHead(s.nodes);
+            direction = s.dir;
+            score = s.score;
+        }
+
+        function syncLocalLegacyFromSnapshot() {
+            const s = syncedSnakes[peerId];
+            if (!s || playerRole === 'spectator') { head = null; score = 0; return; }
+            head = buildLinkedHead(s.nodes || []);
+            direction = s.dir || RIGHT;
+            score = s.score || 0;
+            const ack = Number(s.ackSeq) || 0;
+            if (ack >= lastAckInputSequence) lastAckInputSequence = ack;
+            pendingClientInputs = pendingClientInputs.filter(item => item.seq > lastAckInputSequence);
+            lastRequestedDirection = pendingClientInputs.length
+                ? pendingClientInputs[pendingClientInputs.length - 1].dir
+                : direction;
+        }
+
+        function interpolatedHead(snake) {
+            const now = performance.now();
+            const alpha = Math.max(0, Math.min(1, (now - (snake.receivedAt || snake.lastMoveAt || now)) / Math.max(50, snake.tickMs || sleepTime)));
+            const current = snake.nodes || [];
+            const previous = snake.previousNodes || current;
+            const nodes = current.map((n,i) => {
+                const p = previous[i] || previous[previous.length-1] || n;
+                return { x:p.x + (n.x-p.x)*alpha, y:p.y + (n.y-p.y)*alpha };
+            });
+            return buildLinkedHead(nodes);
+        }
+
+        function drawMultiplayerSnakes() {
+            const source = isPeerHost ? worldSnakes : syncedSnakes;
+            Object.values(source).forEach(s => {
+                if (!s || !s.alive || !s.nodes || !s.nodes.length) return;
+                const drawable = isPeerHost ? {
+                    ...s, receivedAt:s.lastMoveAt, tickMs:sleepTime
+                } : s;
+                const linked = interpolatedHead(drawable);
+                if (linked) drawSnake(linked, s.dir || RIGHT, s.color || '#3498db', s.color2 || '#1a5d9a');
+                const h = s.nodes[0];
+                if (h) {
+                    ctx.save();
+                    ctx.font = '11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = s.id === peerId ? '#f7d06a' : '#d6e7ff';
+                    ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 4;
+                    ctx.fillText(`${s.name} ${s.score || 0}`, h.x/2*CELL+CELL/2, h.y*CELL-8);
+                    ctx.restore();
+                }
+            });
+        }
+
+        // 处理颜色更新协议
+        function handleColorChange(senderId, color, color2) {
+            if (!isPeerHost) return;
+            if (players[senderId]) {
+                players[senderId].colors = [color, color2];
+            }
+            if (worldSnakes[senderId]) {
+                worldSnakes[senderId].color = color;
+                worldSnakes[senderId].color2 = color2;
+            }
+            broadcastWorldSnapshot(true);
+        }
+
+        function handlePacket(data, senderId) {
+            const msg = decodePacket(data);
+            if (!msg || !msg.type) return;
+            if (!isPeerHost) lastHostMessageAt = Date.now();
+            switch (msg.type) {
+                case 'hello': {
+                    if (!isPeerHost) break;
+                    const role = msg.role === 'spectator' ? 'spectator' : 'player';
+                    const currentPlayers = Object.values(players).filter(p=>p.role==='player').length;
+                    const finalRole = role === 'player' && currentPlayers >= MAX_PLAYERS ? 'spectator' : role;
+                    const colorIndex = Object.keys(players).length % PLAYER_COLORS.length;
+                    const validColor = value => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value : null;
+                    players[senderId] = {
+                        id:senderId, name:safeText(msg.name,16)||senderId.slice(0,6), role:finalRole,
+                        isHost:false, colors:[validColor(msg.color) || PLAYER_COLORS[colorIndex][0], validColor(msg.color2) || PLAYER_COLORS[colorIndex][1]]
+                    };
+                    connectionMeta[senderId] = { lastSeen:Date.now(), role:finalRole };
+                    if (finalRole === 'player') addCanonicalPlayer(senderId);
+                    sendPacket(peerConnections[senderId], {
+                        type:'welcome', playerId:senderId, roomId, role:finalRole,
+                        snapshot:canonicalSnapshot()
+                    });
+                    const joinText = `${players[senderId].name} ${finalRole === 'spectator' ? '开始观战' : '加入比赛'}`;
+                    addChatMessage('系统', `👋 ${joinText}`, true);
+                    broadcastPacket({type:'system', text:`👋 ${joinText}`}, senderId);
+                    broadcastPlayerList();
+                    broadcastWorldSnapshot(true);
+                    break;
+                }
+                case 'welcome':
+                    if (isPeerHost) break;
+                    playerRole = msg.role === 'spectator' ? 'spectator' : 'player';
+                    roomId = msg.roomId || hostPeerId;
+                    reconnectAttempts = 0;
+                    setMPStatus(playerRole === 'spectator' ? '观战连接成功' : '进入房间成功', 'ok');
+                    if (msg.snapshot) applySnapshot(msg.snapshot, false);
+                    updateMPControl();
+                    break;
+                case 'input':
+                    if (isPeerHost) {
+                        connectionMeta[senderId] = {...connectionMeta[senderId], lastSeen:Date.now()};
+                        queueCanonicalDirection(senderId, Number(msg.dir), Number(msg.seq)||0);
+                    }
+                    break;
+                case 'snapshot':
+                    if (!isPeerHost) applySnapshot(msg, false);
+                    break;
+                case 'request_snapshot':
+                    if (isPeerHost) sendPacket(peerConnections[senderId], canonicalSnapshot());
+                    break;
+                case 'chat':
+                    if (isPeerHost) {
+                        const p = players[senderId];
+                        const packet = { ...msg, name:p?.name || msg.name || '玩家', senderId };
+                        displayChatPacket(packet);
+                        broadcastPacket(packet);
+                    } else displayChatPacket(msg);
+                    break;
+                case 'system':
+                    addChatMessage('系统', msg.text || '', true);
+                    break;
+                case 'level_pass':
+                    if (!isPeerHost) {
+                        showMultiplayerLevelPassNotice(msg.oldLevel, msg.newLevel, msg.winnerName, msg.winnerScore);
+                    }
+                    break;
+                case 'player_list':
+                    if (!isPeerHost) {
+                        players = {};
+                        (msg.players || []).forEach(p=>players[p.id]={...p});
+                    }
+                    updatePlayerList(msg.players || []);
+                    break;
+                case 'ping':
+                    if (isPeerHost) sendPacket(peerConnections[senderId], {type:'pong', nonce:msg.nonce, serverTime:Date.now()});
+                    break;
+                case 'pong':
+                    if (!isPeerHost && msg.nonce === lastPingSentAt) {
+                        lastPingMs = Date.now() - msg.nonce;
+                        updatePingUI();
+                    }
+                    break;
+                case 'heartbeat':
+                    if (!isPeerHost) {
+                        lastHostMessageAt = Date.now();
+                        if (msg.frame > lastSnapshotFrame + 2) sendToHost({type:'request_snapshot'});
+                    }
+                    break;
+                case 'color_change':
+                    // 颜色更新
+                    if (isPeerHost) {
+                        handleColorChange(senderId, msg.color, msg.color2);
+                    }
+                    break;
+                default: break;
+            }
+        }
+
+        function attachConnection(conn, incoming = false) {
+            if (!conn) return;
+            conn.on('open', () => {
+                peerConnections[conn.peer] = conn;
+                connectionMeta[conn.peer] = { lastSeen:Date.now() };
+                if (!isPeerHost) {
+                    hostPeerId = conn.peer;
+                    sendPacket(conn, {type:'hello', name:playerName, role:playerRole, color:snakeColor1, color2:snakeColor2});
+                    sendPacket(conn, {type:'request_snapshot'});
+                    lastHostMessageAt = Date.now();
+                }
+                updateMPControl();
+            });
+            conn.on('data', data => handlePacket(data, conn.peer));
+            conn.on('close', () => handleConnectionClosed(conn.peer));
+            conn.on('error', err => {
+                console.warn('DataConnection error', err);
+                setMPStatus('数据通道异常，正在恢复', 'bad');
+            });
+        }
+
+        function handleConnectionClosed(id) {
+            delete peerConnections[id];
+            delete connectionMeta[id];
+            if (isPeerHost) {
+                const departed = players[id];
+                delete players[id];
+                delete worldSnakes[id];
+                if (departed) {
+                    addChatMessage('系统', `🔌 ${departed.name} 已断开`, true);
+                    broadcastPacket({type:'system', text:`🔌 ${departed.name} 已断开`});
+                }
+                broadcastPlayerList();
+                broadcastWorldSnapshot(true);
+            } else if (!intentionalLeave && id === hostPeerId) {
+                setMPStatus('连接中断，自动重连中', 'bad');
+                scheduleReconnect();
+            }
+            updateMPControl();
+        }
+
+        function connectToHost(targetId) {
+            if (!peer || !peer.open) return;
+            const existing = peerConnections[targetId];
+            if (existing && existing.open) return;
+            if (existing) { try { existing.close(); } catch(_) {} }
+            setMPStatus('正在建立数据通道...', '');
+            const conn = peer.connect(targetId, { serialization:'json', reliable:true, metadata:{name:playerName, role:playerRole} });
+            attachConnection(conn, false);
+            setTimeout(() => {
+                if (!conn.open && !intentionalLeave) {
+                    try { conn.close(); } catch(_) {}
+                    scheduleReconnect();
+                }
+            }, 7000);
+        }
+
+        function setupPeerEvents(instance) {
+            instance.on('disconnected', () => {
+                if (intentionalLeave) return;
+                setMPStatus('信令断开，正在恢复', 'bad');
+                try { instance.reconnect(); } catch(_) {}
+            });
+            instance.on('close', () => {
+                if (!intentionalLeave && !isPeerHost) scheduleReconnect();
+            });
+            instance.on('error', err => {
+                console.warn('Peer error', err);
+                if (err.type === 'unavailable-id' && isPeerHost) {
+                    setMPStatus('房间号碰撞，自动换号', '');
+                    setTimeout(() => createRoom(true), 100);
+                } else if (err.type === 'peer-unavailable') {
+                    setMPStatus('房间不存在或主机未就绪', 'bad');
+                    scheduleReconnect();
+                } else if (!intentionalLeave && !isPeerHost) {
+                    setMPStatus('网络异常，自动重试', 'bad');
+                    scheduleReconnect();
+                }
+            });
+        }
+
+        function cleanupPeerOnly() {
+            const previousIntent = intentionalLeave;
+            intentionalLeave = true;
+            Object.values(peerConnections).forEach(c => { try { c.close(); } catch(_) {} });
+            peerConnections = {};
+            connectionMeta = {};
+            if (peer) { try { peer.destroy(); } catch(_) {} }
+            peer = null;
+            peerId = null;
+            window._peer = null;
+            window._myPeerId = null;
+            window._isPeerHost = false;
+            intentionalLeave = previousIntent;
+        }
+
+        function startNetworkTimers() {
+            stopNetworkTimers();
+            heartbeatTimer = setInterval(() => {
+                if (isPeerHost) {
+                    broadcastPacket({type:'heartbeat', frame:worldFrame, serverTime:Date.now()});
+                } else if (multiplayerSessionActive()) {
+                    lastPingSentAt = Date.now();
+                    sendToHost({type:'ping', nonce:lastPingSentAt});
+                }
+            }, 2000);
+            healthTimer = setInterval(() => {
+                if (!isPeerHost && multiplayerSessionActive() && lastHostMessageAt && Date.now()-lastHostMessageAt > 8000) {
+                    setMPStatus('主机无响应，自动重连', 'bad');
+                    scheduleReconnect();
+                }
+            }, 2500);
+        }
+
+        function stopNetworkTimers() {
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
+            if (healthTimer) clearInterval(healthTimer);
+            heartbeatTimer = healthTimer = null;
+        }
+
+        function scheduleReconnect(immediate = false) {
+            if (intentionalLeave || isPeerHost || !hostPeerId) return;
+            if (reconnectTimer) return;
+            const delay = immediate ? 100 : Math.min(8000, 500 * Math.pow(2, reconnectAttempts++));
+            setMPStatus(`自动重连 ${Math.round(delay/100)/10}秒`, '');
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                reconnectToRoom();
+            }, delay);
+        }
+
+        function reconnectToRoom() {
+            if (intentionalLeave || !hostPeerId || typeof Peer === 'undefined') return;
+            const target = hostPeerId;
+            cleanupPeerOnly();
+            peer = new Peer(undefined, PEER_OPTIONS);
+            window._peer = peer;
+            setupPeerEvents(peer);
+            peer.on('open', id => {
+                peerId = id;
+                window._myPeerId = id;
+                isPeerHost = false;
+                window._isPeerHost = false;
+                connectToHost(target);
+                updateMPControl();
+            });
+        }
+
+        function prepareMultiplayerCanvas() {
+            gameMode = 'multiplayer';
+            updateMultiplayerFeatureVisibility();
+            gameRunning = true;
+            gamePaused = false;
+            gameOverFlag = false;
+            levelPassFlag = false;
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            hideOverlay();
+            ensureNetworkRenderLoop();
+            render(); updateUI();
+        }
+
+        function createRoom(retrying = false) {
+            if (typeof Peer === 'undefined') { setMPStatus('联机组件加载失败，请检查网络后刷新', 'bad'); return; }
+            intentionalLeave = false;
+            if (!retrying) {
+                playerName = safeText(mpNameInput.value,16) || playerName;
+                localStorage.setItem('snake_player_name', playerName);
+                playerRole = 'player';
+                reconnectAttempts = 0;
+            }
+            cleanupPeerOnly();
+            const fullId = ROOM_PREFIX + generateRoomCode().toLowerCase();
+            roomId = fullId;
+            hostPeerId = fullId;
+            setMPStatus('正在创建房间...', '');
+            peer = new Peer(fullId, PEER_OPTIONS);
+            window._peer = peer;
+            setupPeerEvents(peer);
+            peer.on('open', id => {
+                peerId = id; roomId = id; hostPeerId = id;
+                isPeerHost = true;
+                window._myPeerId = id; window._isPeerHost = true;
+                players = {};
+                players[id] = {id, name:playerName, role:'player', isHost:true, colors:[snakeColor1,snakeColor2]};
+                gameMode = 'multiplayer';
+                level = 1; difficulty = EASY; add = 1; sleepTime = 320;
+                startGame(0);
+                worldSnakes = {};
+                worldFrame = 0;
+                addCanonicalPlayer(id);
+                syncLocalLegacyFromCanonical();
+                ensureFoodCount();
+                applySnapshot(canonicalSnapshot(), true);
+                peer.on('connection', conn => attachConnection(conn, true));
+                startNetworkTimers();
+                updateMPControl();
+                broadcastPlayerList();
+                setInviteHash();
+                addChatMessage('系统', `✅ 房间 ${shortRoomCode(id)} 已创建`, true);
+            });
+        }
+
+        function joinRoom(value, roleOverride = '') {
+            if (typeof Peer === 'undefined') { setMPStatus('联机组件加载失败，请检查网络后刷新', 'bad'); return; }
+            const target = normalizeRoomId(value);
+            if (!target) { setMPStatus('请输入有效房间号', 'bad'); return; }
+            intentionalLeave = false;
+            playerName = safeText(mpNameInput.value,16) || playerName;
+            localStorage.setItem('snake_player_name', playerName);
+            playerRole = roleOverride || mpRoleSelect.value || 'player';
+            hostPeerId = target; roomId = target; reconnectAttempts = 0;
+            cleanupPeerOnly();
+            prepareMultiplayerCanvas();
+            setMPStatus('正在连接房间...', '');
+            peer = new Peer(undefined, PEER_OPTIONS);
+            window._peer = peer;
+            setupPeerEvents(peer);
+            peer.on('open', id => {
+                peerId = id;
+                isPeerHost = false;
+                window._myPeerId = id; window._isPeerHost = false;
+                connectToHost(target);
+                startNetworkTimers();
+                updateMPControl();
+                setInviteHash();
+            });
+        }
+
+        function leaveRoom() {
+            intentionalLeave = true;
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+            stopNetworkTimers();
+            cleanupPeerOnly();
+            isPeerHost = false; roomId = ''; hostPeerId = '';
+            players = {}; worldSnakes = {}; syncedSnakes = {};
+            window._remoteSnakes = syncedSnakes;
+            playerRole = 'player';
+            lastSnapshotFrame = -1; worldFrame = 0;
+            gameMode = 'normal';
+            updateMultiplayerFeatureVisibility();
+            if (gameLoopTimer) { clearInterval(gameLoopTimer); gameLoopTimer = null; }
+            gameRunning = false; gameOverFlag = true; gamePaused = false;
+            destroySnake(); initSnake();
+            history.replaceState(null, '', location.href.split('#')[0]);
+            updateMPControl();
+            updatePlayerList([]);
+            render(); updateUI();
+            addChatMessage('系统', '🚪 已离开房间', true);
+            showMainMenu();
+        }
+
+        function setInviteHash() {
+            if (!roomId) return;
+            const role = isPeerHost ? 'player' : playerRole;
+            const hash = `#room=${shortRoomCode(roomId)}&role=${role}`;
+            try { history.replaceState(null, '', location.href.split('#')[0] + hash); } catch(_) { location.hash = hash; }
+        }
+
+        function inviteLink(role = 'player') {
+            const base = location.href.split('#')[0];
+            const safeRole = role === 'spectator' ? 'spectator' : 'player';
+            return `${base}#room=${shortRoomCode(roomId || hostPeerId)}&role=${safeRole}`;
+        }
+
+        async function copyText(value) {
+            try { await navigator.clipboard.writeText(value); return true; }
+            catch (_) {
+                const ta = document.createElement('textarea'); ta.value = value; ta.style.position='fixed'; ta.style.opacity='0';
+                document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+            }
+        }
+
+        function parseInviteHash() {
+            const hash = location.hash.replace(/^#/, '');
+            const params = new URLSearchParams(hash);
+            const room = params.get('room');
+            const role = params.get('role') === 'spectator' ? 'spectator' : 'player';
+            return {room, role};
+        }
+
+        function ensureNetworkRenderLoop() {
+            if (renderLoopStarted) return;
+            renderLoopStarted = true;
+            const loop = () => {
+                if (gameMode === 'multiplayer' && gameRunning) render();
+                requestAnimationFrame(loop);
+            };
+            requestAnimationFrame(loop);
+        }
+
+        function showP2PMenu() {
+            currentMenu = 'sub';
+            const invite = parseInviteHash();
+            let html = `
+                <h2>🌐 稳定多人联机</h2>
+                <div style="color:#8ab4e0;font-size:15px;line-height:1.8;margin-bottom:12px;">
+                    <p><b>创建房间：</b>生成 6 位房间号，其他人直接输入房间号加入。</p>
+                    <p><b>加入身份：</b>可直接选择作为玩家加入，或作为观战者加入。</p>
+                    <p><b>断线恢复：</b>心跳检测、指数退避自动重连、补发完整快照。</p>
+                    <p><b>联机闯关：</b>所有玩家共享关卡，任意玩家达到目标即推进。</p>
+                </div>
+                <div style="display:grid;gap:9px;">
+                    <input id="p2pNameInput2" class="mp-input" value="${playerName}" maxlength="16" placeholder="昵称">
+                    <input id="p2pRoomInput2" class="mp-input" value="${invite.room || ''}" placeholder="输入房间号或邀请链接">
+                    <div class="btnGroup" style="gap:8px;">
+                        <button class="btn success" id="p2pCreateBtn2">👑 创建房间</button>
+                        <button class="btn primary" id="p2pJoinPlayerBtn2">🐍 作为玩家加入</button>
+                        <button class="btn" id="p2pJoinSpectatorBtn2">👁 作为观战者加入</button>
+                    </div>
+                    <div id="p2pStatus2" style="text-align:center;color:#5a7a9a;font-size:13px;">就绪</div>
+                </div>
+                <div class="menuItem" data-action="back"><span class="idx">0.</span> 返回主菜单<span class="arrow">‹</span></div>
+                <div class="menuTip">无需 Node.js；使用公共 PeerJS 信令与 WebRTC 直连</div>`;
+            showOverlay(html);
+            const status = document.getElementById('p2pStatus2');
+            document.getElementById('p2pCreateBtn2').onclick = () => {
+                mpNameInput.value = document.getElementById('p2pNameInput2').value;
+                status.textContent = '正在创建...'; createRoom();
+            };
+            const joinFromMenu = (role) => {
+                mpNameInput.value = document.getElementById('p2pNameInput2').value;
+                mpRoleSelect.value = role;
+                const value = document.getElementById('p2pRoomInput2').value;
+                if (!String(value || '').trim()) {
+                    status.textContent = '请先输入房间号';
+                    document.getElementById('p2pRoomInput2').focus();
+                    return;
+                }
+                status.textContent = role === 'spectator' ? '正在以观战者身份连接...' : '正在以玩家身份连接...';
+                joinRoom(value, role);
+            };
+            document.getElementById('p2pJoinPlayerBtn2').onclick = () => joinFromMenu('player');
+            document.getElementById('p2pJoinSpectatorBtn2').onclick = () => joinFromMenu('spectator');
+            document.querySelector('.menuItem[data-action="back"]').onclick = () => { hideOverlay(); showMainMenu(); };
+        }
+
+        // ---------- 键盘事件 ----------
+        function handleKeyDown(e) {
+            const key = e.key;
+            const code = e.code;
+            const arrowDir = code === 'ArrowUp' ? UP : code === 'ArrowDown' ? DOWN : code === 'ArrowLeft' ? LEFT : code === 'ArrowRight' ? RIGHT : 0;
+            if (key >= '1' && key <= '9') {
+                const color = BG_COLOR_MAP[key];
+                if (color) { setBgColor(color); return; }
+            }
+            if (key === 'Escape') {
+                if (!overlay.classList.contains('hidden') && currentMenu === 'sub') {
+                    e.preventDefault();
+                    hideOverlay();
+                    showMainMenu();
+                    return;
+                }
+                if (gameRunning && !gameOverFlag && !overlay.classList.contains('hidden')) {
+                    e.preventDefault();
+                    quitGame();
+                    return;
+                }
+                if (gameOverFlag) {
+                    e.preventDefault();
+                    quitGame();
+                    return;
+                }
+            }
+
+            // 覆盖层打开时由菜单自己的键盘逻辑处理，避免一次按键同时操作菜单和蛇。
+            if (!overlay.classList.contains('hidden')) return;
+
+            if (gameMode === 'dual_local') {
+                const p2Dir = code === 'KeyW' ? UP : code === 'KeyS' ? DOWN : code === 'KeyA' ? LEFT : code === 'KeyD' ? RIGHT : 0;
+                if (arrowDir) { e.preventDefault(); e.stopPropagation(); pushDirection(arrowDir); }
+                else if (p2Dir) { e.preventDefault(); e.stopPropagation(); pushDirection2(p2Dir); }
+                else if (key === ' ') { e.preventDefault(); pauseGame(); }
+                else if (key === 'F1') { e.preventDefault(); speedUp(); }
+                else if (key === 'F2') { e.preventDefault(); speedDown(); }
+                return;
+            }
+            if (gameMode === 'multiplayer' || gameMode === 'normal' || gameMode === 'academic_math' || gameMode === 'academic_english' || gameMode === 'challenge') {
+                if (arrowDir) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    pushDirection(arrowDir);
+                }
+                else if (key === ' ') { e.preventDefault(); pauseGame(); }
+                else if (key === 'Escape' && gameRunning) { e.preventDefault(); if (!gameOverFlag) quitGame(); }
+                else if (key === 'F1') { e.preventDefault(); speedUp(); }
+                else if (key === 'F2') { e.preventDefault(); speedDown(); }
+            }
+        }
+
+        // ---------- 触摸方向 ----------
+        function setupDirButtons() {
+            document.querySelectorAll('.dirBtn[data-dir]').forEach(btn => {
+                const dir = btn.dataset.dir;
+                const map = { up: UP, down: DOWN, left: LEFT, right: RIGHT };
+                const handler = (e) => {
+                    e.preventDefault();
+                    if (map[dir]) {
+                        pushDirection(map[dir]);
+                    }
+                };
+                btn.addEventListener('touchstart', handler);
+                btn.addEventListener('mousedown', handler);
+                btn.addEventListener('touchmove', (e) => e.preventDefault());
+            });
+        }
+
+        // ---------- 按钮事件 ----------
+        document.getElementById('btnSpeedUp').addEventListener('click', speedUp);
+        document.getElementById('btnSpeedDown').addEventListener('click', speedDown);
+        document.getElementById('btnPause').addEventListener('click', pauseGame);
+        document.getElementById('btnQuit').addEventListener('click', () => { if (!gameOverFlag) quitGame(); else { hideOverlay(); showMainMenu(); } });
+        document.getElementById('btnMusicToggle').addEventListener('click', () => { if (gameRunning) nextMusic(); else nextMusic(); });
+        document.getElementById('btnResetBg').addEventListener('click', () => { setBgColor('#1a1a2e'); });
+
+        document.querySelectorAll('#colorPicker .cbtn[data-color]').forEach(el => {
+            el.addEventListener('click', () => setBgColor(el.dataset.color));
+        });
+        document.querySelector('#colorPicker .cbtn[data-color="#1a1a2e"]')?.classList.add('active');
+        document.querySelectorAll('#snakeColorPicker [data-snake-color]').forEach(el => {
+            el.addEventListener('click', () => setSnakeColor(el.dataset.snakeColor));
+        });
+
+        chatSendBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); chatInput.blur(); canvas.focus?.(); } });
+
+        // 联机控制按钮
+        mpNameInput.value = playerName;
+        mpNameInput.addEventListener('change', () => {
+            playerName = safeText(mpNameInput.value,16) || playerName;
+            localStorage.setItem('snake_player_name', playerName);
+        });
+        mpCreateBtn.addEventListener('click', () => createRoom());
+        mpJoinBtn.addEventListener('click', () => joinRoom(mpJoinInput.value));
+        mpJoinInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(mpJoinInput.value); mpJoinInput.blur(); } });
+        mpPasteBtn.addEventListener('click', async () => {
+            try {
+                const value = await navigator.clipboard.readText();
+                mpJoinInput.value = value;
+                joinRoom(value);
+            } catch (_) { setMPStatus('请手动粘贴房间号', 'warn'); mpJoinInput.focus(); }
+        });
+        mpCopyBtn.addEventListener('click', async () => {
+            const ok = await copyText(shortRoomCode(roomId || hostPeerId));
+            setMPStatus(ok ? '房间号已复制' : '复制失败', ok ? 'ok' : 'bad');
+        });
+        mpCopyLinkBtn.addEventListener('click', async () => {
+            const ok = await copyText(inviteLink('player'));
+            setMPStatus(ok ? '玩家邀请链接已复制' : '复制失败', ok ? 'ok' : 'bad');
+        });
+        if (mpCopySpectatorLinkBtn) mpCopySpectatorLinkBtn.addEventListener('click', async () => {
+            const ok = await copyText(inviteLink('spectator'));
+            setMPStatus(ok ? '观战邀请链接已复制' : '复制失败', ok ? 'ok' : 'bad');
+        });
+        mpReconnectBtn.addEventListener('click', () => {
+            if (isPeerHost) { broadcastWorldSnapshot(true); setMPStatus('已补发完整快照', 'ok'); }
+            else scheduleReconnect(true);
+        });
+        mpLeaveBtn.addEventListener('click', leaveRoom);
+
+        // ---------- 初始化 ----------
+        function init() {
+            setupDirButtons();
+            window.addEventListener('keydown', handleKeyDown, { capture: true });
+            loadImages(function() { console.log('图片加载完成'); });
+            showMainMenu();
+            ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            highScoreDisplay.textContent = readFile();
+            window.addEventListener('resize', () => { if (!gameOverFlag && gameRunning) render(); });
+            document.addEventListener('click', () => { if (!audioCtx) initAudio(); }, { once: true });
+            const savedSnakeColor = localStorage.getItem('snake_body_color');
+            if (savedSnakeColor && SNAKE_COLOR_NAMES[savedSnakeColor]) setSnakeColor(savedSnakeColor);
+            else setSnakeColor(snakeColor1);
+            updateMPControl();
+            const invite = parseInviteHash();
+            if (invite.room) {
+                mpJoinInput.value = invite.room;
+                mpRoleSelect.value = invite.role;
+                setTimeout(() => joinRoom(invite.room, invite.role), 350);
+            }
+            console.log('🐍 贪吃蛇 · 完整版 已启动 (含学术、词库、颜色修复)');
+        }
+
+        init();
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

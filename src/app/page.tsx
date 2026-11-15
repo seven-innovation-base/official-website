@@ -12,6 +12,7 @@ const heroEntries = [
   { href: "/ftp/", label: "FTP 资料库" },
   { href: "/oj/", label: "OJ 练习", badge: "仅校园网" },
   { href: "/members/", label: "团队成员" },
+  { href: "/works/", label: "项目展示" },
 ];
 
 /** 部门卡片：插画 + 一段式介绍（旧站文案风格） */
