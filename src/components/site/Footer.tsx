@@ -15,6 +15,7 @@ export default function Footer() {
     { href: "/members/", label: "团队成员" },
     { href: "/honors/", label: "历史荣誉" },
     { href: "/join/", label: "加入我们" },
+    { href: "/works/", label: "项目展示" },
   ];
 
   // 文档入口迁移自旧站（导航栏"文档/博客" + 页脚"Git协作练习/老版本文档"）。

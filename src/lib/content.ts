@@ -3,6 +3,7 @@ import { z } from "zod";
 import departmentsRaw from "../../content/departments.json";
 import membersRaw from "../../content/members.json";
 import honorsRaw from "../../content/honors.json";
+import projectsRaw from "../../content/projects.json";
 import siteConfigRaw from "../../content/site-config.json";
 
 /* ---------------- Schema 定义 ---------------- */
@@ -39,6 +40,17 @@ const HonorSchema = z.object({
   names: z.array(z.string()),
   contest: z.string(),
   tags: z.array(z.string()),
+});
+
+const ProjectSchema = z.object({
+  title: z.string(),
+  type: z.string(),
+  description: z.string(),
+  tags: z.array(z.string()),
+  author: z.string(),
+  /** 封面截图路径（public 下），缺省时用 CSS 模拟占位 */
+  cover: z.string().optional(),
+  link: z.string().optional(),
 });
 
 const SiteConfigSchema = z.object({
@@ -96,6 +108,7 @@ export type Department = z.infer<typeof DepartmentSchema>;
 export type Member = z.infer<typeof MemberSchema>;
 export type MembersGroup = z.infer<typeof MembersGroupSchema>;
 export type Honor = z.infer<typeof HonorSchema>;
+export type Project = z.infer<typeof ProjectSchema>;
 export type SiteConfig = z.infer<typeof SiteConfigSchema>;
 
 function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown, source: string): T {
@@ -115,5 +128,7 @@ export const departments: Department[] = parseOrThrow(
 export const members: MembersGroup[] = parseOrThrow(MembersGroupSchema.array(), membersRaw, "members.json");
 
 export const honors: Honor[] = parseOrThrow(HonorSchema.array(), honorsRaw, "honors.json");
+
+export const projects: Project[] = parseOrThrow(ProjectSchema.array(), projectsRaw, "projects.json");
 
 export const siteConfig: SiteConfig = parseOrThrow(SiteConfigSchema, siteConfigRaw, "site-config.json");
