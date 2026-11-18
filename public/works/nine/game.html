@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>终极九宫格 · P2P 联机</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭕</text></svg>">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px; max-width: 600px; width: 100%;
+        }
+        h1 { text-align: center; color: #333; margin-bottom: 6px; font-size: 2.2em; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 0.95em; }
+        .menu { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+        .btn {
+            padding: 14px 38px; font-size: 1.15em; border: none; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s ease; font-weight: bold;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .btn-primary { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(102,126,234,0.4); }
+        .btn-secondary { background: linear-gradient(135deg,#f093fb 0%,#f5576c 100%); color: white; }
+        .btn-secondary:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(245,87,108,0.4); }
+        .btn-restart { background: linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); color: white; }
+        .btn-ghost { background: #eef0f5; color: #555; padding: 12px 30px; }
+        .btn-ghost:hover { background: #e2e5ec; }
+        .name-field {
+            width: 100%; max-width: 340px; display: flex; flex-direction: column;
+            gap: 8px; align-items: center; margin-bottom: 4px;
+        }
+        .name-field label { font-size: 0.95em; color: #555; font-weight: bold; }
+        .name-field input {
+            width: 100%; padding: 12px 16px; font-size: 1.15em; text-align: center;
+            border: 2px solid #ddd; border-radius: 12px; outline: none; color: #333; font-weight: bold;
+        }
+        .name-field input:focus { border-color: #667eea; }
+        .field { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
+        .field input.room-code {
+            width: 100%; max-width: 320px; padding: 14px 18px; font-size: 1.5em;
+            text-align: center; letter-spacing: 8px; border: 2px solid #ddd;
+            border-radius: 12px; outline: none; font-weight: bold; color: #333;
+        }
+        .field input.room-code:focus { border-color: #667eea; }
+        .room-number {
+            font-size: 2.6em; font-weight: bold; letter-spacing: 10px; color: #667eea;
+            text-align: center; padding: 16px; background: #f0f2ff;
+            border-radius: 14px; margin: 10px 0; user-select: all;
+        }
+        .hint { text-align: center; color: #777; font-size: 0.95em; line-height: 1.7; margin: 8px 0; }
+        .status-line {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            color: #667eea; font-weight: bold; margin: 12px 0;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #ff9800; animation: pulse 1.2s infinite; }
+        .dot.ready { background: #4caf50; animation: none; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .role-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 0.9em; font-weight: bold; margin-left: 6px;
+        }
+        .role-p1 { background: #e8efff; color: #667eea; }
+        .role-p2 { background: #fff0f2; color: #f5576c; }
+        .role-spec { background: #eef0f5; color: #777; }
+        .game-info {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding: 14px; background: #f8f9fa; border-radius: 10px; flex-wrap: wrap; gap: 10px;
+        }
+        .turn-info { display: flex; align-items: center; gap: 8px; }
+        .player-indicator { width: 18px; height: 18px; border-radius: 50%; }
+        .player1 { background: #667eea; box-shadow: 0 0 10px rgba(102,126,234,0.5); }
+        .player2 { background: #f5576c; box-shadow: 0 0 10px rgba(245,87,108,0.5); }
+        .game-board {
+            display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+            gap: 4px; background: #222; padding: 4px; border-radius: 8px;
+            margin: 0 auto; width: 100%; max-width: 480px; aspect-ratio: 1;
+        }
+        .small-grid {
+            display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+            gap: 1px; background: #444; padding: 1px; border-radius: 4px; position: relative;
+        }
+        .small-grid.highlighted { box-shadow: inset 0 0 10px rgba(102,126,234,0.5); background: #556; }
+        .cell {
+            background: #fff; display: flex; justify-content: center; align-items: center;
+            font-size: 1.3em; font-weight: bold; cursor: pointer; transition: background 0.15s; position: relative;
+        }
+        .cell.allowed:hover { background: #e8efff; }
+        .cell.invalid { background: #e0e0e0; cursor: not-allowed; }
+        .cell.p1 { background: #e8efff; color: #667eea; }
+        .cell.p2 { background: #fff0f2; color: #f5576c; }
+        .cell.last-move { box-shadow: inset 0 0 0 3px #ff9800; }
+        .cell.last-move::after {
+            content:''; position:absolute; width:12px; height:12px; border-radius:50%;
+            background:#ff9800; bottom:4px; right:4px;
+        }
+        .small-grid.owned-p1 { background: rgba(102,126,234,0.2); border: 2px solid #667eea; }
+        .small-grid.owned-p2 { background: rgba(245,87,108,0.2); border: 2px solid #f5576c; }
+        .small-grid.owned-p1 .cell, .small-grid.owned-p2 .cell { cursor: default; opacity: 0.4; }
+        .small-grid.owned-p1::after, .small-grid.owned-p2::after {
+            content:''; position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
+            font-size: 3em; font-weight: bold; pointer-events: none;
+        }
+        .small-grid.owned-p1::after { content:'X'; color: rgba(102,126,234,0.6); }
+        .small-grid.owned-p2::after { content:'O'; color: rgba(245,87,108,0.6); }
+        .result-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .result-modal { background: white; border-radius: 20px; padding: 36px; text-align: center; max-width: 400px; width: 90%; }
+        .result-title { font-size: 2.2em; margin-bottom: 24px; font-weight: bold; }
+        .result-win { color: #4caf50; } .result-lose { color: #f5576c; } .result-draw { color: #666; }
+        .btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: white; padding: 12px 24px;
+            border-radius: 30px; z-index: 2000; font-size: 0.95em; max-width: 90%;
+        }
+        .reconnect-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            display: flex; justify-content: center; align-items: center; z-index: 1500;
+        }
+        .reconnect-box { background: white; border-radius: 16px; padding: 30px 40px; text-align: center; color: #333; font-weight: bold; }
+        .spinner {
+            width: 38px; height: 38px; border: 4px solid #eee; border-top-color: #667eea;
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 14px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .rules-section { margin-top: 4px; padding: 18px; background: #f8f9fa; border-radius: 12px; text-align: left; }
+        .rules-title { font-size: 1.15em; font-weight: bold; color: #333; margin-bottom: 12px; }
+        .rules-list { list-style: none; line-height: 1.7; }
+        .rules-list li { padding: 6px 0 6px 22px; color: #555; position: relative; font-size: 0.9em; }
+        .rules-list li::before { content:'✓'; position:absolute; left:0; color:#667eea; font-weight:bold; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>终极九宫格</h1>
+        <div class="subtitle">P2P 联机对战 · 房间号建房，浏览器直连</div>
+
+        <!-- 主菜单 -->
+        <div id="menu" class="menu">
+            <div class="name-field">
+                <label for="name-input">你的昵称</label>
+                <input type="text" id="name-input" maxlength="12" placeholder="输入昵称（选填）">
+            </div>
+            <button class="btn btn-primary" onclick="showCreate()">创建房间</button>
+            <button class="btn btn-secondary" onclick="showJoin()">加入房间</button>
+            <div class="rules-section">
+                <div class="rules-title">📋 游戏规则</div>
+                <ul class="rules-list">
+                    <li>九宫格大棋盘上划分有九个战场，每个战场又是一个小九宫格。</li>
+                    <li>小九宫格内的每个格子对应相应位置的战场。</li>
+                    <li>当您选好格子落下后，您的对手会在格子对应的战场上部署下一枚棋子。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 创建房间 -->
+        <div id="create-panel" class="hidden">
+            <div class="menu">
+                <div class="status-line"><span class="dot" id="create-dot"></span><span id="create-status">正在创建房间…</span></div>
+                <div class="room-number" id="room-number">------</div>
+                <button class="btn btn-primary" id="copy-btn" onclick="copyRoomNumber()" disabled>复制房间号</button>
+                <div class="hint">把房间号发给朋友：一人加入对战，其他人可选「观战模式」观看。<br>请勿泄露房间号。</div>
+                <button class="btn btn-ghost" onclick="leaveRoom()">取消</button>
+            </div>
+        </div>
+
+        <!-- 加入房间 -->
+        <div id="join-panel" class="hidden">
+            <div class="field">
+                <div class="status-line"><span class="dot"></span><span>输入朋友分享的 6 位房间号</span></div>
+                <input type="text" class="room-code" id="room-input" maxlength="6" inputmode="numeric" placeholder="000000" oninput="this.value=this.value.replace(/\D/g,'')">
+                <button class="btn btn-secondary" id="join-btn" onclick="doJoin('player')">加入房间</button>
+                <button class="btn btn-ghost" id="spectate-btn" onclick="doJoin('spectator')">以观战模式加入</button>
+                <div class="hint" id="join-hint">加入后会自动与房主建立直连。</div>
+                <button class="btn btn-ghost" onclick="backToMenu()">返回菜单</button>
+            </div>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="game-container" class="hidden">
+            <div class="game-info">
+                <div class="turn-info">
+                    <span>当前回合:</span>
+                    <div id="current-player" class="player-indicator player1"></div>
+                    <span id="player-label">玩家 1</span>
+                </div>
+                <div>你的身份: <span id="role-badge" class="role-badge role-p1">玩家</span></div>
+                <div>回合数: <span id="turn-count">0</span></div>
+            </div>
+            <div class="game-board" id="game-board"></div>
+            <div class="hint" id="turn-hint">等待对手落子…</div>
+            <div class="btn-row" style="margin-top:14px;">
+                <button class="btn btn-ghost" onclick="leaveRoom()">退出房间</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果弹窗 -->
+    <div class="result-overlay hidden" id="result-overlay">
+        <div class="result-modal">
+            <div id="result-title" class="result-title"></div>
+            <div class="btn-row">
+                <button class="btn btn-restart" id="rematch-btn" onclick="rematch()">再来一局</button>
+                <button class="btn btn-ghost" onclick="leaveRoom()">返回菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重连遮罩 -->
+    <div class="reconnect-overlay hidden" id="reconnect-overlay">
+        <div class="reconnect-box">
+            <div class="spinner"></div>
+            <div id="reconnect-text">连接中断，正在重连…</div>
+        </div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+
+    <script>
+        // ============================================================
+        // PeerJS 联机层：固定 ID 建房 + DataConnection + 全量快照重连
+        // 房主为对局玩家1，支持 1 名对局玩家 + 多名观战者
+        // 昵称经 metadata 传递；观战者只读快照、不可落子
+        // ============================================================
+        const ROOM_PREFIX = 'grid-';
+        const RECONNECT_MS = 10000; // 断线重连窗口：10 秒
+        const PEER_OPTIONS = {
+            debug: 0,
+            config: {
+                iceCandidatePoolSize: 10,
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun.cloudflare.com:3478' }
+                ]
+            }
+        };
+
+        // ------------------------------------------------------------ 游戏引擎（原样保留，未改动）
+        const WIN_LINES = [
+            [0,1,2],[3,4,5],[6,7,8],
+            [0,3,6],[1,4,7],[2,5,8],
+            [0,4,8],[2,4,6]
+        ];
+        const Player = { NONE:0, PLAYER1:1, PLAYER2:2 };
+        const GameState = { PLAYING:0, P1_LINE:1, P2_LINE:2, P1_COUNT:3, P2_COUNT:4 };
+        const WinState = { NONE:0, P1_LINE:1, P2_LINE:2, P1_COUNT:3, P2_COUNT:4 };
+
+        class NineGridGame {
+            constructor() { this.reset(); }
+            reset() {
+                this.bigGrid = new Array(9).fill(Player.NONE);
+                this.smallGrids = Array.from({length:9}, () => new Array(9).fill(Player.NONE));
+                this.currentTurn = Player.PLAYER1;
+                this.lastMove = -1;
+                this.turnCount = 0;
+                this.gameState = GameState.PLAYING;
+                this.winState = WinState.NONE;
+                this.validActions = new Array(81).fill(1);
+            }
+            updateValidActions() {
+                if (this.lastMove === -1) { this.validActions = new Array(81).fill(1); return; }
+                this.validActions = new Array(81).fill(0);
+                const targetBig = this.lastMove % 9;
+                if (this.bigGrid[targetBig] === Player.NONE) {
+                    for (let i=0;i<9;i++) if (this.smallGrids[targetBig][i] === Player.NONE) this.validActions[targetBig*9+i] = 1;
+                } else {
+                    for (let i=0;i<81;i++) {
+                        const big = Math.floor(i/9), small = i%9;
+                        if (this.bigGrid[big] === Player.NONE && this.smallGrids[big][small] === Player.NONE) this.validActions[i] = 1;
+                    }
+                }
+            }
+            isValidMove(b,s) { return this.validActions[b*9+s] === 1; }
+            _smallOwner(b) {
+                const grid = this.smallGrids[b];
+                for (const p of [Player.PLAYER1, Player.PLAYER2]) {
+                    for (const line of WIN_LINES) {
+                        if (line.every(i => grid[i] === p)) {
+                            this.gameState = p===Player.PLAYER1 ? GameState.P1_LINE : GameState.P2_LINE;
+                            return p;
+                        }
+                    }
+                }
+                if (grid.every(c => c !== Player.NONE)) {
+                    const p1 = grid.filter(c=>c===Player.PLAYER1).length;
+                    const p2 = grid.filter(c=>c===Player.PLAYER2).length;
+                    if (p1>p2) { this.gameState = GameState.P1_COUNT; return Player.PLAYER1; }
+                    if (p2>p1) { this.gameState = GameState.P2_COUNT; return Player.PLAYER2; }
+                }
+                return Player.NONE;
+            }
+            step(b,s) {
+                this.gameState = GameState.PLAYING;
+                if (!this.isValidMove(b,s)) throw new Error('invalid move');
+                this.smallGrids[b][s] = this.currentTurn;
+                const owner = this._smallOwner(b);
+                if (owner !== Player.NONE) this.bigGrid[b] = owner;
+                this.lastMove = 9*b + s;
+                this.turnCount++;
+                this.updateValidActions();
+                this._checkEnd();
+                if (this.winState === WinState.NONE) this.currentTurn = this.currentTurn===Player.PLAYER1 ? Player.PLAYER2 : Player.PLAYER1;
+            }
+            _checkEnd() {
+                for (const p of [Player.PLAYER1, Player.PLAYER2]) {
+                    for (const line of WIN_LINES) {
+                        if (line.every(i => this.bigGrid[i] === p)) {
+                            this.winState = p===Player.PLAYER1 ? WinState.P1_LINE : WinState.P2_LINE;
+                            return;
+                        }
+                    }
+                }
+                if (this.bigGrid.every(c => c !== Player.NONE)) {
+                    const p1 = this.bigGrid.filter(c=>c===Player.PLAYER1).length;
+                    const p2 = this.bigGrid.filter(c=>c===Player.PLAYER2).length;
+                    if (p1>p2) this.winState = WinState.P1_COUNT;
+                    else if (p2>p1) this.winState = WinState.P2_COUNT;
+                }
+            }
+        }
+
+        // ------------------------------------------------------------ 联机 / UI 状态
+        let peer = null;              // PeerJS 实例
+        let peerId = null;            // 本机 PeerJS ID
+        let conn = null;              // 客户端到房主的数据通道
+        let isHost = false;           // 本机是否房主（对局玩家1）
+        let roomNumber = '';          // 6 位房间号
+        let hostId = '';              // 主机的完整 PeerJS ID
+        let game = null;
+        let myPlayer = Player.NONE;   // 本机在对局中的角色（PLAYER1 先手/X，PLAYER2 后手/O）；观战者为 NONE
+        let myMode = 'player';        // 'player' | 'spectator'
+        let myName = '';              // 本机昵称
+        let hostName = '玩家 1';      // 房主（创建者）昵称，固定
+        let guestName = '玩家 2';     // 玩家（加入者）昵称，固定
+        let names = { 1:'玩家 1', 2:'玩家 2' }; // 角色→昵称映射（随先后手换边重算）
+        let round = 1;                // 局数：奇数局房主先手，偶数局玩家先手
+        let rematchLock = false;      // 房主防重复"再来一局"
+        let clients = [];             // 房主维护：{ conn, name, mode, isPlayer2 }
+        let inGame = false;
+        let intentionalLeave = false; // 主动离开时抑制重连
+        let reconnecting = false;
+        let reconnectStart = 0;
+        let reconnectTimer = null;
+        let peerWaitTicks = 0;      // 重建后等待 peer open 的轮次
+        let lastHostMessageAt = 0;  // 客户端最近收到主机消息的时间（心跳检测）
+        let heartbeatTimer = null;  // 主机心跳定时器
+        let healthTimer = null;     // 客户端健康检测定时器
+        let toastTimer = null;
+
+        const $ = id => document.getElementById(id);
+        const show = (...ids) => ids.forEach(id => $(id).classList.remove('hidden'));
+        const hide = (...ids) => ids.forEach(id => $(id).classList.add('hidden'));
+
+        function toast(msg) {
+            $('toast').textContent = msg;
+            $('toast').classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => $('toast').classList.add('hidden'), 3200);
+        }
+
+        function getMyName(fallback) {
+            const v = ($('name-input').value || '').replace(/[<>\n]/g, '').trim().slice(0, 12);
+            return v || fallback;
+        }
+
+        // ------------------------------------------------------------ 先后手换边
+        // 奇数局房主先手(PLAYER1)，偶数局玩家先手(PLAYER1)；每局交换
+        function hostFirst() { return round % 2 === 1; }
+
+        // 依据当前 round 重算"本机角色 myPlayer"和"角色→昵称 names"
+        function recomputeRoles() {
+            const first = hostFirst(); // true=房主先手
+            // 角色1=先手，角色2=后手
+            names[1] = first ? hostName : guestName;
+            names[2] = first ? guestName : hostName;
+            if (myMode === 'spectator') {
+                myPlayer = Player.NONE;
+            } else if (isHost) {
+                myPlayer = first ? Player.PLAYER1 : Player.PLAYER2;
+            } else {
+                myPlayer = first ? Player.PLAYER2 : Player.PLAYER1;
+            }
+        }
+
+        // 从收到的消息里同步对端身份（昵称+局数），再重算角色
+        function applyIdentity(data) {
+            if (data.hostName) hostName = data.hostName;
+            if (data.guestName) guestName = data.guestName;
+            if (typeof data.round === 'number') round = data.round;
+            recomputeRoles();
+        }
+
+        // 随消息下发的身份字段：局数 + 双方昵称
+        function identityFields() {
+            return { round: round, hostName: hostName, guestName: guestName };
+        }
+
+        function resetToMenuUI() {
+            hide('create-panel','join-panel','game-container','result-overlay','reconnect-overlay');
+            show('menu');
+        }
+
+        // ------------------------------------------------------------ 建房 / 加入
+        function showCreate() { createRoom(); }
+
+        function createRoom(retry = false) {
+            if (typeof Peer === 'undefined') { toast('联机组件加载失败，请检查网络后刷新'); backToMenu(); return; }
+            myName = getMyName('房主');
+            hostName = myName; guestName = '玩家 2'; round = 1;
+            recomputeRoles();
+            if (!retry) roomNumber = String(Math.floor(100000 + Math.random()*900000));
+            const fullId = ROOM_PREFIX + roomNumber;
+            hostId = fullId;
+            setCreateStatus('正在创建房间…');
+            show('create-panel'); hide('menu','join-panel');
+            clients = [];
+            cleanupConnection();
+            intentionalLeave = false;
+
+            peer = new Peer(fullId, PEER_OPTIONS);
+            window._peer = peer;
+            peer.on('open', id => {
+                if (intentionalLeave) return;
+                peerId = id;
+                isHost = true;
+                myMode = 'player';
+                recomputeRoles();
+                game = new NineGridGame();
+                $('room-number').textContent = roomNumber;
+                setCreateStatus('房间已创建，等待玩家加入…');
+                $('copy-btn').disabled = false;
+                peer.on('connection', c => onHostConnection(c));
+            });
+            peer.on('error', err => {
+                if (err.type === 'unavailable-id') {
+                    setCreateStatus('房间号冲突，自动换号…');
+                    setTimeout(() => createRoom(true), 200);
+                } else if (err.type === 'peer-unavailable') {
+                    toast('房间号不可用，请重试');
+                } else {
+                    toast('建房失败：' + err.type);
+                }
+            });
+            peer.on('disconnected', () => {
+                if (intentionalLeave) return;
+                setCreateStatus('信令断开，正在恢复…');
+                try { peer.reconnect(); } catch (e) {}
+            });
+        }
+
+        function setCreateStatus(text) {
+            $('create-status').textContent = text;
+        }
+
+        function showJoin() {
+            hide('menu','create-panel'); show('join-panel');
+            $('room-input').value = '';
+            $('join-hint').textContent = '加入后会自动与房主建立直连。';
+            $('join-btn').disabled = false;
+            $('spectate-btn').disabled = false;
+        }
+
+        function doJoin(mode) {
+            const num = $('room-input').value.trim();
+            if (!/^\d{6}$/.test(num)) { toast('请输入 6 位房间号'); return; }
+            roomNumber = num;
+            hostId = ROOM_PREFIX + num;
+            myMode = (mode === 'spectator') ? 'spectator' : 'player';
+            myName = getMyName(myMode === 'spectator' ? '观众' : '玩家');
+            guestName = myName; hostName = '玩家 1'; round = 1;
+            recomputeRoles();
+            $('join-btn').disabled = true;
+            $('spectate-btn').disabled = true;
+            $('join-hint').textContent = '正在连接房主…';
+            cleanupConnection();
+            intentionalLeave = false;
+
+            createClientPeer();
+        }
+
+        // 创建客户端 Peer（首次加入与重连共用）
+        function createClientPeer() {
+            peer = new Peer(undefined, PEER_OPTIONS);
+            window._peer = peer;
+            peer.on('open', id => {
+                if (intentionalLeave) return;
+                peerId = id;
+                isHost = false;
+                recomputeRoles();
+                connectToHost(reconnecting);
+            });
+            peer.on('error', err => {
+                if (err.type === 'peer-unavailable') {
+                    if (!reconnecting) {
+                        $('join-hint').textContent = '房间不存在或房主未在线';
+                        toast('房间不存在或房主未在线');
+                        $('join-btn').disabled = false;
+                        $('spectate-btn').disabled = false;
+                    }
+                }
+            });
+            peer.on('disconnected', () => {
+                if (intentionalLeave) return;
+                try { peer.reconnect(); } catch (e) {}
+            });
+        }
+
+        function connectToHost(isReconnect) {
+            if (!peer || !peer.open) return;
+            if (conn && conn.open && !isReconnect) return;
+            if (conn) { try { conn.close(); } catch (e) {} }
+            const c = peer.connect(hostId, {
+                serialization: 'json', reliable: true,
+                metadata: { name: myName, mode: myMode }
+            });
+            conn = c;
+            attachClientConn(c);
+        }
+
+        // ------------------------------------------------------------ 房主：多连接管理
+        function onHostConnection(c) {
+            const meta = c.metadata || {};
+            let name = (typeof meta.name === 'string') ? meta.name.trim().slice(0,12) : '';
+            if (!name) name = '玩家';
+            const wantSpectator = meta.mode === 'spectator';
+            const client = { conn: c, name: name, mode: wantSpectator ? 'spectator' : 'player', isPlayer2: false };
+
+            c.on('open', () => {
+                if (intentionalLeave) { try { c.close(); } catch (e) {} return; }
+                const hasPlayer2 = clients.some(cl => cl.isPlayer2);
+
+                if (!wantSpectator && reconnecting) {
+                    // 对局玩家2掉线后重连：恢复身份并下发全量快照
+                    client.isPlayer2 = true; client.mode = 'player';
+                    guestName = name; recomputeRoles();
+                    clients.push(client);
+                    attachHostClient(c, client);
+                    sendTo(c, Object.assign(
+                        { type:'sync', state: inGame ? snapshotState() : null }, identityFields()));
+                    reconnectSuccess();
+                    toast(name + ' 已重新连接');
+                } else if (!wantSpectator && !hasPlayer2) {
+                    // 首位对局玩家加入 → 开局
+                    client.isPlayer2 = true; client.mode = 'player';
+                    guestName = name; recomputeRoles();
+                    clients.push(client);
+                    attachHostClient(c, client);
+                    if (!inGame) startGame();
+                    broadcast(Object.assign(
+                        { type:'start', state: snapshotState() }, identityFields()));
+                    toast(name + ' 加入了对局');
+                } else {
+                    // 观战者，或房间已有对局玩家 → 转为观战
+                    client.mode = 'spectator';
+                    clients.push(client);
+                    attachHostClient(c, client);
+                    sendTo(c, Object.assign({
+                        type:'welcome', inGame: inGame, state: inGame ? snapshotState() : null,
+                        forceSpectator: !wantSpectator
+                    }, identityFields()));
+                    if (!wantSpectator) toast(name + ' 以观战身份加入（房间已有一名玩家）');
+                    else toast(name + ' 加入观战');
+                }
+            });
+        }
+
+        function attachHostClient(c, client) {
+            c.on('data', d => handleData(d, client));
+            c.on('close', () => {
+                const i = clients.indexOf(client);
+                if (i >= 0) clients.splice(i, 1);
+                if (client.isPlayer2 && inGame && !intentionalLeave) {
+                    // 对局玩家2断开：房主保留棋局等待其 10 秒内重连
+                    beginReconnect();
+                    toast(names[2] + ' 断开连接，等待重连…');
+                }
+            });
+            c.on('error', () => {
+                const i = clients.indexOf(client);
+                if (i >= 0) clients.splice(i, 1);
+            });
+        }
+
+        // 客户端：与房主的单条连接
+        function attachClientConn(c) {
+            c.on('open', () => {
+                conn = c;
+                $('join-hint').textContent = '已连接，等待房主…';
+            });
+            c.on('data', d => handleData(d, null));
+            c.on('close', () => handleConnClosed());
+            c.on('error', () => handleConnClosed());
+        }
+
+        // ------------------------------------------------------------ 消息处理
+        function handleData(data, from) {
+            if (!data || !data.type) return;
+            if (!isHost) lastHostMessageAt = Date.now(); // 客户端收到主机任何消息都视为存活
+            if (data.type === 'heartbeat') return;
+
+            if (isHost) {
+                // 房主是对局裁判：接收玩家的走子/重开，校验后转发给所有连接（含观战者）
+                const guestRole = hostFirst() ? Player.PLAYER2 : Player.PLAYER1; // 本局玩家的角色
+                if (data.type === 'move' && inGame) {
+                    if (typeof data.n !== 'number' || data.n !== game.turnCount + 1) return;
+                    if (game.currentTurn !== guestRole) return;
+                    try { game.step(data.b, data.s); } catch (e) { return; }
+                    renderBoard(); updateGameInfo();
+                    broadcast({ type:'move', b:data.b, s:data.s, n:data.n });
+                    if (game.winState !== WinState.NONE) showResult();
+                } else if (data.type === 'rematch_req' && inGame) {
+                    startRematch();
+                }
+                return;
+            }
+
+            // ---- 客户端 / 观战者 ----
+            if (data.type === 'start') {
+                applyIdentity(data);
+                if (data.forceSpectator) { myMode = 'spectator'; recomputeRoles(); }
+                if (!inGame) startGame();
+                if (data.state) applyState(data.state);
+                renderBoard(); updateGameInfo();
+                if (game.winState !== WinState.NONE) showResult();
+            } else if (data.type === 'welcome') {
+                applyIdentity(data);
+                if (data.forceSpectator) { myMode = 'spectator'; recomputeRoles(); }
+                if (data.inGame && data.state) {
+                    if (!inGame) startGame();
+                    applyState(data.state);
+                    renderBoard(); updateGameInfo();
+                    if (game.winState !== WinState.NONE) showResult();
+                } else {
+                    $('join-hint').textContent = myMode === 'spectator'
+                        ? '已进入观战席位，等待对局开始…' : '已连接，等待房主开始…';
+                }
+                if (reconnecting) reconnectSuccess();
+            } else if (data.type === 'move') {
+                // 走子同步：逻辑不变，仍靠步数 n 校验顺序与归属
+                if (!inGame || game.winState !== WinState.NONE) return;
+                if (typeof data.n !== 'number' || data.n !== game.turnCount + 1) return;
+                if (game.currentTurn === myPlayer) return;
+                try { game.step(data.b, data.s); } catch (e) { return; }
+                renderBoard(); updateGameInfo();
+                if (game.winState !== WinState.NONE) showResult();
+            } else if (data.type === 'reset' || data.type === 'rematch') {
+                if (!inGame) return;
+                if (data.type === 'rematch') applyIdentity(data); // 换边：同步局数并重算角色
+                game.reset();
+                hide('result-overlay');
+                renderBoard(); updateGameInfo(); updateRoleBadge();
+                if (data.type === 'rematch') {
+                    toast(hostFirst() ? '新一局 · 房主先手' : '新一局 · 玩家先手');
+                }
+            } else if (data.type === 'sync') {
+                // 重连续局：用主机的全量状态覆盖本地
+                applyIdentity(data);
+                if (!inGame) startGame();
+                if (data.state) applyState(data.state);
+                renderBoard(); updateGameInfo();
+                if (game.winState !== WinState.NONE) showResult();
+                if (reconnecting) reconnectSuccess();
+            }
+        }
+
+        function sendTo(c, packet) {
+            try { if (c && c.open) c.send(packet); } catch (e) {}
+        }
+
+        function send(packet) {
+            if (isHost) { clients.forEach(cl => sendTo(cl.conn, packet)); }
+            else sendTo(conn, packet);
+        }
+
+        function broadcast(packet, exclude) {
+            if (!isHost) return;
+            clients.forEach(cl => { if (cl.conn !== exclude) sendTo(cl.conn, packet); });
+        }
+
+        function snapshotState() {
+            return {
+                bigGrid: game.bigGrid.slice(),
+                smallGrids: game.smallGrids.map(g => g.slice()),
+                currentTurn: game.currentTurn,
+                lastMove: game.lastMove,
+                turnCount: game.turnCount,
+                winState: game.winState,
+                gameState: game.gameState
+            };
+        }
+
+        function applyState(s) {
+            game.bigGrid = s.bigGrid.slice();
+            game.smallGrids = s.smallGrids.map(g => g.slice());
+            game.currentTurn = s.currentTurn;
+            game.lastMove = s.lastMove;
+            game.turnCount = s.turnCount;
+            game.winState = s.winState;
+            game.gameState = s.gameState;
+            game.updateValidActions();
+        }
+
+        // ------------------------------------------------------------ 断线重连（10 秒窗口）
+        function handleConnClosed() {
+            if (intentionalLeave || !inGame) return;
+            beginReconnect();
+        }
+
+        function beginReconnect() {
+            if (reconnecting) return;
+            reconnecting = true;
+            reconnectStart = Date.now();
+            peerWaitTicks = 0;
+            if (!isHost) stopHeartbeat(); // 房主保持心跳，避免观战者误判掉线
+            show('reconnect-overlay');
+            tickReconnect();
+        }
+
+        function tickReconnect() {
+            if (!reconnecting || intentionalLeave) return;
+            const elapsed = Date.now() - reconnectStart;
+            if (elapsed >= RECONNECT_MS) { reconnectFailed(); return; }
+            const left = Math.max(1, Math.ceil((RECONNECT_MS - elapsed)/1000));
+            $('reconnect-text').textContent = (isHost ? '等待玩家重新连接… ' : '连接中断，正在重连… ') + left + ' 秒后放弃';
+
+            if (!isHost) {
+                // 客户端重连：peer 不存在则重建；存在但迟迟不 open（已 destroy）则等待若干轮后重建
+                if (!peer) {
+                    conn = null; peerWaitTicks = 0;
+                    createClientPeer();
+                } else if (peer.open) {
+                    peerWaitTicks = 0;
+                    if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
+                    connectToHost(true);
+                } else {
+                    peerWaitTicks++;
+                    if (peerWaitTicks >= 4) {
+                        try { peer.destroy(); } catch (e) {}
+                        peer = null; conn = null;
+                    }
+                }
+            }
+            reconnectTimer = setTimeout(tickReconnect, 900);
+        }
+
+        function reconnectSuccess() {
+            clearTimeout(reconnectTimer);
+            reconnecting = false;
+            peerWaitTicks = 0;
+            lastHostMessageAt = Date.now();
+            hide('reconnect-overlay');
+            startHeartbeat();
+            if (game) renderBoard();
+            toast('已重新连接');
+        }
+
+        function reconnectFailed() {
+            clearTimeout(reconnectTimer);
+            reconnecting = false;
+            hide('reconnect-overlay');
+            toast('重连失败，已返回主菜单');
+            leaveRoom();
+        }
+
+        // ------------------------------------------------------------ 离开房间
+        function cleanupConnection() {
+            intentionalLeave = true;
+            if (conn) { try { conn.close(); } catch (e) {} }
+            conn = null;
+            clients.forEach(cl => { try { cl.conn.close(); } catch (e) {} });
+            clients = [];
+            if (peer) { try { peer.destroy(); } catch (e) {} }
+            peer = null;
+            window._peer = null;
+        }
+
+        function leaveRoom() {
+            intentionalLeave = true;
+            clearTimeout(reconnectTimer);
+            stopHeartbeat();
+            reconnecting = false;
+            cleanupConnection();
+            isHost = false; myPlayer = Player.NONE; myMode = 'player'; inGame = false; game = null;
+            roomNumber = ''; hostId = ''; round = 1; rematchLock = false;
+            hostName = '玩家 1'; guestName = '玩家 2';
+            names = { 1:'玩家 1', 2:'玩家 2' };
+            resetToMenuUI();
+        }
+        function backToMenu() { leaveRoom(); }
+
+        // ------------------------------------------------------------ 心跳与健康检测
+        function startHeartbeat() {
+            stopHeartbeat();
+            if (isHost) {
+                // 主机每 2 秒向所有连接广播心跳
+                heartbeatTimer = setInterval(() => {
+                    if (!intentionalLeave) send({ type:'heartbeat', t:Date.now() });
+                }, 2000);
+            } else {
+                lastHostMessageAt = Date.now();
+                // 客户端每 2 秒检测：超过 5 秒无主机消息则判定掉线
+                healthTimer = setInterval(() => {
+                    if (intentionalLeave || reconnecting || !inGame) return;
+                    if (Date.now() - lastHostMessageAt > 5000) beginReconnect();
+                }, 2000);
+            }
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
+            if (healthTimer) clearInterval(healthTimer);
+            heartbeatTimer = healthTimer = null;
+        }
+
+        // ------------------------------------------------------------ 对局
+        function updateRoleBadge() {
+            const b = $('role-badge');
+            if (myMode === 'spectator') { b.className = 'role-badge role-spec'; b.textContent = myName + '（观战中）'; return; }
+            const first = myPlayer === Player.PLAYER1;
+            b.className = first ? 'role-badge role-p1' : 'role-badge role-p2';
+            const who = isHost ? '房主' : '玩家';
+            b.textContent = myName + '（' + who + '·' + (first ? '先手' : '后手') + '）';
+        }
+
+        function startGame() {
+            if (inGame) return;
+            inGame = true;
+            if (!game) game = new NineGridGame();
+            hide('menu','create-panel','join-panel','result-overlay','reconnect-overlay');
+            show('game-container');
+            startHeartbeat();
+            updateRoleBadge();
+            renderBoard(); updateGameInfo();
+        }
+
+        function renderBoard() {
+            const board = $('game-board');
+            board.innerHTML = '';
+            const highlightBig = game.lastMove !== -1 ? game.lastMove % 9 : -1;
+            const lastBig = game.lastMove !== -1 ? Math.floor(game.lastMove/9) : -1;
+            const lastSmall = game.lastMove !== -1 ? game.lastMove % 9 : -1;
+            const spectator = myMode === 'spectator';
+            for (let b=0;b<9;b++) {
+                const sg = document.createElement('div');
+                sg.className = 'small-grid';
+                if (game.bigGrid[b]===Player.PLAYER1) sg.classList.add('owned-p1');
+                else if (game.bigGrid[b]===Player.PLAYER2) sg.classList.add('owned-p2');
+                if (highlightBig===b && game.bigGrid[b]===Player.NONE) sg.classList.add('highlighted');
+                for (let s=0;s<9;s++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (game.smallGrids[b][s]===Player.PLAYER1) { cell.textContent='X'; cell.classList.add('p1'); }
+                    else if (game.smallGrids[b][s]===Player.PLAYER2) { cell.textContent='O'; cell.classList.add('p2'); }
+
+                    const myTurnNow = game.currentTurn===myPlayer && game.winState===WinState.NONE && game.bigGrid[b]===Player.NONE && !reconnecting;
+                    if (!spectator && game.bigGrid[b]===Player.NONE && game.winState===WinState.NONE) {
+                        if (game.isValidMove(b,s) && myTurnNow) {
+                            cell.classList.add('allowed');
+                            cell.onclick = () => handleCellClick(b,s);
+                        } else {
+                            cell.classList.add('invalid');
+                        }
+                    } else if (spectator) {
+                        cell.style.cursor = 'default';
+                    }
+                    if (b===lastBig && s===lastSmall) cell.classList.add('last-move');
+                    sg.appendChild(cell);
+                }
+                board.appendChild(sg);
+            }
+        }
+
+        function updateGameInfo() {
+            const ind = $('current-player'), label = $('player-label');
+            if (game.currentTurn===Player.PLAYER1) {
+                ind.className = 'player-indicator player1'; label.textContent = names[1];
+            } else {
+                ind.className = 'player-indicator player2'; label.textContent = names[2];
+            }
+            $('turn-count').textContent = game.turnCount;
+            if (reconnecting) {
+                $('turn-hint').textContent = '连接中断，等待重连…';
+            } else if (game.winState !== WinState.NONE) {
+                $('turn-hint').textContent = '对局结束';
+            } else if (myMode === 'spectator') {
+                $('turn-hint').textContent = '观战中 · ' + names[1] + ' 与 ' + names[2] + ' 对局';
+            } else if (game.currentTurn === myPlayer) {
+                $('turn-hint').textContent = '轮到你落子了';
+            } else {
+                $('turn-hint').textContent = '等待 ' + (game.currentTurn===Player.PLAYER1 ? names[1] : names[2]) + ' 落子…';
+            }
+        }
+
+        function handleCellClick(b,s) {
+            if (!inGame || reconnecting || myMode === 'spectator' || game.winState !== WinState.NONE) return;
+            if (game.currentTurn !== myPlayer || !game.isValidMove(b,s)) return;
+            game.step(b,s);
+            renderBoard(); updateGameInfo();
+            send({ type:'move', b, s, n: game.turnCount });
+            if (game.winState !== WinState.NONE) showResult();
+        }
+
+        function showResult() {
+            let winner = 0;
+            if ([WinState.P1_LINE, WinState.P1_COUNT].includes(game.winState)) winner = 1;
+            else if ([WinState.P2_LINE, WinState.P2_COUNT].includes(game.winState)) winner = 2;
+            const title = $('result-title');
+            if (winner === 0) { title.textContent = '平局！'; title.className = 'result-title result-draw'; }
+            else if (myMode === 'spectator') { title.textContent = names[winner] + ' 获胜！'; title.className = 'result-title result-win'; }
+            else if (winner === myPlayer) { title.textContent = '你赢了！'; title.className = 'result-title result-win'; }
+            else { title.textContent = '你输了'; title.className = 'result-title result-lose'; }
+            $('rematch-btn').classList.toggle('hidden', myMode === 'spectator');
+            show('result-overlay');
+        }
+
+        function rematch() {
+            if (myMode === 'spectator') return;
+            hide('result-overlay');
+            if (isHost) {
+                startRematch(); // 房主统一推进局数并广播
+            } else {
+                send({ type:'rematch_req' }); // 玩家请求房主发起新局
+            }
+        }
+
+        // 房主发起"再来一局"：局数+1 → 交换先后手 → 广播
+        function startRematch() {
+            if (rematchLock || !inGame) return;
+            rematchLock = true;
+            round++;
+            recomputeRoles();
+            game.reset();
+            renderBoard(); updateGameInfo(); updateRoleBadge();
+            broadcast(Object.assign({ type:'rematch' }, identityFields()));
+            setTimeout(() => { rematchLock = false; }, 500);
+        }
+
+        // ------------------------------------------------------------ 复制房间号
+        async function copyRoomNumber() {
+            const num = $('room-number').textContent.trim();
+            if (!/^\d{6}$/.test(num)) return;
+            try {
+                await navigator.clipboard.writeText(num);
+                toast('房间号已复制：' + num);
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = num; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); toast('房间号已复制：' + num); }
+                catch (_) { toast('复制失败，请手动记下房间号：' + num); }
+                ta.remove();
+            }
+        }
+
+        // 普通 script 顶层函数已全局可用，这里显式挂载确保内联 onclick 可调用
+        Object.assign(window, {
+            showCreate, showJoin, doJoin, leaveRoom, backToMenu,
+            rematch, copyRoomNumber
+        });
+
+        show('menu');
+    </script>
+</body>
+</html>

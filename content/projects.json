@@ -1,5 +1,14 @@
 [
   {
+    "title": "九宫格 · GUET 版",
+    "type": "游戏",
+    "description": "经典九宫格的嵌套版——支持双人联机对战、纯前端实现无需安装，打开即玩。",
+    "tags": ["JavaScript", "Canvas", "PeerJS"],
+    "author": "xinshoujiajia",
+    "cover": "/images/works/nine-cover.jpg",
+    "link": "/works/nine"
+  },
+  {
     "title": "贪吃蛇 · GUET 版",
     "type": "游戏",
     "description": "经典贪吃蛇游戏的现代化重制——支持双人联机对战、实时排行榜、自定义皮肤系统。纯前端实现无需安装，打开即玩。",
